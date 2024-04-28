@@ -43,6 +43,9 @@ class Game:
     # ... (other methods and initializations)
 
     def train(self, num_episodes):
+        ai_wins = 0
+        adversarial_ai_wins = 0
+        ties = 0
         for episode in range(num_episodes):
             self.reset_game()
             while not self.is_game_over():
@@ -56,7 +59,16 @@ class Game:
                 self.ai_player.learn(state, action, reward, next_state, done)
             # Log the results of the episode if necessary
             ai_score, adversarial_ai_score = self.calculate_score()
+            if ai_score > adversarial_ai_score:
+                ai_wins += 1
+            elif ai_score < adversarial_ai_score:
+                adversarial_ai_wins += 1
+            else:
+                ties += 1
             print(f"Episode {episode + 1}: AI score: {ai_score}, Adversarial AI score: {adversarial_ai_score}")
+        print(f"AI Win Rate: {ai_wins / num_episodes:.2%}")
+        print(f"Adversarial AI Win Rate: {adversarial_ai_wins / num_episodes:.2%}")
+        print(f"Ties: {ties / num_episodes:.2%}")
 
     def reset_game(self):
         self.current_turn = 0
