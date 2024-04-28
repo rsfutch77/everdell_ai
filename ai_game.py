@@ -129,6 +129,7 @@ class Game:
 import numpy as np
 import random
 from collections import defaultdict
+import pickle
 
 class ReinforcementLearningAgent:
     def __init__(self, alpha=0.1, gamma=0.9, epsilon=0.1):
@@ -155,6 +156,22 @@ class ReinforcementLearningAgent:
         new_value = (1 - self.alpha) * old_value + self.alpha * (reward + self.gamma * next_max)
         self.q_table[state][action] = new_value
 
+    def save_model(self, filename):
+        with open(filename, 'wb') as file:
+            pickle.dump({
+                'q_table': self.q_table,
+                'alpha': self.alpha,
+                'gamma': self.gamma,
+                'epsilon': self.epsilon
+            }, file)
+
+    def load_model(self, filename):
+        with open(filename, 'rb') as file:
+            data = pickle.load(file)
+            self.q_table = data['q_table']
+            self.alpha = data['alpha']
+            self.gamma = data['gamma']
+            self.epsilon = data['epsilon']
 
     def get_reward(self, game_state, action, done):
         # Reward function that gives a small reward for playing a high point value card
