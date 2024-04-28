@@ -5,7 +5,7 @@ class Card:
 
 class AIPlayer(ReinforcementLearningAgent):
     def select_card(self, hand, game_state):
-        state = self.get_numerical_state_representation(game_state)
+        state = game_state.get_numerical_game_state()
         action = self.choose_action(state)
         return action
 
@@ -39,6 +39,8 @@ class Game:
         self.ai_played_cards = []
         self.adversarial_ai_played_cards = []
         self.played_cards = []
+class Game:
+    # ... (other methods and initializations)
 
     def play_game(self):
         for _ in range(self.turns):
@@ -46,9 +48,10 @@ class Game:
             # After each turn, update the AI's knowledge
             state = self.ai_player.get_numerical_state_representation(self.get_game_state())
             action = self.ai_player.select_card(self.deck, state)
-            reward = self.ai_player.get_reward(self.get_game_state())
-            next_state = self.ai_player.get_numerical_state_representation(self.get_game_state())
             done = self.current_turn >= self.turns
+            reward = self.ai_player.get_reward(self.get_game_state(), action, done)
+            reward = self.ai_player.get_reward(self.get_game_state(), action, done)
+            next_state = self.ai_player.get_numerical_state_representation(self.get_game_state())
             self.ai_player.learn(state, action, reward, next_state, done)
         for _ in range(self.turns):
             self.play_turn()
@@ -95,7 +98,8 @@ class Game:
     def calculate_score(self):
         ai_score = sum(card.points for card in self.ai_played_cards)
         adversarial_ai_score = sum(card.points for card in self.adversarial_ai_played_cards)
-        return ai_score, adversarial_ai_scoreimport numpy as np
+        return ai_score, adversarial_ai_score
+import numpy as np
 import random
 from collections import defaultdict
 
@@ -124,15 +128,16 @@ class ReinforcementLearningAgent:
         new_value = (1 - self.alpha) * old_value + self.alpha * (reward + self.gamma * next_max)
         self.q_table[state][action] = new_value
 
-    def get_numerical_state_representation(self, game_state):
-        # Convert the game state into a numerical representation for the AI
-        # This should be a unique identifier for each state
-        # ...
-        return numerical_state
 
-    def get_reward(self, game_state):
-        # Define the reward function
-        # This could be the difference in score between turns, for example
-        # ...
+    def get_reward(self, game_state, action, done):
+        # Reward function that gives a small reward for playing a high point value card
+        # and a larger reward for winning the game.
+        reward = action.points * 0.1  # Small reward for the card's point value
+        if done:
+            ai_score, adversarial_ai_score = game_state.calculate_score()
+            if ai_score > adversarial_ai_score:
+                reward += 1.0  # Large reward for winning
+            elif ai_score == adversarial_ai_score:
+                reward += 0.5  # Smaller reward for a tie
         return reward
 

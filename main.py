@@ -1,4 +1,4 @@
-from ai_game import Card, AIPlayer, AdversarialAIPlayer, Game as AIGame
+from ai_game import Card, AIPlayer, AdversarialAIPlayer, Game as AIGame, ReinforcementLearningAgent
 
 cards = [
     ("Card1", 3),
