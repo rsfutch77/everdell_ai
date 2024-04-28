@@ -42,17 +42,32 @@ class Game:
 class Game:
     # ... (other methods and initializations)
 
-    def play_game(self):
-        for _ in range(self.turns):
-            self.play_turn()
-            # After each turn, update the AI's knowledge
-            state = self.ai_player.get_numerical_state_representation(self.get_game_state())
-            action = self.ai_player.select_card(self.deck, state)
-            done = self.current_turn >= self.turns
-            reward = self.ai_player.get_reward(self.get_game_state(), action, done)
-            reward = self.ai_player.get_reward(self.get_game_state(), action, done)
-            next_state = self.ai_player.get_numerical_state_representation(self.get_game_state())
-            self.ai_player.learn(state, action, reward, next_state, done)
+    def train(self, num_episodes):
+        for episode in range(num_episodes):
+            self.reset_game()
+            while not self.is_game_over():
+                self.play_turn()
+                # After each turn, update the AI's knowledge
+                state = self.get_numerical_game_state()
+                action = self.ai_player.select_card(self.deck, state)
+                done = self.is_game_over()
+                reward = self.ai_player.get_reward(self.get_game_state(), action, done)
+                next_state = self.get_numerical_game_state()
+                self.ai_player.learn(state, action, reward, next_state, done)
+            # Log the results of the episode if necessary
+            ai_score, adversarial_ai_score = self.calculate_score()
+            print(f"Episode {episode + 1}: AI score: {ai_score}, Adversarial AI score: {adversarial_ai_score}")
+
+    def reset_game(self):
+        self.current_turn = 0
+        self.ai_played_cards = []
+        self.adversarial_ai_played_cards = []
+        self.played_cards = []
+        # Shuffle the deck or reset it to its initial state
+        random.shuffle(self.deck)
+
+    def is_game_over(self):
+        return self.current_turn >= self.turns
         for _ in range(self.turns):
             self.play_turn()
 
