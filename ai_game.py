@@ -49,6 +49,21 @@ class Game:
         for _ in range(self.turns):
             self.play_turn()
 
+    def get_numerical_game_state(self):
+        # Convert the game state into a numerical representation for the AI
+        state_representation = []
+        # Include the current turn as a feature
+        state_representation.append(self.current_turn)
+        # Include the points of cards in hand as features
+        hand_points = [card.points for card in self.deck]
+        state_representation.extend(hand_points)
+        # Include the points of played cards as features
+        played_points = [card.points for card in self.played_cards]
+        state_representation.extend(played_points)
+        # Normalize or scale the features if necessary
+        # ...
+        return state_representation
+
     def play_turn(self):
         print(f"Turn {self.current_turn + 1}:")
         ai_card_to_play = None
@@ -56,9 +71,9 @@ class Game:
         if not self.deck:
             print("The deck is empty. The game is over.")
             return
-        while ai_card_to_play is None or adversarial_ai_card_to_play is None or ai_card_to_play == adversarial_ai_card_to_play:
-            ai_card_to_play = self.ai_player.select_card(self.deck, self.get_game_state())
-            adversarial_ai_card_to_play = self.adversarial_ai_player.select_card(self.deck, self.get_game_state())
+        while ai_card_to_play is None or adversarial_ai_card_to_play is None:
+            ai_card_to_play = self.ai_player.select_card(self.deck, self.get_numerical_game_state())
+            adversarial_ai_card_to_play = self.adversarial_ai_player.select_card(self.deck, self.get_numerical_game_state())
         print(f"AI selected: {ai_card_to_play.name if ai_card_to_play else 'None'}")
         print(f"Adversarial AI selected: {adversarial_ai_card_to_play.name if adversarial_ai_card_to_play else 'None'}")
         if ai_card_to_play in self.deck:
