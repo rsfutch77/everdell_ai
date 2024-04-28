@@ -3,16 +3,11 @@ class Card:
         self.name = name
         self.points = points
 
-class AIPlayer:
+class AIPlayer(ReinforcementLearningAgent):
     def select_card(self, hand, game_state):
-        # Enhanced strategy: play the card with the highest points, considering future turns
-        # For now, this is a placeholder for a more complex strategy
-        # This could be replaced with a strategy that considers potential card combinations and future turns
-        sorted_hand = sorted(hand, key=lambda card: card.points, reverse=True)
-        for card in sorted_hand:
-            if self.can_play_card(card, game_state):
-                return card
-        return None
+        state = self.get_numerical_state_representation(game_state)
+        action = self.choose_action(state)
+        return action
 
     def can_play_card(self, card, game_state):
         # Placeholder for checking if the card can be played
@@ -46,6 +41,15 @@ class Game:
         self.played_cards = []
 
     def play_game(self):
+        for _ in range(self.turns):
+            self.play_turn()
+            # After each turn, update the AI's knowledge
+            state = self.ai_player.get_numerical_state_representation(self.get_game_state())
+            action = self.ai_player.select_card(self.deck, state)
+            reward = self.ai_player.get_reward(self.get_game_state())
+            next_state = self.ai_player.get_numerical_state_representation(self.get_game_state())
+            done = self.current_turn >= self.turns
+            self.ai_player.learn(state, action, reward, next_state, done)
         for _ in range(self.turns):
             self.play_turn()
 
@@ -91,4 +95,44 @@ class Game:
     def calculate_score(self):
         ai_score = sum(card.points for card in self.ai_played_cards)
         adversarial_ai_score = sum(card.points for card in self.adversarial_ai_played_cards)
-        return ai_score, adversarial_ai_score
+        return ai_score, adversarial_ai_scoreimport numpy as np
+import random
+from collections import defaultdict
+
+class ReinforcementLearningAgent:
+    def __init__(self, alpha=0.1, gamma=0.9, epsilon=0.1):
+        self.alpha = alpha  # learning rate
+        self.gamma = gamma  # discount factor
+        self.epsilon = epsilon  # exploration rate
+        self.q_table = defaultdict(lambda: defaultdict(float))
+
+    def choose_action(self, state):
+        if random.uniform(0, 1) < self.epsilon:
+            # Explore: choose a random action
+            return random.choice(list(state))
+        else:
+            # Exploit: choose the best action based on past experience
+            q_values = {action: self.q_table[state][action] for action in state}
+            max_q_value = max(q_values.values())
+            best_actions = [action for action, q in q_values.items() if q == max_q_value]
+            return random.choice(best_actions)
+
+    def learn(self, state, action, reward, next_state, done):
+        # Update Q-value using the Bellman equation
+        old_value = self.q_table[state][action]
+        next_max = max(self.q_table[next_state].values()) if not done else 0
+        new_value = (1 - self.alpha) * old_value + self.alpha * (reward + self.gamma * next_max)
+        self.q_table[state][action] = new_value
+
+    def get_numerical_state_representation(self, game_state):
+        # Convert the game state into a numerical representation for the AI
+        # This should be a unique identifier for each state
+        # ...
+        return numerical_state
+
+    def get_reward(self, game_state):
+        # Define the reward function
+        # This could be the difference in score between turns, for example
+        # ...
+        return reward
+
