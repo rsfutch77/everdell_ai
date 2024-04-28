@@ -1,35 +1,29 @@
+from ai_game import Card, AIPlayer, AdversarialAIPlayer, Game as AIGame
+
 cards = [
     ("Card1", 3),
     ("Card2", 2),
     ("Card3", 4),
+    ("Card4", 1),
+    ("Card5", 5),
+    ("Card6", 6),
+    ("Card7", 3),
+    ("Card8", 2),
+    ("Card9", 7),
+    ("Card10", 2),
+    ("Card11", 3),
+    ("Card12", 1),
+    ("Card13", 4),
+    ("Card14", 5),
+    ("Card15", 6),
     # Add more cards...
 ]
 
-class Game:
-    def __init__(self):
-        # Initialize game state
-        pass
-
-    def play_turn(self, player, card):
-        # Simulate playing a card
-        pass
-
-    def calculate_score(self):
-        # Calculate total score
-        pass
-
-class AIPlayer:
-    def select_card(self, game):
-        # Select card based on game state
-        pass
-
-# Main game loop
-game = Game()
+deck = [Card(name, points) for name, points in cards]
 ai_player = AIPlayer()
-
-for _ in range(5):  # 5 turns
-    card_to_play = ai_player.select_card(game)
-    game.play_turn(ai_player, card_to_play)
-
-final_score = game.calculate_score()
-print("Final Score:", final_score)
+adversarial_ai_player = AdversarialAIPlayer()
+game = AIGame(deck, ai_player, adversarial_ai_player)
+game.play_game()
+ai_score, adversarial_ai_score = game.calculate_score()
+print(f"AI score: {ai_score}")
+print(f"Adversarial AI score: {adversarial_ai_score}")
