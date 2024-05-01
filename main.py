@@ -23,7 +23,5 @@ deck = [Card(name, points) for name, points in cards]
 ai_player = AIPlayer()
 adversarial_ai_player = AdversarialAIPlayer()
 game = AIGame(deck, ai_player, adversarial_ai_player)
-game.play_game()
-ai_score, adversarial_ai_score = game.calculate_score()
-print(f"AI score: {ai_score}")
-print(f"Adversarial AI score: {adversarial_ai_score}")
+num_episodes = 1000  # Number of episodes to train the AI
+game.train(num_episodes)
