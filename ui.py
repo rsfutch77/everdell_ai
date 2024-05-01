@@ -8,7 +8,7 @@ def train_model():
     num_episodes = 1000  # Number of episodes to train the AI
     ai_player = ai_game.ReinforcementLearningAgent()
     adversarial_ai_player = ai_game.AdversarialAIPlayer()
-    local_deck = [ai_game.Card(name, points) for name, points in cards]
+    local_deck = [ai_game.Card(name, points, cost) for name, points, cost in cards]
     game = ai_game.Game(local_deck, ai_player, adversarial_ai_player)
     game.train(num_episodes)
     messagebox.showinfo("Training", "Model training complete!")
@@ -21,7 +21,7 @@ def load_and_test_model():
     ai_player.epsilon = 0
     adversarial_ai_player = ai_game.AdversarialAIPlayer()
     local_deck = [ai_game.Card(name, points) for name, points in cards]
-    local_deck = [ai_game.Card(name, points) for name, points in cards]
+    local_deck = [ai_game.Card(name, points, cost) for name, points, cost in cards]
     game = ai_game.Game(local_deck, ai_player, adversarial_ai_player)
     num_episodes = 1000  # Number of episodes for testing
     ai_wins = 0
