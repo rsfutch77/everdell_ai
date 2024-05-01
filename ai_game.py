@@ -147,12 +147,8 @@ class AIPlayer(ReinforcementLearningAgent):
 
 class AdversarialAIPlayer(AIPlayer):
     def select_card(self, hand, game_state):
-        # Adversarial strategy: play the card with the lowest points
-        # This is a placeholder strategy and should be replaced with a more sophisticated one
-        if hand:
-            return min(hand, key=lambda card: card.points)
-        else:
-            return None
+        # Adversarial strategy: play a random card
+        return random.choice(hand) if hand else None
 
 class Game:
 
