@@ -15,8 +15,25 @@ def train_model():
 
 def load_and_test_model():
     # Function to load and test the model
+    ai_player = ai_game.ReinforcementLearningAgent()
     ai_player.load_model('ai_model.pkl')
-    messagebox.showinfo("Testing", "Model loaded and ready for testing!")
+    # Disable exploration to use the model for inference
+    ai_player.epsilon = 0
+    adversarial_ai_player = ai_game.AdversarialAIPlayer()
+    local_deck = [ai_game.Card(name, points) for name, points in cards]
+    local_deck = [ai_game.Card(name, points) for name, points in cards]
+    game = ai_game.Game(local_deck, ai_player, adversarial_ai_player)
+    num_episodes = 1000  # Number of episodes for testing
+    ai_wins = 0
+    for episode in range(num_episodes):
+        game.reset_game()
+        while not game.is_game_over():
+            game.play_turn()
+        ai_score, adversarial_ai_score = game.calculate_score()
+        if ai_score > adversarial_ai_score:
+            ai_wins += 1
+    win_rate = ai_wins / num_episodes
+    messagebox.showinfo("Testing", f"Model tested for {num_episodes} episodes.\nAI Win Rate: {win_rate:.2%}")
 
 def setup_ui():
     root = tk.Tk()
