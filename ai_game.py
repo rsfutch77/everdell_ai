@@ -149,6 +149,7 @@ class AdversarialAIPlayer(AIPlayer):
     def select_card(self, hand, game_state):
         # Adversarial strategy: play a random card
         return random.choice(hand) if hand else None
+import matplotlib.pyplot as plt
 
 class Game:
 
@@ -165,6 +166,7 @@ class Game:
         self.adversarial_ai_player = adversarial_ai_player
 
     def train(self, num_episodes):
+        win_rates = []  # Store win rates after each episode
         ai_wins = 0
         adversarial_ai_wins = 0
         ties = 0
@@ -187,12 +189,20 @@ class Game:
                 adversarial_ai_wins += 1
             else:
                 ties += 1
+            win_rate = ai_wins / (episode + 1)
+            win_rates.append(win_rate)
             print(f"Episode {episode + 1}: AI score: {ai_score}, Adversarial AI score: {adversarial_ai_score}")
         # Save the AI model after training
         self.ai_player.save_model('ai_model.pkl')
         print(f"AI Win Rate: {ai_wins / num_episodes:.2%}")
         print(f"Adversarial AI Win Rate: {adversarial_ai_wins / num_episodes:.2%}")
         print(f"Ties: {ties / num_episodes:.2%}")
+        # Plot the win rates over episodes
+        plt.plot(win_rates)
+        plt.title('AI Win Rate Over Time')
+        plt.xlabel('Episode')
+        plt.ylabel('Win Rate')
+        plt.show()
     def reset_game(self):
         self.current_turn = 0
         self.deck = list(self.initial_deck)  # Reset the deck to its initial state
