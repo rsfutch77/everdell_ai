@@ -18,6 +18,13 @@ class ReinforcementLearningAgent:
         self.gamma = gamma  # discount factor
         self.epsilon = epsilon  # exploration rate
         self.q_table = defaultdict(default_q_value)
+    def select_card(self, hand, numerical_game_state):
+        # The game_state parameter should be a numerical representation
+        state = numerical_game_state
+        available_actions = list(range(len(hand)))  # Indices of available cards
+        action_index = self.choose_action(available_actions)
+        action = hand[action_index] if available_actions else None
+        return action
 
     def choose_action(self, state):
         state = tuple(state)  # Convert list to tuple to use as a key

@@ -24,4 +24,3 @@ ai_player = AIPlayer()
 adversarial_ai_player = AdversarialAIPlayer()
 game = AIGame(deck, ai_player, adversarial_ai_player)
 num_episodes = 1000  # Number of episodes to train the AI
-game.train(num_episodes)
