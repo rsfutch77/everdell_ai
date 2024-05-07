@@ -5,7 +5,7 @@ from main import cards, deck
 
 def train_model():
     # Function to train the model
-    num_episodes = 1000  # Number of episodes to train the AI
+    num_episodes = 200  # Number of episodes to train the AI
     ai_player = ai_game.ReinforcementLearningAgent()
     adversarial_ai_player = ai_game.AdversarialAIPlayer()
     local_deck = [ai_game.Card(name, points, cost) for name, points, cost in cards]
@@ -20,10 +20,9 @@ def load_and_test_model():
     # Disable exploration to use the model for inference
     ai_player.epsilon = 0
     adversarial_ai_player = ai_game.AdversarialAIPlayer()
-    local_deck = [ai_game.Card(name, points) for name, points in cards]
     local_deck = [ai_game.Card(name, points, cost) for name, points, cost in cards]
     game = ai_game.Game(local_deck, ai_player, adversarial_ai_player)
-    num_episodes = 1000  # Number of episodes for testing
+    num_episodes = 200  # Number of episodes for testing
     ai_wins = 0
     for episode in range(num_episodes):
         game.reset_game()
