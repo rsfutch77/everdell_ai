@@ -167,10 +167,14 @@ class AdversarialAIPlayer(AIPlayer):
         affordable_cards = [card for card in hand if card.cost <= self.resources]
         return random.choice(affordable_cards) if affordable_cards else None
 import matplotlib.pyplot as plt
+import time
 
 class Game:
 
-    def __init__(self, deck, ai_player, adversarial_ai_player):
+    def __init__(self, deck, ai_player, adversarial_ai_player, turn_update_callback=None, ui_root=None, time_to_wait_entry=None):
+        self.time_to_wait_entry = time_to_wait_entry
+        self.turn_update_callback = turn_update_callback
+        self.ui_root = ui_root
         self.initial_deck = list(deck)  # Store the initial state of the deck
         self.deck = deck
         self.ai_player = ai_player
@@ -257,6 +261,18 @@ class Game:
         return state_representation
 
     def play_turn(self):
+        if self.turn_update_callback:
+            self.turn_update_callback(self.current_turn)
+        if self.ui_root:
+            self.ui_root.update_idletasks()
+            self.ui_root.update()
+            try:
+                # Read the value from the time_to_wait_entry and convert it to a float
+                time_to_wait = float(self.time_to_wait_entry.get())
+            except ValueError:
+                # If the value is not a valid float, default to 1 second
+                time_to_wait = 1.0
+            time.sleep(time_to_wait)  # Sleep for the specified number of seconds
         print(f"Turn {self.current_turn + 1}:")
         ai_card_to_play = None
         adversarial_ai_card_to_play = None

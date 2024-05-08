@@ -3,16 +3,17 @@ from tkinter import messagebox
 import ai_game
 from main import cards, deck
 
-def train_model():
+def train_model(root):
     # Function to train the model
     num_episodes = 200  # Number of episodes to train the AI
     ai_player = ai_game.ReinforcementLearningAgent()
     adversarial_ai_player = ai_game.AdversarialAIPlayer()
     local_deck = [ai_game.Card(name, points, cost) for name, points, cost in cards]
-    game = ai_game.Game(local_deck, ai_player, adversarial_ai_player)
+    game = ai_game.Game(local_deck, ai_player, adversarial_ai_player, turn_update_callback=update_turn_counter, ui_root=root, time_to_wait_entry=time_to_wait_entry)
     game.train(num_episodes)
     messagebox.showinfo("Training", "Model training complete!")
 
+# ... rest of the ui.py file ...
 def load_and_test_model():
     # Function to load and test the model
     ai_player = ai_game.ReinforcementLearningAgent()
@@ -33,17 +34,36 @@ def load_and_test_model():
             ai_wins += 1
     win_rate = ai_wins / num_episodes
     messagebox.showinfo("Testing", f"Model tested for {num_episodes} episodes.\nAI Win Rate: {win_rate:.2%}")
+    turn_counter_label = None
+
+def update_turn_counter(turn):
+    turn_counter_label.config(text=f"Turn: {turn + 1}")
 
 def setup_ui():
+    global turn_counter_label
+def setup_ui():
+    global turn_counter_label, time_to_wait_entry
     root = tk.Tk()
     root.title("Everdell AI")
+    # Turn counter label
+    turn_counter_label = tk.Label(root, text="Turn: 0")
+    turn_counter_label.pack(anchor='ne', padx=10, pady=10)
+
+    # Time to wait label and entry
+    time_to_wait_frame = tk.Frame(root)
+    time_to_wait_frame.pack(anchor='nw', padx=10, pady=10)
+    time_to_wait_label = tk.Label(time_to_wait_frame, text="Time to Wait (seconds):")
+    time_to_wait_label.pack(side=tk.LEFT)
+    time_to_wait_entry = tk.Entry(time_to_wait_frame)
+    time_to_wait_entry.pack(side=tk.LEFT)
+
 
     # Create a frame for the buttons
     frame = tk.Frame(root)
     frame.pack(pady=20)
 
     # Add a button to train the model
-    train_button = tk.Button(frame, text="Train Model", command=train_model)
+    train_button = tk.Button(frame, text="Train Model", command=lambda: train_model(root))
     train_button.pack(side=tk.LEFT, padx=10)
 
     # Add a button to load and test the model
