@@ -161,11 +161,6 @@ class AIPlayer(ReinforcementLearningAgent):
 
 
 
-class AdversarialAIPlayer(AIPlayer):
-    def select_card(self, hand, game_state):
-        # Adversarial strategy: play a random card
-        affordable_cards = [card for card in hand if card.cost <= self.resources]
-        return random.choice(affordable_cards) if affordable_cards else None
 import matplotlib.pyplot as plt
 import time
 
@@ -177,8 +172,8 @@ class Game:
         self.ui_root = ui_root
         self.initial_deck = list(deck)  # Store the initial state of the deck
         self.deck = deck
-        self.ai_player = ai_player
-        self.adversarial_ai_player = adversarial_ai_player
+        self.ai_player = ai_player if isinstance(ai_player, ReinforcementLearningAgent) else ReinforcementLearningAgent()
+        self.adversarial_ai_player = adversarial_ai_player if isinstance(adversarial_ai_player, ReinforcementLearningAgent) else ReinforcementLearningAgent()
         self.turns = 5
         self.current_turn = 0
         self.ai_played_cards = []
