@@ -18,6 +18,7 @@ class ReinforcementLearningAgent:
         self.alpha = alpha  # learning rate
         self.gamma = gamma  # discount factor
         self.epsilon = epsilon  # exploration rate
+        self.played_cards = []  # Initialize the list of played cards for the agent
         self.q_table = defaultdict(default_q_value)
         self.resources = resources  # Initialize resources for the agent    
     
@@ -166,27 +167,23 @@ import time
 
 class Game:
 
-    def __init__(self, deck, ai_player, adversarial_ai_player, turn_update_callback=None, ui_root=None, time_to_wait_entry=None):
+    def __init__(self, deck, agents, turn_update_callback=None, ui_root=None, time_to_wait_entry=None):
         self.time_to_wait_entry = time_to_wait_entry
         self.turn_update_callback = turn_update_callback
         self.ui_root = ui_root
         self.initial_deck = list(deck)  # Store the initial state of the deck
         self.deck = deck
-        self.ai_player = ai_player if isinstance(ai_player, ReinforcementLearningAgent) else ReinforcementLearningAgent()
-        self.adversarial_ai_player = adversarial_ai_player if isinstance(adversarial_ai_player, ReinforcementLearningAgent) else ReinforcementLearningAgent()
+        self.agents = agents if all(isinstance(agent, ReinforcementLearningAgent) for agent in agents) else [ReinforcementLearningAgent() for _ in range(2)]
         self.turns = 5
         self.current_turn = 0
-        self.ai_played_cards = []
-        self.adversarial_ai_played_cards = []
-        self.played_cards = []
-        self.ai_resources = 10  # AI player starts with 10 resources
-        self.adversarial_ai_resources = 10  # Adversarial AI player starts with 10 resources
-        self.adversarial_ai_player = adversarial_ai_player
+        # Initialize resources for each agent
+        for agent in self.agents:
+            agent.resources = 10
+            agent.played_cards = []  # Reset the played cards for each agent
+            agent.wins = 0
+
 
     def train(self, num_episodes):
-        win_rates = []  # Store win rates after each episode
-        ai_wins = 0
-        adversarial_ai_wins = 0
         ties = 0
         for episode in range(num_episodes):
             self.reset_game()
@@ -194,11 +191,14 @@ class Game:
                 self.play_turn()
                 # After each turn, update the AI's knowledge
                 state = self.get_numerical_game_state()
-                action = self.ai_player.select_card(self.deck, state)
+                action = self.agents[0].select_card(self.deck, state)
                 done = self.is_game_over()
-                reward = self.ai_player.get_reward(self, action, done)
                 next_state = self.get_numerical_game_state()
-                self.ai_player.learn(state, action, reward, next_state, done)
+                for agent in self.agents:
+                    reward = agent.get_reward(self, action, done)
+                    agent.learn(state, action, reward, next_state, done)
+                    agent.win_rates = []  # Store win rates after each episode
+                    agent.wins
             # Log the results of the episode if necessary
             ai_score, adversarial_ai_score = self.calculate_score()
             if ai_score > adversarial_ai_score:
@@ -211,7 +211,7 @@ class Game:
             win_rates.append(win_rate)
             print(f"Episode {episode + 1}: AI score: {ai_score}, Adversarial AI score: {adversarial_ai_score}")
         # Save the AI model after training
-        self.ai_player.save_model('ai_model.pkl')
+        self.agents[0].save_model('ai_model.pkl')
         print(f"AI Win Rate: {ai_wins / num_episodes:.2%}")
         print(f"Adversarial AI Win Rate: {adversarial_ai_wins / num_episodes:.2%}")
         print(f"Ties: {ties / num_episodes:.2%}")
@@ -224,13 +224,10 @@ class Game:
     def reset_game(self):
         self.current_turn = 0
         self.deck = list(self.initial_deck)  # Reset the deck to its initial state
-        self.ai_played_cards = []
-        self.adversarial_ai_played_cards = []
         self.played_cards = []
-        self.ai_resources = 10  # Reset AI player resources
-        self.adversarial_ai_resources = 10  # Reset adversarial AI player resources
-        self.ai_player.resources = 10  # Reset AI player resources in AIPlayer
-        self.adversarial_ai_player.resources = 10  # Reset AI player resources in AdversarialAIPlayer
+        for agent in self.agents:
+            agent.resources = 10
+            agent.played_cards = []  # Reset the played cards for each agent
         # Shuffle the deck or reset it to its initial state
         random.shuffle(self.deck)
 
@@ -269,51 +266,34 @@ class Game:
                 time_to_wait = 1.0
             time.sleep(time_to_wait)  # Sleep for the specified number of seconds
         print(f"Turn {self.current_turn + 1}:")
-        ai_card_to_play = None
-        adversarial_ai_card_to_play = None
         if not self.deck:
             print("The deck is empty. The game is over.")
             return
-        print(f"Starting turn with AI resources: {self.ai_resources}, Adversarial AI resources: {self.adversarial_ai_resources}")
+        for index, agent in enumerate(self.agents):
+            print(f"Starting turn with AI {index} resources: {agent.resources}")
         print(f"Deck size before turn: {len(self.deck)}")
-        if not any(card.cost <= self.ai_resources for card in self.deck) and not any(card.cost <= self.adversarial_ai_resources for card in self.deck):
-            print(f"AI resources: {self.ai_resources}, Adversarial AI resources: {self.adversarial_ai_resources}")
-            print("No cards in the deck are affordable for either player.")
-            print("Neither player has enough resources to play a card. The game is over.")
+        if all(not any(card.cost <= agent.resources for card in self.deck) for agent in self.agents):
+            print("No cards in the deck are affordable for any player.")
+            print("No player has enough resources to play a card. The game is over.")
             self.current_turn = self.turns  # Set current turn to the total number of turns to end the game
             return
         else:
             # AI attempts to select and play a card
             numerical_game_state = self.get_numerical_game_state()
             print(f"Numerical game state: {numerical_game_state}")
-            ai_card_to_play = self.ai_player.select_card(self.deck, numerical_game_state)
-            print(f"AI attempting to play: {ai_card_to_play.name if ai_card_to_play else 'None'}")
-            adversarial_ai_card_to_play = self.adversarial_ai_player.select_card(self.deck, numerical_game_state)
-            print(f"Adversarial AI attempting to play: {adversarial_ai_card_to_play.name if adversarial_ai_card_to_play else 'None'}")
-            if ai_card_to_play and self.ai_player.can_play_card(ai_card_to_play):
-                    self.ai_resources -= ai_card_to_play.cost  # Deduct the cost from the AI player's resources
-                    print(f"AI plays {ai_card_to_play.name} costing {ai_card_to_play.cost}. Remaining resources: {self.ai_resources}.")
-            else:
-                print("AI cannot play a card this turn.")
-                ai_card_to_play = None
-            # Adversarial AI attempts to select and play a card
-                numerical_game_state = self.get_numerical_game_state()
-                adversarial_ai_card_to_play = self.adversarial_ai_player.select_card(self.deck, numerical_game_state)
-            if adversarial_ai_card_to_play and self.adversarial_ai_player.can_play_card(adversarial_ai_card_to_play):
-                    self.adversarial_ai_resources -= adversarial_ai_card_to_play.cost  # Deduct the cost from the adversarial AI player's resources
-                    print(f"Adversarial AI plays {adversarial_ai_card_to_play.name} costing {adversarial_ai_card_to_play.cost}. Remaining resources: {self.adversarial_ai_resources}.")
-            else:
-                print("Adversarial AI cannot play a card this turn.")
-                adversarial_ai_card_to_play = None
+            for agent in self.agents:
+                agent.card_to_play = agent.select_card(self.deck, numerical_game_state)
+                print(f"AI attempting to play: {agent.card_to_play.name if agent.card_to_play else 'None'}")
+                if agent.card_to_play and agent.can_play_card(agent.card_to_play):
+                        agent.resources -= agent.card_to_play.cost  # Deduct the cost from the AI player's resources
+                        print(f"AI plays {agent.card_to_play.name} costing {agent.card_to_play.cost}. Remaining resources: {agent.resources}.")
+                        if agent.card_to_play in self.deck:
+                            self.deck.remove(agent.card_to_play)
+                            agent.played_cards.append(agent.card_to_play)
+                else:
+                    print("AI cannot play a card this turn.")
+                    agent.card_to_play = None
         print(f"Deck size after turn: {len(self.deck)}")
-        print(f"AI selected: {ai_card_to_play.name if ai_card_to_play else 'None'}")
-        print(f"Adversarial AI selected: {adversarial_ai_card_to_play.name if adversarial_ai_card_to_play else 'None'}")
-        if ai_card_to_play in self.deck:
-            self.deck.remove(ai_card_to_play)
-            self.ai_played_cards.append(ai_card_to_play)
-        if adversarial_ai_card_to_play in self.deck:
-            self.deck.remove(adversarial_ai_card_to_play)
-            self.adversarial_ai_played_cards.append(adversarial_ai_card_to_play)
         self.current_turn += 1
 
     def get_game_state(self):
@@ -321,6 +301,5 @@ class Game:
         return {'turn': self.current_turn, 'played_cards': self.played_cards}
 
     def calculate_score(self):
-        ai_score = sum(card.points for card in self.ai_played_cards)
-        adversarial_ai_score = sum(card.points for card in self.adversarial_ai_played_cards)
-        return ai_score, adversarial_ai_score
+        scores = [sum(card.points for card in agent.played_cards) for agent in self.agents]
+        return scores

@@ -3,6 +3,7 @@ from ai_game import Card, Game as AIGame, ReinforcementLearningAgent
 cards = [
     ("Card1", 3, 2),
     ("Card2", 2, 1),
+    # ... more cards ...
     ("Card3", 4, 3),
     ("Card4", 1, 1),
     ("Card5", 5, 4),
@@ -20,7 +21,7 @@ cards = [
 ]
 
 deck = [Card(name, points, cost) for name, points, cost in cards]
-ai_player = ReinforcementLearningAgent(alpha=0.1, gamma=0.9, epsilon=0.1)
-adversarial_ai_player = ReinforcementLearningAgent(alpha=0.1, gamma=0.9, epsilon=0.1)
-game = AIGame(deck, ai_player, adversarial_ai_player)
-num_episodes = 1000  # Number of episodes to train the AI
+number_of_agents = 2
+agents = [ReinforcementLearningAgent(alpha=0.1, gamma=0.9, epsilon=0.1) for _ in range(number_of_agents)]
+game = AIGame(deck, agents)
+num_episodes = 200  # Number of episodes to train the AI
