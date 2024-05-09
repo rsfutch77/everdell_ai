@@ -21,7 +21,8 @@ class ReinforcementLearningAgent:
         self.played_cards = []  # Initialize the list of played cards for the agent
         self.q_table = defaultdict(default_q_value)
         self.resources = resources  # Initialize resources for the agent    
-    
+        self.win_rates = []  # Initialize the list to track win rates over episodes
+
     def can_play_card(self, card, game_state=None):
         # Check if the card can be played based on available resources
         return card.cost <= self.resources
@@ -128,20 +129,42 @@ class ReinforcementLearningAgent:
             self.gamma = data['gamma']
             self.epsilon = data['epsilon']
 
-    def get_reward(self, game, action, done):
+
+    def get_reward(self, game, action, done, agent_index, ties):
         # Reward function that gives a small reward for playing a high point value card,
         # a penalty for not playing a card, and a larger reward for winning the game.
+        agents = game.agents  # Access the agents from the game object
         if action is not None:
             reward = action.points * 0.1  # Small reward for the card's point value
         else:
             reward = -0.1  # Penalty for not playing a card
         if done:
-            ai_score, adversarial_ai_score = game.calculate_score()
-            if ai_score > adversarial_ai_score:
-                reward += 1.0  # Large reward for winning
-            elif ai_score == adversarial_ai_score:
+
+            # Log the results of the episode
+            for agent in agents:
+                scores = game.calculate_score()
+                agent.score = scores[agents.index(agent)]  # Assign the individual score
+
+            winner = -1
+            winning_score = 0
+            # Find the highest Score
+            for winner_index, agent in enumerate(agents):
+                if agent.score and agent.score > winning_score:
+                    winning_score = agent.score
+                    winner = winner_index
+
+            #Check for ties
+            tie_calculator = 0
+            for agent in agents:
+                if agent.score == winning_score:
+                    tie_calculator += 1
+            
+            if tie_calculator > 1 and agents[agent_index].score == agents[winner_index].score:
                 reward += 0.5  # Smaller reward for a tie
+            elif agent_index == winner:
+                reward += 1.0  # Large reward for winning
             # No additional reward or penalty if the AI loses
+            
         return reward
 
 
@@ -184,7 +207,7 @@ class Game:
 
 
     def train(self, num_episodes):
-        ties = 0
+        self.ties = 0
         for episode in range(num_episodes):
             self.reset_game()
             while not self.is_game_over():
@@ -194,29 +217,40 @@ class Game:
                 action = self.agents[0].select_card(self.deck, state)
                 done = self.is_game_over()
                 next_state = self.get_numerical_game_state()
-                for agent in self.agents:
-                    reward = agent.get_reward(self, action, done)
+                for agent_index, agent in enumerate(self.agents):
+                    reward = agent.get_reward(self, action, done, agent_index, self.ties)
                     agent.learn(state, action, reward, next_state, done)
-                    agent.win_rates = []  # Store win rates after each episode
-                    agent.wins
-            # Log the results of the episode if necessary
-            ai_score, adversarial_ai_score = self.calculate_score()
-            if ai_score > adversarial_ai_score:
-                ai_wins += 1
-            elif ai_score < adversarial_ai_score:
-                adversarial_ai_wins += 1
+
+            winner = -1
+            winning_score = 0
+            # Find the highest Score
+            for winner_index, agent in enumerate(self.agents):
+                if agent.score and agent.score > winning_score:
+                    winning_score = agent.score
+                    winner = winner_index
+            #Check for ties
+            tie_calculator = 0
+            for agent in self.agents:
+                if agent.score == winning_score:
+                    tie_calculator += 1
+            if tie_calculator > 1:
+                self.ties += 1
             else:
-                ties += 1
-            win_rate = ai_wins / (episode + 1)
-            win_rates.append(win_rate)
-            print(f"Episode {episode + 1}: AI score: {ai_score}, Adversarial AI score: {adversarial_ai_score}")
+                self.agents[winner].wins += 1
+                
+            print(f"Episode {episode + 1}:")
+            for win_rate_index, agent in enumerate(self.agents):
+                win_rate = agent.wins / (episode + 1)
+                agent.win_rates.append(win_rate)
+                print(f"AI {win_rate_index} score: {agent.score},")
+                print(f"AI {win_rate_index} Win Rate: {agent.wins / (episode + 1):.2%}")
+            print(f"Ties: {self.ties / (episode + 1):.2%}")
+        
         # Save the AI model after training
         self.agents[0].save_model('ai_model.pkl')
-        print(f"AI Win Rate: {ai_wins / num_episodes:.2%}")
-        print(f"Adversarial AI Win Rate: {adversarial_ai_wins / num_episodes:.2%}")
-        print(f"Ties: {ties / num_episodes:.2%}")
         # Plot the win rates over episodes
-        plt.plot(win_rates)
+        for agent in self.agents:
+            plt.plot(agent.win_rates)
         plt.title('AI Win Rate Over Time')
         plt.xlabel('Episode')
         plt.ylabel('Win Rate')

@@ -19,7 +19,6 @@ def train_model(root, num_agents_entry):
     game.train(num_episodes)
     messagebox.showinfo("Training", "Model training complete!")
 
-# ... rest of the ui.py file ...
 def load_and_test_model():
     # Function to load and test the model
     agents[0] = ai_game.ReinforcementLearningAgent()
