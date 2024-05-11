@@ -5,9 +5,14 @@ from main import cards, agents
 from player import AIPlayer
 from cards import Card as GameCard
 
-def train_model(root, num_agents_entry):
+def train_model(root, num_agents_entry, num_episodes_entry):
     # Function to train the model
-    num_episodes = 200  # Number of episodes to train the AI
+    try:
+        # Read the value from the num_episodes_entry and convert it to an integer
+        num_episodes = int(num_episodes_entry.get())
+    except ValueError:
+        # If the value is not a valid integer, default to 100 episodes
+        num_episodes = 100
     # agents are already defined in main.py, no need to redefine them here
     deck = [GameCard(name, points, cost) for name, points, cost in cards]
     try:
@@ -30,7 +35,12 @@ def load_and_test_model():
     agents[1] = ai_game.ReinforcementLearningAgent(alpha=0.1, gamma=0.9, epsilon=0.1)
     local_deck = [GameCard(name, points, cost) for name, points, cost in cards]
     game = ai_game.Game(local_deck, agents[0], agents[1])
-    num_episodes = 100  # Number of episodes for testing
+    try:
+        # Read the value from the num_episodes_entry and convert it to an integer
+        num_episodes = int(num_episodes_entry.get())
+    except ValueError:
+        # If the value is not a valid integer, default to 100 episodes
+        num_episodes = 100
     ai_wins = 0
     for episode in range(num_episodes):
         game.reset_game()
@@ -47,11 +57,7 @@ def update_turn_counter(turn):
     turn_counter_label.config(text=f"Turn: {turn + 1}")
 
 def setup_ui():
-    global turn_counter_label
-def setup_ui():
-    global turn_counter_label, time_to_wait_entry
-def setup_ui():
-    global turn_counter_label, time_to_wait_entry, num_agents_entry
+    global turn_counter_label, time_to_wait_entry, num_agents_entry, num_episodes_entry
     root = tk.Tk()
     root.title("Everdell AI")
     # Turn counter label
@@ -66,6 +72,14 @@ def setup_ui():
     num_agents_entry = tk.Entry(num_agents_frame, textvariable=tk.StringVar(value="2"))
     num_agents_entry.pack(side=tk.LEFT)
 
+    # Number of episodes label and entry
+    num_episodes_frame = tk.Frame(root)
+    num_episodes_frame.pack(anchor='nw', padx=10, pady=10)
+    num_episodes_label = tk.Label(num_episodes_frame, text="Number of Episodes:")
+    num_episodes_label.pack(side=tk.LEFT)
+    num_episodes_entry = tk.Entry(num_episodes_frame, textvariable=tk.StringVar(value="100"))
+    num_episodes_entry.pack(side=tk.LEFT)
+
     # Time to wait label and entry
     time_to_wait_frame = tk.Frame(root)
     time_to_wait_frame.pack(anchor='nw', padx=10, pady=10)
@@ -79,7 +93,7 @@ def setup_ui():
     frame.pack(pady=20)
 
     # Add a button to train the model
-    train_button = tk.Button(frame, text="Train Model", command=lambda: train_model(root, num_agents_entry))
+    train_button = tk.Button(frame, text="Train Model", command=lambda: train_model(root, num_agents_entry, num_episodes_entry))
     train_button.pack(side=tk.LEFT, padx=10)
 
     # Add a button to load and test the model
