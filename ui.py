@@ -55,13 +55,13 @@ def toggle_num_agents_entry():
 
 def load_and_test_model():
     # Function to load and test the model
-    agents[0] = ai_game.ReinforcementLearningAgent()
-    agents[0].load_model('ai_model.pkl')
+    agent = ai_game.ReinforcementLearningAgent()
+    agent.load_model('ai_model.pkl')
     # Disable exploration to use the model for inference
-    agents[0].epsilon = 0
-    agents[1] = ai_game.ReinforcementLearningAgent(alpha=0.1, gamma=0.9, epsilon=0.1)
+    agent.epsilon = 0
+    agents = [agent, ai_game.ReinforcementLearningAgent(alpha=0.1, gamma=0.9, epsilon=0.1)]
     local_deck = [GameCard(name, points, cost) for name, points, cost in cards]
-    game = ai_game.Game(local_deck, agents[0], agents[1])
+    game = ai_game.Game(local_deck, agents, randomize_agents_var)
     try:
         # Read the value from the num_episodes_entry and convert it to an integer
         num_episodes = int(num_episodes_entry.get())
