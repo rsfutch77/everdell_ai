@@ -1,4 +1,9 @@
-from agent import ReinforcementLearningAgent
+import sys
+import os
+# Add the parent directory to sys.path to allow for everdell_ai imports
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from everdell_ai.agent import ReinforcementLearningAgent
 
 class AIPlayer(ReinforcementLearningAgent):      
 
@@ -24,7 +29,7 @@ class AIPlayer(ReinforcementLearningAgent):
         # and a larger reward for winning the game.
         agents = game.agents  # Access the agents from the game object
         reward = 0  
-        
+
         if done:
             tie_calculator, winner, winner_index = game.get_winner(game)
             if tie_calculator > 1 and agents[agent_index].score == agents[winner_index].score:
