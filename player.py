@@ -38,9 +38,10 @@ class AIPlayer(ReinforcementLearningAgent):
                 reward += 1.0  # Large reward for winning
             else:
                 reward = 0 # No additional reward or penalty if the AI loses
-        elif action is not None:
-            reward = action.points * 0.01  # Small reward for the card's point value
+        elif action is None:
+            reward = 0  # No reward for not playing a card
         else:
-            reward = 0  # No penalty for not playing a card
+            reward = action.points * 0.01  # Small reward for the card's point value
+
             
         return reward
