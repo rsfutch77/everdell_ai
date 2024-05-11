@@ -2,19 +2,21 @@ import tkinter as tk
 from tkinter import messagebox
 import ai_game
 from main import cards, agents
+from player import AIPlayer
+from cards import Card as GameCard
 
 def train_model(root, num_agents_entry):
     # Function to train the model
     num_episodes = 200  # Number of episodes to train the AI
     # agents are already defined in main.py, no need to redefine them here
-    deck = [ai_game.Card(name, points, cost) for name, points, cost in cards]
+    deck = [GameCard(name, points, cost) for name, points, cost in cards]
     try:
         # Read the value from the num_agents_entry and convert it to an integer
         number_of_agents = int(num_agents_entry.get())
     except ValueError:
         # If the value is not a valid integer, default to 2 agents
         number_of_agents = 2
-    agents = [ai_game.ReinforcementLearningAgent(alpha=0.1, gamma=0.9, epsilon=0.1) for _ in range(number_of_agents)]
+    agents = [AIPlayer(alpha=0.1, gamma=0.9, epsilon=0.1) for _ in range(number_of_agents)]
     game = ai_game.Game(deck, agents, turn_update_callback=update_turn_counter, ui_root=root, time_to_wait_entry=time_to_wait_entry)
     game.train(num_episodes)
     messagebox.showinfo("Training", "Model training complete!")
@@ -26,7 +28,7 @@ def load_and_test_model():
     # Disable exploration to use the model for inference
     agents[0].epsilon = 0
     agents[1] = ai_game.ReinforcementLearningAgent(alpha=0.1, gamma=0.9, epsilon=0.1)
-    local_deck = [ai_game.Card(name, points, cost) for name, points, cost in cards]
+    local_deck = [GameCard(name, points, cost) for name, points, cost in cards]
     game = ai_game.Game(local_deck, agents[0], agents[1])
     num_episodes = 100  # Number of episodes for testing
     ai_wins = 0
