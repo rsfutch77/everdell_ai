@@ -1,9 +1,8 @@
 import tkinter as tk
 from tkinter import messagebox
 import ai_game
-from main import cards, agents
 from player import AIPlayer
-from cards import Card as GameCard
+from cards import Card as GameCard, cards
 
 def train_model(root, num_agents_entry, num_episodes_entry):
     # Function to train the model
