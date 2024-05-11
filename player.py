@@ -1,7 +1,11 @@
 from agent import ReinforcementLearningAgent
 
-class AIPlayer(ReinforcementLearningAgent):    
-    
+class AIPlayer(ReinforcementLearningAgent):      
+
+    def __init__(self, alpha=0.1, gamma=0.9, epsilon=0.1, resources=10, wins=0):
+        super().__init__(alpha, gamma, epsilon, resources)
+        self.wins = wins  # Initialize the number of wins for the AIPlayer
+
     def can_play_card(self, card, game_state=None):
         # Check if the card can be played based on available resources
         return card.cost <= self.resources

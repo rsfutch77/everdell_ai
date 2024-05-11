@@ -6,7 +6,7 @@ from cards import Card as GameCard, cards
 import random
 randomize_agents_var = None  # Global variable for the randomize agents checkbox state
 
-def train_model(root, num_agents_entry, num_episodes_entry):
+def train_model(root, num_agents_entry, num_episodes_entry, randomize_agents_var):
     # Function to train the model
     try:
         # Read the value from the num_episodes_entry and convert it to an integer
@@ -14,8 +14,22 @@ def train_model(root, num_agents_entry, num_episodes_entry):
     except ValueError:
         # If the value is not a valid integer, default to 100 episodes
         num_episodes = 100
-    # agents are already defined in main.py, no need to redefine them here
+    # Define the agents based on the number of agents entry or randomize if checked
+    if randomize_agents_var.get():
+        # Randomize the number of agents for each episode
+        number_of_agents = random.randint(1, 4)  # Assuming a range of 1 to 4 agents
+    else:
+        try:
+            # Read the value from the num_agents_entry and convert it to an integer
+            number_of_agents = int(num_agents_entry.get())
+        except ValueError:
+            # If the value is not a valid integer, default to 2 agents
+            number_of_agents = 2
+    agents = [AIPlayer(alpha=0.1, gamma=0.9, epsilon=0.1) for _ in range(number_of_agents)]
     deck = [GameCard(name, points, cost) for name, points, cost in cards]
+    game = ai_game.Game(deck, agents, randomize_agents_var, turn_update_callback=update_turn_counter, ui_root=root, time_to_wait_entry=time_to_wait_entry)
+    game.train(num_episodes)
+    messagebox.showinfo("Training", "Model training complete!")
     # Check if the randomize agents checkbox is checked
     if randomize_agents_var.get():
         # Randomize the number of agents for each episode
@@ -28,7 +42,7 @@ def train_model(root, num_agents_entry, num_episodes_entry):
             # If the value is not a valid integer, default to 2 agents
             number_of_agents = 2
     agents = [AIPlayer(alpha=0.1, gamma=0.9, epsilon=0.1) for _ in range(number_of_agents)]
-    game = ai_game.Game(deck, agents, turn_update_callback=update_turn_counter, ui_root=root, time_to_wait_entry=time_to_wait_entry)
+    game = ai_game.Game(deck, agents, randomize_agents_var, turn_update_callback=update_turn_counter, ui_root=root, time_to_wait_entry=time_to_wait_entry)
     game.train(num_episodes)
     messagebox.showinfo("Training", "Model training complete!")
 
@@ -111,7 +125,7 @@ def setup_ui():
     frame.pack(pady=20)
 
     # Add a button to train the model
-    train_button = tk.Button(frame, text="Train Model", command=lambda: train_model(root, num_agents_entry, num_episodes_entry))
+    train_button = tk.Button(frame, text="Train Model", command=lambda: train_model(root, num_agents_entry, num_episodes_entry, randomize_agents_var))
     train_button.pack(side=tk.LEFT, padx=10)
 
     # Add a button to load and test the model
