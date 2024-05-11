@@ -28,7 +28,7 @@ def load_and_test_model():
     agents[1] = ai_game.ReinforcementLearningAgent(alpha=0.1, gamma=0.9, epsilon=0.1)
     local_deck = [ai_game.Card(name, points, cost) for name, points, cost in cards]
     game = ai_game.Game(local_deck, agents[0], agents[1])
-    num_episodes = 200  # Number of episodes for testing
+    num_episodes = 100  # Number of episodes for testing
     ai_wins = 0
     for episode in range(num_episodes):
         game.reset_game()
@@ -71,7 +71,6 @@ def setup_ui():
     time_to_wait_label.pack(side=tk.LEFT)
     time_to_wait_entry = tk.Entry(time_to_wait_frame, textvariable=tk.StringVar(value="0.001"))
     time_to_wait_entry.pack(side=tk.LEFT)
-
 
     # Create a frame for the buttons
     frame = tk.Frame(root)
