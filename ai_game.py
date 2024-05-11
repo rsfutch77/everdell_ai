@@ -48,11 +48,15 @@ class Game:
     
     def train(self, num_episodes):
         self.ties = 0
+        # Initialize a list to store the average TD errors for all episodes
+        all_episodes_td_errors = []
         for episode in range(num_episodes):
             # Randomize the number of agents for each episode if enabled
             if self.randomize_agents.get():
                 number_of_agents = random.randint(2, 4)  # Randomly choose between 2, 3, or 4 agents
                 self.agents = [AIPlayer(alpha=0.1, gamma=0.9, epsilon=0.1) for _ in range(number_of_agents)]
+            for agent in self.agents:
+                agent.update_epsilon(episode, num_episodes)
             else:
                 number_of_agents = len(self.agents)  # Use the predefined number of agents
             self.reset_game()
@@ -66,6 +70,12 @@ class Game:
                     next_state = self.get_numerical_game_state()
                     reward = agent.get_reward(self, action, done, agent_index, self.ties)
                     agent.learn(state, action, reward, next_state, done)
+
+            # Collect and average TD errors for the episode
+            if self.randomize_agents.get():
+                episode_td_errors = [agent.td_errors[-1] for agent in self.agents if agent.td_errors]
+                average_td_error = sum(episode_td_errors) / len(episode_td_errors) if episode_td_errors else 0
+                all_episodes_td_errors.append(average_td_error)  # Store the average TD error for the episode
 
             tie_calculator, winner, winner_index = self.get_winner(self)
 
@@ -81,19 +91,40 @@ class Game:
                 win_rate = agent.wins / (episode + 1)
                 agent.win_rates.append(win_rate)
                 print(f"AI {win_rate_index} score: {agent.score},")
-                print(f"AI {win_rate_index} Win Rate: {agent.wins / (episode + 1):.2%}")
+                if not self.randomize_agents.get():
+                    print(f"AI {win_rate_index} Win Rate: {agent.wins / (episode + 1):.2%}")
             print(f"Ties: {self.ties / (episode + 1):.2%}")
         
 
         # Save the AI model after training
-        self.agents[0].save_model('ai_model.pkl')
-        # Plot the win rates over episodes
-        for agent in self.agents:
-            plt.plot(agent.win_rates)
-        plt.title('AI Win Rate Over Time')
-        plt.xlabel('Episode')
-        plt.ylabel('Win Rate')
+        if not self.randomize_agents.get():
+            plt.figure()  # Create a new figure
+            for agent in self.agents:
+                plt.plot(agent.td_errors)
+        else:
+            plt.figure()  # Create a new figure for agent[0] only
+            x_values = range(1, num_episodes + 1)
+            plt.plot(x_values, all_episodes_td_errors, marker='o')  # Plot TD errors with markers for clarity
+            # Calculate and plot the trendline
+            z = np.polyfit(x_values, all_episodes_td_errors, 1)
+            p = np.poly1d(z)
+            plt.plot(x_values, p(x_values), "r--")  # Plot the trendline
+        plt.title('TD Error Over Time')
+        plt.xlabel('Learning Step')
+        plt.ylabel('TD Error')
+
+        if not self.randomize_agents.get():
+            # Plot the win rates over episodes
+            plt.figure()  # Create a new figure
+            for agent in self.agents:
+                plt.plot(agent.win_rates)
+            plt.title('AI Win Rate Over Time')
+            plt.xlabel('Episode')
+            plt.ylabel('Win Rate')
+
         plt.show()
+
+        self.agents[0].save_model('ai_model.pkl')
         
     def reset_game(self):
         self.current_turn = 0

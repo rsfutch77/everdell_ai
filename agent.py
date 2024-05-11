@@ -1,4 +1,5 @@
 import random
+import math
 from collections import defaultdict
 import pickle
 
@@ -8,8 +9,10 @@ def default_q_value():
 class ReinforcementLearningAgent:
     def __init__(self, alpha=0.1, gamma=0.9, epsilon=0.1, resources=10):
         self.alpha = alpha  # learning rate
+        self.td_errors = []  # Initialize the list to track temporal difference errors
         self.gamma = gamma  # discount factor
         self.epsilon = epsilon  # exploration rate
+        self.initial_epsilon = epsilon  # Store the initial exploration rate
         self.played_cards = []  # Initialize the list of played cards for the agent
         self.q_table = defaultdict(default_q_value)
         self.resources = resources  # Initialize resources for the agent    
@@ -23,6 +26,11 @@ class ReinforcementLearningAgent:
         next_max = max(self.q_table[next_state].values()) if not done else 0
         new_value = (1 - self.alpha) * old_value + self.alpha * (reward + self.gamma * next_max)
         self.q_table[state][action] = new_value
+        self.td_errors.append(abs(old_value - new_value))  # Store the TD error
+
+    def update_epsilon(self, episode, total_episodes):
+        # Decaying epsilon over episodes
+        self.epsilon = self.initial_epsilon * math.exp(-10 * episode / total_episodes)
 
     def save_model(self, filename):
         with open(filename, 'wb') as file:
