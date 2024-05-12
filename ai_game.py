@@ -14,7 +14,6 @@ class Game:
         self.initial_deck = list(deck)  # Store the initial state of the deck
         self.deck = deck
         self.agents = agents if all(isinstance(agent, AIPlayer) for agent in agents) else [AIPlayer(wins=0) for _ in range(2)]
-        self.turns = 5
         self.current_turn = 0
         self.ties = 0
         self.randomize_agents = randomize_agents  # Store the randomize_agents variable
@@ -22,9 +21,9 @@ class Game:
         for agent in self.agents:
             agent.resources = 10
             agent.played_cards = []  # Reset the played cards for each agent
-    
+
     def get_winner(self, game):
-            
+
         agents = game.agents  # Access the agents from the game object
         for agent in agents:
             scores = game.calculate_score()
@@ -45,7 +44,7 @@ class Game:
                 tie_calculator += 1
 
         return tie_calculator, winner, winner_index
-    
+
     def train(self, num_episodes):
         self.ties = 0
         # Initialize a list to store the average TD errors for all episodes
@@ -84,17 +83,17 @@ class Game:
                 self.ties += 1
             else:
                 self.agents[winner].wins += 1
-                
+
 
             print(f"Episode {episode + 1}:")
-            for win_rate_index, agent in enumerate(self.agents):
+            for agent in self.agents:
                 win_rate = agent.wins / (episode + 1)
                 agent.win_rates.append(win_rate)
-                print(f"AI {win_rate_index} score: {agent.score},")
+                print(f"AI {self.agents.index(agent)} score: {agent.score},")
                 if not self.randomize_agents.get():
-                    print(f"AI {win_rate_index} Win Rate: {agent.wins / (episode + 1):.2%}")
+                    print(f"AI {self.agents.index(agent)} Win Rate: {agent.wins / (episode + 1):.2%}")
             print(f"Ties: {self.ties / (episode + 1):.2%}")
-        
+
 
         # Save the AI model after training
         if not self.randomize_agents.get():
@@ -125,7 +124,7 @@ class Game:
         plt.show()
 
         self.agents[0].save_model('ai_model.pkl')
-        
+
     def reset_game(self):
         self.current_turn = 0
         self.deck = list(self.initial_deck)  # Reset the deck to its initial state
@@ -137,7 +136,14 @@ class Game:
         random.shuffle(self.deck)
 
     def is_game_over(self):
-        return self.current_turn >= self.turns
+        # The game is over when the deck is empty or when all players have no workers left and cannot play any cards
+        if len(self.deck) == 0:
+            return True
+        for agent in self.agents:
+            # Check if the agent can play a card or has workers left
+            if agent.workers > 0 or any(agent.can_play_card(card) for card in self.deck):
+                return False
+        return True
 
     def get_numerical_game_state(self):
         # Convert the game state into a numerical representation for the AI
@@ -169,20 +175,22 @@ class Game:
                 time_to_wait = 1.0
             time.sleep(time_to_wait)  # Sleep for the specified number of seconds
         print(f"Turn {self.current_turn + 1}:")
-        
+
+
         if not self.deck:
             print("The deck is empty. The game is over.")
             return
-        for index, agent in enumerate(self.agents):
-            print(f"Starting turn with AI {index} resources: {agent.resources}")
+        for agent in self.agents:
+            print(f"Starting turn with AI {self.agents.index(agent)} resources: {agent.resources}")
+            print(f"AI {self.agents.index(agent)} has {agent.workers} workers remaining.")
         print(f"Deck size before turn: {len(self.deck)}")
 
         # AI attempts to select an action
         numerical_game_state = self.get_numerical_game_state()
         print(f"Numerical game state: {numerical_game_state}")
-        for agent_play_index, agent in enumerate(self.agents):
-            selected_action = agent.select_action(self.deck, numerical_game_state)
-            action, card = selected_action if selected_action[0] == 'play_card' else (selected_action[0], None)
+        for agent in self.agents:
+            selected_action = agent.select_action(self.deck, numerical_game_state) or (None, None)
+            action, card = selected_action
             if action == 'play_card' and card:
                 agent.resources -= card.cost  # Deduct the cost from the AI player's resources
                 print(f"AI {self.agents.index(agent)} plays {card.name} costing {card.cost}. Remaining resources: {agent.resources}.")
@@ -190,15 +198,20 @@ class Game:
                     self.deck.remove(card)
                     agent.played_cards.append(card)
             elif action == 'receive_resources':
-                resources_received = 3  # Define the amount of resources received when choosing to receive resources
-                agent.receive_resources(resources_received)
-                print(f"AI {self.agents.index(agent)} receives {resources_received} resources. Total resources: {agent.resources}")
+                if agent.workers > 0:  # Check if the agent has workers available
+                    resources_received = 3  # Define the amount of resources received when choosing to receive resources
+                    agent.receive_resources(resources_received)
+                    print(f"AI {self.agents.index(agent)} receives {resources_received} resources. Total resources: {agent.resources}")
+                else:
+                    print(f"AI {self.agents.index(agent)} has no workers left to receive resources.")
             else:
-                print("AI {self.agents.index(agent)} cannot play a card this turn.")
+                print(f"AI {self.agents.index(agent)} cannot play a card this turn.")
                 agent.card_to_play = None
 
         print(f"Deck size after turn: {len(self.deck)}")
         self.current_turn += 1
+        if self.is_game_over():
+            print("No player has any moves left. The game is over.")
 
     def get_game_state(self):
         # Placeholder for more complex game state
