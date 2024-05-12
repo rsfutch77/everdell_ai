@@ -40,7 +40,7 @@ class AIPlayer(ReinforcementLearningAgent):
         self.card_to_play = action[1] if action and action[0] == 'play_card' else None
         return action
     
-    def get_reward(self, game, action, done, agent_index, ties):
+    def get_reward(self, game, action, done, agent_index):
         # Reward function that gives a small reward for playing a high point value card,
         # a penalty for not playing a card, and a larger reward for winning the game.
         # and a larger reward for winning the game.
@@ -48,8 +48,8 @@ class AIPlayer(ReinforcementLearningAgent):
         reward = 0  
 
         if done:
-            tie_calculator, winner, winner_index = game.get_winner(game)
-            if tie_calculator > 1 and agents[agent_index].score == agents[winner_index].score:
+            tie_calculator, winner = game.get_winner(game)
+            if tie_calculator > 1 and agents[agent_index].score == agents[winner].score:
                 reward += 0.5  # Smaller reward for a tie
             elif agent_index == winner:
                 reward += 1.0  # Large reward for winning
@@ -58,7 +58,7 @@ class AIPlayer(ReinforcementLearningAgent):
         elif action == 'receive_resources':
             reward = 0  # No reward for not playing a card
         elif action == 'play_card':
-            card = game.agents[agent_index].card_to_play
+            card = game.agents[agent_index].card_to_play  # Assuming card_to_play is now an instance of Card
             if card:
                 reward = card.points * 0.01  # Small reward for the card's point value
 

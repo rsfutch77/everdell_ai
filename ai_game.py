@@ -43,7 +43,7 @@ class Game:
             if agent.score == winning_score:
                 tie_calculator += 1
 
-        return tie_calculator, winner, winner_index
+        return tie_calculator, winner
 
     def train(self, num_episodes):
         self.ties = 0
