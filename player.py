@@ -10,17 +10,27 @@ class AIPlayer(ReinforcementLearningAgent):
     def __init__(self, alpha=0.1, gamma=0.9, epsilon=0.1, resources=10, wins=0):
         super().__init__(alpha, gamma, epsilon, resources)
         self.wins = wins  # Initialize the number of wins for the AIPlayer
+        self.card_to_play = None  # Initialize the card to play attribute
 
-    def can_play_card(self, card, game_state=None):
-        # Check if the card can be played based on available resources
-        return card.cost <= self.resources
+    def receive_resources(self, amount):
+        # Method to increase the agent's resources
+        self.resources += amount
 
-    def select_card(self, hand, numerical_game_state):
+    def can_play_card(self, card):
+        # Check if the card can be played based on available resources and return the action
+        if card.cost <= self.resources:
+            return ('play_card', card)
+        else:
+            return ('receive_resources', None)
+
+    def select_action(self, hand, numerical_game_state):
         # The game_state parameter should be a numerical representation
         state = numerical_game_state
-        available_actions = [i for i, card in enumerate(hand) if card.cost <= self.resources]  # Filter for affordable cards
-        action_index = self.choose_action(available_actions)
-        action = hand[action_index] if available_actions else None
+        # Include an additional action for receiving resources
+        available_actions = [('play_card', card) for card in hand if card.cost <= self.resources]
+        available_actions.append(('receive_resources', None))  # Add the 'receive_resources' action
+        action = self.choose_action(available_actions)
+        self.card_to_play = action[1] if action and action[0] == 'play_card' else None
         return action
     
     def get_reward(self, game, action, done, agent_index, ties):
@@ -38,10 +48,13 @@ class AIPlayer(ReinforcementLearningAgent):
                 reward += 1.0  # Large reward for winning
             else:
                 reward = 0 # No additional reward or penalty if the AI loses
-        elif action is None:
+        elif action == 'receive_resources':
             reward = 0  # No reward for not playing a card
-        else:
-            reward = action.points * 0.01  # Small reward for the card's point value
+        elif action == 'play_card':
+            card = game.agents[agent_index].card_to_play
+            if card:
+                reward = card.points * 0.01  # Small reward for the card's point value
+
 
             
         return reward

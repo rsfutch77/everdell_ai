@@ -19,14 +19,30 @@ class ReinforcementLearningAgent:
         self.win_rates = []  # Initialize the list to track win rates over episodes
 
     def learn(self, state, action, reward, next_state, done):
-        state = tuple(state)  # Convert list to tuple to use as a key
-        next_state = tuple(next_state)  # Convert list to tuple to use as a key
-        # Update Q-value using the Bellman equation
+        """
+        Update the Q-values of the agent based on the Bellman equation.
+    
+        Args:
+            state (list): The current state of the agent.
+            action (int): The action taken by the agent.
+            reward (float): The reward received by the agent.
+            next_state (list): The next state of the agent.
+            done (bool): A boolean indicating if the episode is done or not.
+        """
+        state = tuple(state)
+        next_state = tuple(next_state)
+    
         old_value = self.q_table[state][action]
-        next_max = max(self.q_table[next_state].values()) if not done else 0
+        next_max = 0
+        if not done and next_state in self.q_table and self.q_table[next_state]:
+            next_max = max(self.q_table[next_state].values())
+        else:
+            next_max = 0
+    
         new_value = (1 - self.alpha) * old_value + self.alpha * (reward + self.gamma * next_max)
         self.q_table[state][action] = new_value
-        self.td_errors.append(abs(old_value - new_value))  # Store the TD error
+    
+        self.td_errors.append(abs(old_value - new_value))
 
     def update_epsilon(self, episode, total_episodes):
         # Decaying epsilon over episodes

@@ -61,13 +61,13 @@ class Game:
                 number_of_agents = len(self.agents)  # Use the predefined number of agents
             self.reset_game()
             while not self.is_game_over():
+                state = self.get_numerical_game_state()  # Capture the state before the turn
                 self.play_turn()
+                next_state = self.get_numerical_game_state()  # Capture the state after the turn
+                done = self.is_game_over()
                 # After each turn, update the AI's knowledge
                 for agent_index, agent in enumerate(self.agents):
-                    state = self.get_numerical_game_state()
-                    action = agent.select_card(self.deck, state)
-                    done = self.is_game_over()
-                    next_state = self.get_numerical_game_state()
+                    action = 'play_card' if agent.card_to_play else 'receive_resources'
                     reward = agent.get_reward(self, action, done, agent_index, self.ties)
                     agent.learn(state, action, reward, next_state, done)
 
@@ -138,8 +138,6 @@ class Game:
 
     def is_game_over(self):
         return self.current_turn >= self.turns
-        for _ in range(self.turns):
-            self.play_turn()
 
     def get_numerical_game_state(self):
         # Convert the game state into a numerical representation for the AI
@@ -171,33 +169,34 @@ class Game:
                 time_to_wait = 1.0
             time.sleep(time_to_wait)  # Sleep for the specified number of seconds
         print(f"Turn {self.current_turn + 1}:")
+        
         if not self.deck:
             print("The deck is empty. The game is over.")
             return
         for index, agent in enumerate(self.agents):
             print(f"Starting turn with AI {index} resources: {agent.resources}")
         print(f"Deck size before turn: {len(self.deck)}")
-        if all(not any(card.cost <= agent.resources for card in self.deck) for agent in self.agents):
-            print("No cards in the deck are affordable for any player.")
-            print("No player has enough resources to play a card. The game is over.")
-            self.current_turn = self.turns  # Set current turn to the total number of turns to end the game
-            return
-        else:
-            # AI attempts to select and play a card
-            numerical_game_state = self.get_numerical_game_state()
-            print(f"Numerical game state: {numerical_game_state}")
-            for agent in self.agents:
-                agent.card_to_play = agent.select_card(self.deck, numerical_game_state)
-                print(f"AI attempting to play: {agent.card_to_play.name if agent.card_to_play else 'None'}")
-                if agent.card_to_play and agent.can_play_card(agent.card_to_play):
-                        agent.resources -= agent.card_to_play.cost  # Deduct the cost from the AI player's resources
-                        print(f"AI plays {agent.card_to_play.name} costing {agent.card_to_play.cost}. Remaining resources: {agent.resources}.")
-                        if agent.card_to_play in self.deck:
-                            self.deck.remove(agent.card_to_play)
-                            agent.played_cards.append(agent.card_to_play)
-                else:
-                    print("AI cannot play a card this turn.")
-                    agent.card_to_play = None
+
+        # AI attempts to select an action
+        numerical_game_state = self.get_numerical_game_state()
+        print(f"Numerical game state: {numerical_game_state}")
+        for agent_play_index, agent in enumerate(self.agents):
+            selected_action = agent.select_action(self.deck, numerical_game_state)
+            action, card = selected_action if selected_action[0] == 'play_card' else (selected_action[0], None)
+            if action == 'play_card' and card:
+                agent.resources -= card.cost  # Deduct the cost from the AI player's resources
+                print(f"AI {self.agents.index(agent)} plays {card.name} costing {card.cost}. Remaining resources: {agent.resources}.")
+                if card in self.deck:
+                    self.deck.remove(card)
+                    agent.played_cards.append(card)
+            elif action == 'receive_resources':
+                resources_received = 3  # Define the amount of resources received when choosing to receive resources
+                agent.receive_resources(resources_received)
+                print(f"AI {self.agents.index(agent)} receives {resources_received} resources. Total resources: {agent.resources}")
+            else:
+                print("AI {self.agents.index(agent)} cannot play a card this turn.")
+                agent.card_to_play = None
+
         print(f"Deck size after turn: {len(self.deck)}")
         self.current_turn += 1
 
