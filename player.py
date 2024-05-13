@@ -12,7 +12,7 @@ class AIPlayer(ReinforcementLearningAgent):
         self.wins = wins  # Initialize the number of wins for the AIPlayer
         self.workers = 2  # Initialize the number of workers for the AIPlayer
         self.hand = []  # Initialize the hand of cards for the AIPlayer
-        self.hand_limit = 5  # Initialize the hand limit for the AIPlayer
+        self.hand_starting_amount = 5  # Initialize the hand limit for the AIPlayer
         self.card_to_play = None  # Initialize the card to play attribute
 
     def receive_resources(self, amount):

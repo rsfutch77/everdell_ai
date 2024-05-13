@@ -12,17 +12,11 @@ class Game:
         self.turn_update_callback = turn_update_callback
         self.ui_root = ui_root
         self.initial_deck = list(deck)  # Store the initial state of the deck
-        self.deck = list(deck)  # Copy the deck to avoid modifying the original
-        random.shuffle(self.deck)  # Shuffle the deck before the game starts
         self.agents = agents if all(isinstance(agent, AIPlayer) for agent in agents) else [AIPlayer(wins=0) for _ in range(2)]
-        self.current_turn = 0
         self.ties = 0
         self.randomize_agents = randomize_agents  # Store the randomize_agents variable
-        # Initialize resources for each agent
-        for agent in self.agents:
-            agent.resources = 10
-            agent.played_cards = []  # Reset the played cards for each agent
-            agent.hand = self.draw_cards(agent.hand_limit)  # Deal cards to the agent's hand from the shuffled deck
+
+        self.reset_game
 
     def get_winner(self, game):
 
@@ -140,12 +134,11 @@ class Game:
         self.deck = list(self.initial_deck)  # Copy the initial deck to reset it
         random.shuffle(self.deck)  # Shuffle the deck before each new game
         self.played_cards = []
-        for agent in self.agents:
+        for stating_amount_index, agent in enumerate(self.agents):
             agent.workers = 2
             agent.resources = 10
             agent.played_cards = []  # Reset the played cards for each agent
-            agent.hand = self.draw_cards(agent.hand_limit)  # Deal cards to the agent's hand from the shuffled deck
-        # Shuffle the deck or reset it to its initial state
+            agent.hand = self.draw_cards(agent.hand_starting_amount + stating_amount_index)  # Deal cards to the agent's hand from the shuffled deck
 
     def is_game_over(self):
         for agent in self.agents:
