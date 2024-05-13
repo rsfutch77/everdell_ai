@@ -136,7 +136,7 @@ class Game:
         self.played_cards = []
         for stating_amount_index, agent in enumerate(self.agents):
             agent.workers = 2
-            agent.resources = 10
+            agent.resources = 0
             agent.played_cards = []  # Reset the played cards for each agent
             agent.hand = self.draw_cards(agent.hand_starting_amount + stating_amount_index)  # Deal cards to the agent's hand from the shuffled deck
 
