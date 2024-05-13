@@ -30,21 +30,6 @@ def train_model(root, num_agents_entry, num_episodes_entry, randomize_agents_var
     game = ai_game.Game(deck, agents, randomize_agents_var, turn_update_callback=update_turn_counter, ui_root=root, time_to_wait_entry=time_to_wait_entry)
     game.train(num_episodes)
     messagebox.showinfo("Training", "Model training complete!")
-    # Check if the randomize agents checkbox is checked
-    if randomize_agents_var.get():
-        # Randomize the number of agents for each episode
-        number_of_agents = random.randint(1, 4)  # Assuming a range of 1 to 4 agents
-    else:
-        try:
-            # Read the value from the num_agents_entry and convert it to an integer
-            number_of_agents = int(num_agents_entry.get())
-        except ValueError:
-            # If the value is not a valid integer, default to 2 agents
-            number_of_agents = 2
-    agents = [AIPlayer(alpha=0.1, gamma=0.9, epsilon=0.1) for _ in range(number_of_agents)]
-    game = ai_game.Game(deck, agents, randomize_agents_var, turn_update_callback=update_turn_counter, ui_root=root, time_to_wait_entry=time_to_wait_entry)
-    game.train(num_episodes)
-    messagebox.showinfo("Training", "Model training complete!")
 
 def toggle_num_agents_entry():
     # Function to enable or disable the num_agents_entry based on the checkbox state
