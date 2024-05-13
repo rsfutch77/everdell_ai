@@ -11,6 +11,8 @@ class AIPlayer(ReinforcementLearningAgent):
         super().__init__(alpha, gamma, epsilon, resources)
         self.wins = wins  # Initialize the number of wins for the AIPlayer
         self.workers = 2  # Initialize the number of workers for the AIPlayer
+        self.hand = []  # Initialize the hand of cards for the AIPlayer
+        self.hand_limit = 5  # Initialize the hand limit for the AIPlayer
         self.card_to_play = None  # Initialize the card to play attribute
 
     def receive_resources(self, amount):
@@ -20,7 +22,7 @@ class AIPlayer(ReinforcementLearningAgent):
 
     def can_play_card(self, card):
         # Check if the card can be played based on available resources and return the action
-        if card.cost <= self.resources:
+        if card in self.hand and card.cost <= self.resources:
             return ('play_card', card)
         else:
             # Only return the 'receive_resources' action if there are workers available

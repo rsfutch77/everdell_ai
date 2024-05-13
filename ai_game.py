@@ -12,7 +12,8 @@ class Game:
         self.turn_update_callback = turn_update_callback
         self.ui_root = ui_root
         self.initial_deck = list(deck)  # Store the initial state of the deck
-        self.deck = deck
+        self.deck = list(deck)  # Copy the deck to avoid modifying the original
+        random.shuffle(self.deck)  # Shuffle the deck before the game starts
         self.agents = agents if all(isinstance(agent, AIPlayer) for agent in agents) else [AIPlayer(wins=0) for _ in range(2)]
         self.current_turn = 0
         self.ties = 0
@@ -21,6 +22,7 @@ class Game:
         for agent in self.agents:
             agent.resources = 10
             agent.played_cards = []  # Reset the played cards for each agent
+            agent.hand = self.draw_cards(agent.hand_limit)  # Deal cards to the agent's hand from the shuffled deck
 
     def get_winner(self, game):
 
@@ -59,7 +61,8 @@ class Game:
             else:
                 number_of_agents = len(self.agents)  # Use the predefined number of agents
             self.reset_game()
-            while not self.is_game_over():
+            done = False
+            while not done:
                 state = self.get_numerical_game_state()  # Capture the state before the turn
                 self.play_turn()
                 next_state = self.get_numerical_game_state()  # Capture the state after the turn
@@ -67,7 +70,7 @@ class Game:
                 # After each turn, update the AI's knowledge
                 for agent_index, agent in enumerate(self.agents):
                     action = 'play_card' if agent.card_to_play else 'receive_resources'
-                    reward = agent.get_reward(self, action, done, agent_index, self.ties)
+                    reward = agent.get_reward(self, action, done, agent_index)
                     agent.learn(state, action, reward, next_state, done)
 
             # Collect and average TD errors for the episode
@@ -76,7 +79,7 @@ class Game:
                 average_td_error = sum(episode_td_errors) / len(episode_td_errors) if episode_td_errors else 0
                 all_episodes_td_errors.append(average_td_error)  # Store the average TD error for the episode
 
-            tie_calculator, winner, winner_index = self.get_winner(self)
+            tie_calculator, winner = self.get_winner(self)
 
             #Apply record of wins and ties
             if tie_calculator > 1:
@@ -125,24 +128,31 @@ class Game:
 
         self.agents[0].save_model('ai_model.pkl')
 
+    def draw_cards(self, number):
+        drawn_cards = []
+        for _ in range(number):
+            if self.deck:
+                drawn_cards.append(self.deck.pop(0))
+        return drawn_cards
+
     def reset_game(self):
         self.current_turn = 0
-        self.deck = list(self.initial_deck)  # Reset the deck to its initial state
+        self.deck = list(self.initial_deck)  # Copy the initial deck to reset it
+        random.shuffle(self.deck)  # Shuffle the deck before each new game
         self.played_cards = []
         for agent in self.agents:
+            agent.workers = 2
             agent.resources = 10
             agent.played_cards = []  # Reset the played cards for each agent
+            agent.hand = self.draw_cards(agent.hand_limit)  # Deal cards to the agent's hand from the shuffled deck
         # Shuffle the deck or reset it to its initial state
-        random.shuffle(self.deck)
 
     def is_game_over(self):
-        # The game is over when the deck is empty or when all players have no workers left and cannot play any cards
-        if len(self.deck) == 0:
-            return True
         for agent in self.agents:
             # Check if the agent can play a card or has workers left
-            if agent.workers > 0 or any(agent.can_play_card(card) for card in self.deck):
+            if agent.workers > 0 or any(agent.can_play_card(card) for card in agent.hand):
                 return False
+        print("No player has any moves left. The game is over.")
         return True
 
     def get_numerical_game_state(self):
@@ -150,13 +160,14 @@ class Game:
         state_representation = []
         # Include the current turn as a feature
         state_representation.append(self.current_turn)
-        # Include the points and costs of cards in hand as features
-        hand_features = [(card.points, card.cost) for card in self.deck]
-        for points, cost in hand_features:
-            state_representation.extend([points, cost])
         # Include the points of played cards as features
         played_points = [card.points for card in self.played_cards]
         state_representation.extend(played_points)
+        # Include the points and costs of cards in each agent's hand as features
+        for agent in self.agents:
+            hand_features = [(card.points, card.cost) for card in agent.hand]
+            for points, cost in hand_features:
+                state_representation.extend([points, cost])
         # Normalize or scale the features if necessary
         # ...
         return state_representation
@@ -177,26 +188,22 @@ class Game:
         print(f"Turn {self.current_turn + 1}:")
 
 
-        if not self.deck:
-            print("The deck is empty. The game is over.")
-            return
         for agent in self.agents:
             print(f"Starting turn with AI {self.agents.index(agent)} resources: {agent.resources}")
             print(f"AI {self.agents.index(agent)} has {agent.workers} workers remaining.")
-        print(f"Deck size before turn: {len(self.deck)}")
+            print(f"AI {self.agents.index(agent)} hand: {[card.name for card in agent.hand]}")
 
         # AI attempts to select an action
         numerical_game_state = self.get_numerical_game_state()
         print(f"Numerical game state: {numerical_game_state}")
         for agent in self.agents:
-            selected_action = agent.select_action(self.deck, numerical_game_state) or (None, None)
+            selected_action = agent.select_action(agent.hand, numerical_game_state) or (None, None)
             action, card = selected_action
             if action == 'play_card' and card:
                 agent.resources -= card.cost  # Deduct the cost from the AI player's resources
                 print(f"AI {self.agents.index(agent)} plays {card.name} costing {card.cost}. Remaining resources: {agent.resources}.")
-                if card in self.deck:
-                    self.deck.remove(card)
-                    agent.played_cards.append(card)
+                agent.played_cards.append(card)
+                agent.hand.remove(card)
             elif action == 'receive_resources':
                 if agent.workers > 0:  # Check if the agent has workers available
                     resources_received = 3  # Define the amount of resources received when choosing to receive resources
@@ -210,8 +217,6 @@ class Game:
 
         print(f"Deck size after turn: {len(self.deck)}")
         self.current_turn += 1
-        if self.is_game_over():
-            print("No player has any moves left. The game is over.")
 
     def get_game_state(self):
         # Placeholder for more complex game state
