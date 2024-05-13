@@ -26,7 +26,7 @@ def train_model(root, num_agents_entry, num_episodes_entry, randomize_agents_var
             # If the value is not a valid integer, default to 2 agents
             number_of_agents = 2
     agents = [AIPlayer(alpha=0.1, gamma=0.9, epsilon=0.1) for _ in range(number_of_agents)]
-    deck = [GameCard(name, points, cost) for name, points, cost in cards]
+    deck = [GameCard(name, points, cost) for name, points, cost, quantity in cards for _ in range(quantity)]
     game = ai_game.Game(deck, agents, randomize_agents_var, turn_update_callback=update_turn_counter, ui_root=root, time_to_wait_entry=time_to_wait_entry)
     game.train(num_episodes)
     messagebox.showinfo("Training", "Model training complete!")
