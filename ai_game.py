@@ -62,6 +62,7 @@ class Game:
                 next_state = self.get_numerical_game_state()  # Capture the state after the turn
                 done = self.is_game_over()
                 # After each turn, update the AI's knowledge
+                numerical_game_state = self.get_numerical_game_state()
                 for agent_index, agent in enumerate(self.agents):
                     action = 'play_card' if agent.card_to_play else 'receive_resources'
                     reward = agent.get_reward(self, action, done, agent_index)
@@ -134,6 +135,7 @@ class Game:
         self.deck = list(self.initial_deck)  # Copy the initial deck to reset it
         random.shuffle(self.deck)  # Shuffle the deck before each new game
         self.played_cards = []
+        self.meadow = self.draw_cards(8)  # Draw 8 cards into the meadow
         for stating_amount_index, agent in enumerate(self.agents):
             agent.workers = 2
             agent.resources = 0
@@ -143,7 +145,7 @@ class Game:
     def is_game_over(self):
         for agent in self.agents:
             # Check if the agent can play a card or has workers left
-            if agent.workers > 0 or any(agent.can_play_card(card) for card in agent.hand):
+            if agent.workers > 0 or any(agent.can_play_card(card) for card in agent.hand + self.meadow):
                 return False
         print("No player has any moves left. The game is over.")
         return True
@@ -162,6 +164,10 @@ class Game:
             hand_features = [(card.points, card.cost) for card in agent.hand]
             for points, cost in hand_features:
                 state_representation.extend([points, cost])
+        # Include the points and costs of cards in the meadow as features
+        meadow_features = [(card.points, card.cost) for card in self.meadow]
+        for points, cost in meadow_features:
+            state_representation.extend([points, cost])
         # Normalize or scale the features if necessary
         # ...
         return state_representation
@@ -180,7 +186,7 @@ class Game:
                 time_to_wait = 1.0
             time.sleep(time_to_wait)  # Sleep for the specified number of seconds
         print(f"Turn {self.current_turn + 1}:")
-
+        print(f"Meadow: {[card.name for card in self.meadow]}")
 
         for agent in self.agents:
             print(f"Starting turn with AI {self.agents.index(agent)} resources: {agent.resources}")
@@ -188,16 +194,23 @@ class Game:
             print(f"AI {self.agents.index(agent)} hand: {[card.name for card in agent.hand]}")
 
         # AI attempts to select an action
-        numerical_game_state = self.get_numerical_game_state()
-        print(f"Numerical game state: {numerical_game_state}")
         for agent in self.agents:
-            selected_action = agent.select_action(agent.hand, numerical_game_state) or (None, None)
+            # Update the numerical game state after the meadow is replenished
+            numerical_game_state = self.get_numerical_game_state()
+            selected_action = agent.select_action(agent.hand, self.meadow, numerical_game_state)
             action, card = selected_action
             if action == 'play_card' and card:
                 agent.resources -= card.cost  # Deduct the cost from the AI player's resources
                 print(f"AI {self.agents.index(agent)} plays {card.name} costing {card.cost}. Remaining resources: {agent.resources}.")
                 agent.played_cards.append(card)
-                agent.hand.remove(card)
+                if card in agent.hand:
+                    agent.hand.remove(card)
+                else:
+                    self.meadow.remove(card)
+                    # Replenish the meadow immediately after a card is taken
+                    new_cards = self.draw_cards(1)
+                    if new_cards:
+                        self.meadow.extend(new_cards)
             elif action == 'receive_resources':
                 if agent.workers > 0:  # Check if the agent has workers available
                     resources_received = 3  # Define the amount of resources received when choosing to receive resources

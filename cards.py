@@ -5,13 +5,14 @@ class Card:
         self.points = points
         self.cost = cost  # Assign the fixed cost
 
+#Card Name, Points, Cost, Quantity in Deck
 cards = [
-    ("Card1", 2, 2, 3),
-    ("Card2", 2, 1, 3),
-    ("Card3", 2, 3, 2), 
-    ("Card4", 3, 2, 2),
-    ("Card5", 3, 3, 2),
-    ("Card6", 4, 4, 1),
-    ("Card7", 4, 5, 1), 
-    ("Card8", 5, 7, 1),  
+    ("Card1", 2, 2, 6),
+    ("Card2", 2, 1, 6),
+    ("Card3", 2, 3, 4), 
+    ("Card4", 3, 2, 4),
+    ("Card5", 3, 3, 4),
+    ("Card6", 4, 4, 2),
+    ("Card7", 4, 5, 2), 
+    ("Card8", 5, 7, 2),  
 ]
