@@ -61,8 +61,6 @@ class Game:
                 self.play_turn()
                 next_state = self.get_numerical_game_state()  # Capture the state after the turn
                 done = self.is_game_over()
-                # After each turn, update the AI's knowledge
-                numerical_game_state = self.get_numerical_game_state()
                 for agent_index, agent in enumerate(self.agents):
                     action = 'play_card' if agent.card_to_play else 'receive_resources'
                     reward = agent.get_reward(self, action, done, agent_index)
@@ -150,7 +148,7 @@ class Game:
         print("No player has any moves left. The game is over.")
         return True
 
-    def get_numerical_game_state(self):
+    def get_numerical_game_state(self, current_player_index=None):
         # Convert the game state into a numerical representation for the AI
         state_representation = []
         # Include the current turn as a feature
@@ -159,10 +157,10 @@ class Game:
         for agent in self.agents:
             played_points = [card.points for card in agent.played_cards]
             state_representation.extend(played_points)
-        # Include the points and costs of cards in each agent's hand as features
-        for agent in self.agents:
-            hand_features = [(card.points, card.cost) for card in agent.hand]
-            for points, cost in hand_features:
+        if current_player_index is not None:
+            # Include the points and costs of cards in the current player's hand as features
+            current_player_hand_features = [(card.points, card.cost) for card in self.agents[current_player_index].hand]
+            for points, cost in current_player_hand_features:
                 state_representation.extend([points, cost])
         # Include the points and costs of cards in the meadow as features
         meadow_features = [(card.points, card.cost) for card in self.meadow]
@@ -194,11 +192,14 @@ class Game:
             print(f"AI {self.agents.index(agent)} hand: {[card.name for card in agent.hand]}")
 
         # AI attempts to select an action
-        for agent in self.agents:
+        for agent_play_turn_index, agent in enumerate(self.agents):
             # Update the numerical game state after the meadow is replenished
-            numerical_game_state = self.get_numerical_game_state()
+            numerical_game_state = self.get_numerical_game_state(agent_play_turn_index)
             selected_action = agent.select_action(agent.hand, self.meadow, numerical_game_state)
-            action, card = selected_action
+            if selected_action is not None:
+                action, card = selected_action
+            else:
+                action, card = (None, None)
             if action == 'play_card' and card:
                 agent.resources -= card.cost  # Deduct the cost from the AI player's resources
                 print(f"AI {self.agents.index(agent)} plays {card.name} costing {card.cost}. Remaining resources: {agent.resources}.")
