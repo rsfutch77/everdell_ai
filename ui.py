@@ -51,7 +51,7 @@ def load_and_test_model():
     # Disable exploration to use the model for inference
     agent.epsilon = 0
     agents = [agent, ai_game.ReinforcementLearningAgent(alpha=0.1, gamma=0.9, epsilon=0.1)]
-    local_deck = [GameCard(name, points, cost) for name, points, cost in cards]
+    local_deck = [GameCard(name, points, cost) for name, points, cost, quantity in cards for _ in range(quantity)]
     game = ai_game.Game(local_deck, agents, randomize_agents_var)
     try:
         # Read the value from the num_episodes_entry and convert it to an integer
