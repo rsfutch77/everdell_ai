@@ -58,11 +58,11 @@ class Game:
             done = False
             while not done:
                 state = self.get_numerical_game_state()  # Capture the state before the turn
-                self.play_turn()
+                actions_taken = self.play_turn()  # Get the actions taken during the turn
                 next_state = self.get_numerical_game_state()  # Capture the state after the turn
                 done = self.is_game_over()
                 for agent_index, agent in enumerate(self.agents):
-                    action = 'play_card' if agent.card_to_play else 'receive_resources'
+                    action = actions_taken[agent_index]  # Use the action taken by the agent
                     reward = agent.get_reward(self, action, done, agent_index)
                     agent.learn(state, action, reward, next_state, done)
 
@@ -142,12 +142,12 @@ class Game:
             agent.hand = self.draw_cards(agent.hand_starting_amount + stating_amount_index)  # Deal cards to the agent's hand from the shuffled deck
 
     def is_game_over(self):
-        for agent in self.agents:
-            # Check if the agent can play a card or has workers left
-            if agent.workers > 0 or any(agent.can_play_card(card) for card in agent.hand + self.meadow):
-                return False
-        print("No player has any moves left. The game is over.")
-        return True
+        # Check if all agents are out of moves
+        all_agents_out_of_moves = all(agent.workers == 0 and not any(agent.can_play_card(card) for card in agent.hand + self.meadow) for agent in self.agents)
+        if all_agents_out_of_moves:
+            print("All players are out of moves. The game is over.")
+            return True
+        return False
 
     def get_numerical_game_state(self, current_player_index=None):
         # Convert the game state into a numerical representation for the AI
@@ -187,6 +187,8 @@ class Game:
         print(f"Turn {self.current_turn + 1}:")
         print(f"Meadow: {[card.name for card in self.meadow]}")
 
+        actions_taken = []  # List to store the actions taken by each agent
+
         for agent in self.agents:
             print(f"Starting turn with AI {self.agents.index(agent)} resources: {agent.resources}")
             print(f"AI {self.agents.index(agent)} has {agent.workers} workers remaining.")
@@ -194,9 +196,16 @@ class Game:
 
         # AI attempts to select an action
         for agent_play_turn_index, agent in enumerate(self.agents):
+            # Skip the turn if the agent is out of moves
+            if agent.workers == 0 and not any(agent.can_play_card(card) for card in agent.hand + self.meadow):
+                print(f"AI {self.agents.index(agent)} is out of moves and will pass this turn.")
+                actions_taken.append((None, None))  # Append a None action for this agent
+                continue  # Skip the rest of the turn for this agent
+
             # Update the numerical game state after the meadow is replenished
             numerical_game_state = self.get_numerical_game_state(agent_play_turn_index)
             selected_action = agent.select_action(agent.hand, self.meadow, numerical_game_state)
+            actions_taken.append(selected_action)  # Append the selected action for this agent
             if selected_action is not None:
                 action, card = selected_action
             else:
@@ -225,6 +234,8 @@ class Game:
 
         print(f"Deck size after turn: {len(self.deck)}")
         self.current_turn += 1
+
+        return actions_taken  # Return the list of actions taken
 
     def get_game_state(self):
         # Placeholder for more complex game state
