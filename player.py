@@ -24,12 +24,9 @@ class AIPlayer(ReinforcementLearningAgent):
 
     def can_play_card(self, card):
         # Check if the card can be played based on available resources and return the action
-        if card in self.hand and card.cost <= self.resources:
+        if card.cost <= self.resources:
             return ('play_card', card)
         else:
-            # Only return the 'receive_resources' action if there are workers available
-            if self.workers > 0:
-                return ('receive_resources', None)
             return None
 
     def select_action(self, hand, meadow, numerical_game_state):

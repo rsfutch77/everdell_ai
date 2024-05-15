@@ -143,7 +143,7 @@ class Game:
 
     def is_game_over(self):
         # Check if all agents are out of moves
-        all_agents_out_of_moves = all(agent.workers == 0 and not any(agent.can_play_card(card) for card in agent.hand + self.meadow) for agent in self.agents)
+        all_agents_out_of_moves = all(agent.workers == 0 and agent.recalls == agent.max_recalls and not any(agent.can_play_card(card) for card in agent.hand + self.meadow) for agent in self.agents)
         if all_agents_out_of_moves:
             print("All players are out of moves. The game is over.")
             return True
@@ -197,7 +197,7 @@ class Game:
         # AI attempts to select an action
         for agent_play_turn_index, agent in enumerate(self.agents):
             # Skip the turn if the agent is out of moves
-            if agent.workers == 0 and not any(agent.can_play_card(card) for card in agent.hand + self.meadow):
+            if agent.workers == 0 and agent.recalls == agent.max_recalls and not any(agent.can_play_card(card) for card in agent.hand + self.meadow):
                 print(f"AI {self.agents.index(agent)} is out of moves and will pass this turn.")
                 actions_taken.append((None, None))  # Append a None action for this agent
                 continue  # Skip the rest of the turn for this agent
