@@ -6,6 +6,12 @@ from cards import Card as GameCard, cards
 import random
 randomize_agents_var = None  # Global variable for the randomize agents checkbox state
 
+def update_meadow_display(meadow_cards):
+    for i, card in enumerate(meadow_cards):
+        if i < len(meadow_card_entries):
+            meadow_card_entries[i].delete(0, tk.END)
+            meadow_card_entries[i].insert(0, card.name)
+
 def train_model(root, num_agents_entry, num_episodes_entry, randomize_agents_var):
     # Function to train the model
     try:
@@ -27,7 +33,7 @@ def train_model(root, num_agents_entry, num_episodes_entry, randomize_agents_var
             number_of_agents = 2
     agents = [AIPlayer(alpha=0.1, gamma=0.9, epsilon=0.1) for _ in range(number_of_agents)]
     deck = [GameCard(name, points, cost) for name, points, cost, quantity in cards for _ in range(quantity)]
-    game = ai_game.Game(deck, agents, randomize_agents_var, turn_update_callback=update_turn_counter, ui_root=root, time_to_wait_entry=time_to_wait_entry)
+    game = ai_game.Game(deck, agents, randomize_agents_var, turn_update_callback=update_turn_counter, ui_root=root, time_to_wait_entry=time_to_wait_entry, meadow_update_callback=update_meadow_display)
     game.train(num_episodes)
     messagebox.showinfo("Training", "Model training complete!")
 
@@ -71,11 +77,26 @@ def update_turn_counter(turn):
 def setup_ui():
     global turn_counter_label, time_to_wait_entry, num_agents_entry, num_episodes_entry
     global turn_counter_label, time_to_wait_entry, num_agents_entry, num_episodes_entry, randomize_agents_var
+    global meadow_card_entries
     root = tk.Tk()
     root.title("Everdell AI")
     # Turn counter label
     turn_counter_label = tk.Label(root, text="Turn: 0")
     turn_counter_label.pack(anchor='ne', padx=10, pady=10)
+
+    # Meadow cards frame
+    meadow_frame = tk.Frame(root)
+    meadow_frame.pack(anchor='nw', padx=10, pady=5)
+    meadow_label = tk.Label(meadow_frame, text="Meadow Cards:")
+    meadow_label.pack(side=tk.TOP)
+    meadow_card_entries = []
+    for row in range(2):
+        row_frame = tk.Frame(meadow_frame)
+        row_frame.pack(side=tk.TOP, pady=2)
+        for col in range(4):
+            entry = tk.Entry(row_frame, state='normal', width=20)
+            entry.pack(side=tk.LEFT, padx=2)
+            meadow_card_entries.append(entry)
 
     # Number of agents label and entry
     num_agents_frame = tk.Frame(root)

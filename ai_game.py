@@ -7,7 +7,8 @@ import random
 
 class Game:
 
-    def __init__(self, deck, agents, randomize_agents, turn_update_callback=None, ui_root=None, time_to_wait_entry=None):
+    def __init__(self, deck, agents, randomize_agents, turn_update_callback=None, ui_root=None, time_to_wait_entry=None, meadow_update_callback=None):
+        self.meadow_update_callback = meadow_update_callback
         self.time_to_wait_entry = time_to_wait_entry
         self.turn_update_callback = turn_update_callback
         self.ui_root = ui_root
@@ -232,6 +233,8 @@ class Game:
                 print(f"AI {self.agents.index(agent)} cannot play a card this turn.")
                 agent.card_to_play = None
 
+               
+        self.meadow_update_callback(self.meadow)  # Update the meadow display
         print(f"Deck size after turn: {len(self.deck)}")
         self.current_turn += 1
 
