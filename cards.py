@@ -7,12 +7,12 @@ class Card:
 
 #Card Name, Points, Cost, Quantity in Deck
 cards = [
-    ("Card1", 2, 2, 6),
-    ("Card2", 2, 1, 6),
-    ("Card3", 2, 3, 4), 
-    ("Card4", 3, 2, 4),
-    ("Card5", 3, 3, 4),
-    ("Card6", 4, 4, 2),
-    ("Card7", 4, 5, 2), 
-    ("Card8", 5, 7, 2),  
+    ("Card1", 2, 2, 10),
+    ("Card2", 2, 1, 10),
+    ("Card3", 2, 3, 7), 
+    ("Card4", 3, 2, 7),
+    ("Card5", 3, 3, 7),
+    ("Card6", 4, 4, 3),
+    ("Card7", 4, 5, 3), 
+    ("Card8", 5, 7, 3),  
 ]

@@ -136,6 +136,7 @@ class Game:
         self.meadow = self.draw_cards(8)  # Draw 8 cards into the meadow
         for stating_amount_index, agent in enumerate(self.agents):
             agent.workers = 2
+            agent.recalls = 0  # Reset the recall count for each agent
             agent.resources = 0
             agent.played_cards = []  # Reset the played cards for each agent
             agent.hand = self.draw_cards(agent.hand_starting_amount + stating_amount_index)  # Deal cards to the agent's hand from the shuffled deck
@@ -212,13 +213,12 @@ class Game:
                     new_cards = self.draw_cards(1)
                     if new_cards:
                         self.meadow.extend(new_cards)
-            elif action == 'receive_resources':
-                if agent.workers > 0:  # Check if the agent has workers available
-                    resources_received = 3  # Define the amount of resources received when choosing to receive resources
-                    agent.receive_resources(resources_received)
-                    print(f"AI {self.agents.index(agent)} receives {resources_received} resources. Total resources: {agent.resources}")
-                else:
-                    print(f"AI {self.agents.index(agent)} has no workers left to receive resources.")
+            elif action == 'receive_resources' and agent.workers > 0:
+                resources_received = 3  # Define the amount of resources received when choosing to receive resources
+                agent.receive_resources(resources_received)
+                print(f"AI {self.agents.index(agent)} receives {resources_received} resources. Total resources: {agent.resources}")
+            elif action == 'recall_workers':
+                self.recall_workers(agent)
             else:
                 print(f"AI {self.agents.index(agent)} cannot play a card this turn.")
                 agent.card_to_play = None
@@ -233,3 +233,17 @@ class Game:
     def calculate_score(self):
         scores = [sum(card.points for card in agent.played_cards) for agent in self.agents]
         return scores
+    
+    def recall_workers(self, agent):
+        """
+        Handle the recall workers action for the agent.
+        """
+        if agent.workers == 0 and agent.recalls < agent.max_recalls:
+            if agent.workers == 0 and agent.recalls == 0:
+                agent.workers += 3  # Get another worker
+            else:
+                agent.workers += 5  # Get another 2 workers
+            agent.recalls += 1  # Increment the recall count
+            print(f"AI {self.agents.index(agent)} is preparing for season: recalling workers and getting an additional worker.")
+        else:
+            print(f"AI {self.agents.index(agent)} cannot recall workers at this time.")
