@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
+from tkinter import ttk
 import ai_game
 from player import AIPlayer
 from cards import Card as GameCard, cards
@@ -7,10 +8,14 @@ import random
 randomize_agents_var = None  # Global variable for the randomize agents checkbox state
 
 def update_meadow_display(meadow_cards):
-    for i, card in enumerate(meadow_cards):
-        if i < len(meadow_card_entries):
-            meadow_card_entries[i].delete(0, tk.END)
-            meadow_card_entries[i].insert(0, card.name)
+    card_names_in_deck = list(set(name for name, points, cost, quantity in cards))
+    for i, combobox in enumerate(meadow_card_comboboxes):
+        combobox['values'] = card_names_in_deck
+        if meadow_cards != None:
+            if i < len(meadow_cards):
+                combobox.set(meadow_cards[i].name)
+            else:
+                combobox.set("")
 
 def train_model(root, num_agents_entry, num_episodes_entry, randomize_agents_var):
     # Function to train the model
@@ -19,7 +24,7 @@ def train_model(root, num_agents_entry, num_episodes_entry, randomize_agents_var
         num_episodes = int(num_episodes_entry.get())
     except ValueError:
         # If the value is not a valid integer, default to 100 episodes
-        num_episodes = 100
+        num_episodes = 10
     # Define the agents based on the number of agents entry or randomize if checked
     if randomize_agents_var.get():
         # Randomize the number of agents for each episode
@@ -43,8 +48,23 @@ def toggle_num_agents_entry():
         num_agents_entry.config(state='disabled')
     else:
         num_agents_entry.config(state='normal')
+        
+def user_selects_meadow_card(meadow_card_comboboxes, root):
+    # Function to handle user selection of meadow cards
+    update_meadow_display(None)
+    # Wait for the user to make a selection for the specified combobox
+    selection = meadow_card_comboboxes[7].get() #Since the meadow currently just shifts all the cards up one index, we always get the last index here
+    while not selection:
+        root.update_idletasks()
+        root.update()
+        selection = meadow_card_comboboxes[7].get()
+    # Create a dictionary mapping card names to Card objects
+    card_dict = {name: GameCard(name, points, cost) for name, points, cost, quantity in cards}
+    # Find the card object by name using the dictionary
+    selected_card = card_dict.get(selection, None)
+    return selected_card
 
-def load_and_test_model():
+def load_and_test_model(root):
     # Function to load and test the model
     agent = ai_game.ReinforcementLearningAgent()
     agent.load_model('ai_model.pkl')
@@ -52,7 +72,12 @@ def load_and_test_model():
     agent.epsilon = 0
     agents = [agent, ai_game.ReinforcementLearningAgent(alpha=0.1, gamma=0.9, epsilon=0.1)]
     local_deck = [GameCard(name, points, cost) for name, points, cost, quantity in cards for _ in range(quantity)]
-    game = ai_game.Game(local_deck, agents, randomize_agents_var)
+    game = ai_game.Game(local_deck, agents, randomize_agents_var, turn_update_callback=update_turn_counter, ui_root=root, time_to_wait_entry=time_to_wait_entry, meadow_update_callback=update_meadow_display)
+    # Override the draw_to_meadow method to use the user's selection
+    def draw_to_meadow_override():
+        selected_card = user_selects_meadow_card(meadow_card_comboboxes, root)
+        return [selected_card] if selected_card else []
+    game.draw_to_meadow = draw_to_meadow_override
     try:
         # Read the value from the num_episodes_entry and convert it to an integer
         num_episodes = int(num_episodes_entry.get())
@@ -77,7 +102,7 @@ def update_turn_counter(turn):
 def setup_ui():
     global turn_counter_label, time_to_wait_entry, num_agents_entry, num_episodes_entry
     global turn_counter_label, time_to_wait_entry, num_agents_entry, num_episodes_entry, randomize_agents_var
-    global meadow_card_entries
+    global meadow_card_comboboxes
     root = tk.Tk()
     root.title("Everdell AI")
     # Turn counter label
@@ -90,13 +115,14 @@ def setup_ui():
     meadow_label = tk.Label(meadow_frame, text="Meadow Cards:")
     meadow_label.pack(side=tk.TOP)
     meadow_card_entries = []
+    meadow_card_comboboxes = []
     for row in range(2):
         row_frame = tk.Frame(meadow_frame)
         row_frame.pack(side=tk.TOP, pady=2)
         for col in range(4):
-            entry = tk.Entry(row_frame, state='normal', width=20)
-            entry.pack(side=tk.LEFT, padx=2)
-            meadow_card_entries.append(entry)
+            combobox = ttk.Combobox(row_frame, state='readonly', width=18)
+            combobox.pack(side=tk.LEFT, padx=2)
+            meadow_card_comboboxes.append(combobox)
 
     # Number of agents label and entry
     num_agents_frame = tk.Frame(root)
@@ -135,7 +161,7 @@ def setup_ui():
     train_button.pack(side=tk.LEFT, padx=10)
 
     # Add a button to load and test the model
-    test_button = tk.Button(frame, text="Load and Test Model", command=load_and_test_model)
+    test_button = tk.Button(frame, text="Load and Test Model", command=lambda:load_and_test_model(root))
     test_button.pack(side=tk.LEFT, padx=10)
 
     # Start the main loop

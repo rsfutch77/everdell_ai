@@ -128,6 +128,15 @@ class Game:
             if self.deck:
                 drawn_cards.append(self.deck.pop(0))
         return drawn_cards
+    
+    def draw_to_meadow(self):
+    # Replenish the meadow immediately after a card is taken
+        new_cards = self.draw_cards(1)
+        if new_cards:
+            print(f"{new_cards[0].name} was drawn into the meadow")
+            return new_cards
+        else:
+            return []
 
     def reset_game(self):
         self.current_turn = 0
@@ -173,6 +182,10 @@ class Game:
         return state_representation
 
     def play_turn(self):
+        
+        if self.meadow is not None:
+            self.meadow_update_callback(self.meadow)  # Update the meadow display
+
         if self.turn_update_callback:
             self.turn_update_callback(self.current_turn)
         if self.ui_root:
@@ -217,12 +230,13 @@ class Game:
                 agent.played_cards.append(card)
                 if card in agent.hand:
                     agent.hand.remove(card)
+                    print(f"That card was played from the hand.")
                 else:
                     self.meadow.remove(card)
-                    # Replenish the meadow immediately after a card is taken
-                    new_cards = self.draw_cards(1)
-                    if new_cards:
-                        self.meadow.extend(new_cards)
+                    if self.meadow is not None:
+                        self.meadow_update_callback(self.meadow)  # Update the meadow display
+                    self.meadow.extend(self.draw_to_meadow())
+                    
             elif action == 'receive_resources' and agent.workers > 0:
                 resources_received = 3  # Define the amount of resources received when choosing to receive resources
                 agent.receive_resources(resources_received)
@@ -233,8 +247,6 @@ class Game:
                 print(f"AI {self.agents.index(agent)} cannot play a card this turn.")
                 agent.card_to_play = None
 
-               
-        self.meadow_update_callback(self.meadow)  # Update the meadow display
         print(f"Deck size after turn: {len(self.deck)}")
         self.current_turn += 1
 
