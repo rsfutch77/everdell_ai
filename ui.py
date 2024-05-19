@@ -17,6 +17,19 @@ def update_meadow_display(meadow_cards):
             else:
                 combobox.set("")
 
+def update_hand_display(hand_cards, player_index):
+     card_names_in_deck = list(set(name for name, points, cost, quantity in cards))
+     for i, combobox in enumerate(hand_combo_boxes[player_index]):
+         combobox['values'] = card_names_in_deck
+         if i < len(hand_cards):
+             # Check if the hand_cards entry is a card object and set the combobox value accordingly
+             if isinstance(hand_cards[i], GameCard):
+                 combobox.set(hand_cards[i].name)
+             else:
+                 combobox.set(hand_cards[i])
+         else:
+             combobox.set("")
+
 def train_model(root, num_agents_entry, num_episodes_entry, randomize_agents_var):
     # Function to train the model
     try:
@@ -24,7 +37,7 @@ def train_model(root, num_agents_entry, num_episodes_entry, randomize_agents_var
         num_episodes = int(num_episodes_entry.get())
     except ValueError:
         # If the value is not a valid integer, default to 100 episodes
-        num_episodes = 10
+        num_episodes = 100
     # Define the agents based on the number of agents entry or randomize if checked
     if randomize_agents_var.get():
         # Randomize the number of agents for each episode
@@ -38,7 +51,7 @@ def train_model(root, num_agents_entry, num_episodes_entry, randomize_agents_var
             number_of_agents = 2
     agents = [AIPlayer(alpha=0.1, gamma=0.9, epsilon=0.1) for _ in range(number_of_agents)]
     deck = [GameCard(name, points, cost) for name, points, cost, quantity in cards for _ in range(quantity)]
-    game = ai_game.Game(deck, agents, randomize_agents_var, turn_update_callback=update_turn_counter, ui_root=root, time_to_wait_entry=time_to_wait_entry, meadow_update_callback=update_meadow_display)
+    game = ai_game.Game(deck, agents, randomize_agents_var, turn_update_callback=update_turn_counter, ui_root=root, time_to_wait_entry=time_to_wait_entry, meadow_update_callback=update_meadow_display, hand_update_callback=update_hand_display)
     game.train(num_episodes)
     messagebox.showinfo("Training", "Model training complete!")
 
@@ -53,11 +66,29 @@ def user_selects_meadow_card(meadow_card_comboboxes, root):
     # Function to handle user selection of meadow cards
     update_meadow_display(None)
     # Wait for the user to make a selection for the specified combobox
+    print(f"Waiting for user to select meadow card.")
     selection = meadow_card_comboboxes[7].get() #Since the meadow currently just shifts all the cards up one index, we always get the last index here
     while not selection:
         root.update_idletasks()
         root.update()
         selection = meadow_card_comboboxes[7].get()
+    # Create a dictionary mapping card names to Card objects
+    card_dict = {name: GameCard(name, points, cost) for name, points, cost, quantity in cards}
+    # Find the card object by name using the dictionary
+    selected_card = card_dict.get(selection, None)
+    return selected_card
+
+def user_selects_hand_card(hand_combo_boxes, root, player_index, hand_size):
+    # Function to handle user selection of meadow cards
+    hand_cards = [combobox.get() for combobox in hand_combo_boxes[player_index]]
+    update_hand_display(hand_cards, player_index)
+    # Wait for the user to make a selection for the specified combobox
+    print(f"Waiting for player {player_index} to select hand card.")
+    selection = hand_combo_boxes[player_index][hand_size].get() #Since the meadow currently just shifts all the cards up one index, we always get the last index here
+    while not selection:
+        root.update_idletasks()
+        root.update()
+        selection = hand_combo_boxes[player_index][hand_size].get()
     # Create a dictionary mapping card names to Card objects
     card_dict = {name: GameCard(name, points, cost) for name, points, cost, quantity in cards}
     # Find the card object by name using the dictionary
@@ -72,12 +103,16 @@ def load_and_test_model(root):
     agent.epsilon = 0
     agents = [agent, ai_game.ReinforcementLearningAgent(alpha=0.1, gamma=0.9, epsilon=0.1)]
     local_deck = [GameCard(name, points, cost) for name, points, cost, quantity in cards for _ in range(quantity)]
-    game = ai_game.Game(local_deck, agents, randomize_agents_var, turn_update_callback=update_turn_counter, ui_root=root, time_to_wait_entry=time_to_wait_entry, meadow_update_callback=update_meadow_display)
-    # Override the draw_to_meadow method to use the user's selection
+    game = ai_game.Game(local_deck, agents, randomize_agents_var, turn_update_callback=update_turn_counter, ui_root=root, time_to_wait_entry=time_to_wait_entry, meadow_update_callback=update_meadow_display, hand_update_callback=update_hand_display)
+    # Override the drawing when testing the model
     def draw_to_meadow_override():
         selected_card = user_selects_meadow_card(meadow_card_comboboxes, root)
         return [selected_card] if selected_card else []
     game.draw_to_meadow = draw_to_meadow_override
+    def draw_to_hand_override(player_index, size_of_hand):
+        selected_card = user_selects_hand_card(hand_combo_boxes, root, player_index, size_of_hand)
+        return [selected_card] if selected_card else []
+    game.draw_to_hand = lambda player_index, size_of_hand: draw_to_hand_override(player_index, size_of_hand)
     try:
         # Read the value from the num_episodes_entry and convert it to an integer
         num_episodes = int(num_episodes_entry.get())
@@ -89,12 +124,7 @@ def load_and_test_model(root):
         game.reset_game()
         while not game.is_game_over():
             game.play_turn()
-        ai_score, adversarial_ai_score = game.calculate_score()
-        if ai_score > adversarial_ai_score:
-            ai_wins += 1
-    win_rate = ai_wins / num_episodes
-    messagebox.showinfo("Testing", f"Model tested for {num_episodes} episodes.\nAI Win Rate: {win_rate:.2%}")
-    turn_counter_label = None
+        game.calculate_score()
 
 def update_turn_counter(turn):
     turn_counter_label.config(text=f"Turn: {turn + 1}")
@@ -103,6 +133,7 @@ def setup_ui():
     global turn_counter_label, time_to_wait_entry, num_agents_entry, num_episodes_entry
     global turn_counter_label, time_to_wait_entry, num_agents_entry, num_episodes_entry, randomize_agents_var
     global meadow_card_comboboxes
+    global hand_combo_boxes
     root = tk.Tk()
     root.title("Everdell AI")
     # Turn counter label
@@ -123,6 +154,22 @@ def setup_ui():
             combobox = ttk.Combobox(row_frame, state='readonly', width=18)
             combobox.pack(side=tk.LEFT, padx=2)
             meadow_card_comboboxes.append(combobox)
+
+    # Hand boxes sets frame
+    hand_combo_boxes_frame = tk.Frame(root)
+    hand_combo_boxes_frame.pack(anchor='nw', padx=10, pady=5)
+    hand_combo_boxes_label = tk.Label(hand_combo_boxes_frame, text="Hands:")
+    hand_combo_boxes_label.pack(side=tk.TOP)
+    hand_combo_boxes = []
+    for set_index in range(4):
+        set_frame = tk.Frame(hand_combo_boxes_frame)
+        set_frame.pack(side=tk.TOP, pady=2)
+        combo_boxes_hand = []
+        for text_box_index in range(8):
+            combobox = ttk.Combobox(set_frame, state='readonly', width=12)
+            combobox.pack(side=tk.LEFT, padx=2)
+            combo_boxes_hand.append(combobox)
+        hand_combo_boxes.append(combo_boxes_hand)
 
     # Number of agents label and entry
     num_agents_frame = tk.Frame(root)

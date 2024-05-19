@@ -7,7 +7,8 @@ import random
 
 class Game:
 
-    def __init__(self, deck, agents, randomize_agents, turn_update_callback=None, ui_root=None, time_to_wait_entry=None, meadow_update_callback=None):
+    def __init__(self, deck, agents, randomize_agents, turn_update_callback=None, ui_root=None, time_to_wait_entry=None, meadow_update_callback=None, hand_update_callback=None):
+        self.hand_update_callback = hand_update_callback
         self.meadow_update_callback = meadow_update_callback
         self.time_to_wait_entry = time_to_wait_entry
         self.turn_update_callback = turn_update_callback
@@ -137,6 +138,14 @@ class Game:
             return new_cards
         else:
             return []
+        
+    def draw_to_hand(self, *args):
+        new_cards = self.draw_cards(1)
+        if new_cards:
+            print(f"{new_cards[0].name} was drawn into the hand")
+            return new_cards
+        else:
+            return []
 
     def reset_game(self):
         self.current_turn = 0
@@ -231,6 +240,7 @@ class Game:
                 if card in agent.hand:
                     agent.hand.remove(card)
                     print(f"That card was played from the hand.")
+                    self.hand_update_callback(agent.hand, agent_play_turn_index)
                 else:
                     self.meadow.remove(card)
                     if self.meadow is not None:
@@ -242,7 +252,7 @@ class Game:
                 agent.receive_resources(resources_received)
                 print(f"AI {self.agents.index(agent)} receives {resources_received} resources. Total resources: {agent.resources}")
             elif action == 'recall_workers':
-                self.recall_workers(agent)
+                self.recall_workers(agent, agent_play_turn_index)
             else:
                 print(f"AI {self.agents.index(agent)} cannot play a card this turn.")
                 agent.card_to_play = None
@@ -260,7 +270,7 @@ class Game:
         scores = [sum(card.points for card in agent.played_cards) for agent in self.agents]
         return scores
     
-    def recall_workers(self, agent):
+    def recall_workers(self, agent, player_index):
         """
         Handle the recall workers action for the agent.
         """
@@ -270,6 +280,18 @@ class Game:
             else:
                 agent.workers += 5  # Get another 2 workers
             agent.recalls += 1  # Increment the recall count
+            # Allow the player to draw up to 2 cards, without exceeding 8 cards in hand
+            cards_to_draw = min(2, 8 - len(agent.hand))
+            for _ in range(cards_to_draw):  # Start at 0 to ensure the loop runs the correct number of times
+                new_cards = self.draw_to_hand(player_index, len(agent.hand))
+            if new_cards:
+                agent.hand.extend(new_cards)
+                if self.hand_update_callback:
+                    self.hand_update_callback(agent.hand, self.agents.index(agent))
+                if new_cards:
+                    agent.hand.extend(new_cards)
+                    if self.hand_update_callback:
+                        self.hand_update_callback(agent.hand, self.agents.index(agent))
             print(f"AI {self.agents.index(agent)} is preparing for season: recalling workers and getting an additional worker.")
         else:
             print(f"AI {self.agents.index(agent)} cannot recall workers at this time.")
