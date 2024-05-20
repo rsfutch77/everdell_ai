@@ -129,7 +129,7 @@ class Game:
             if self.deck:
                 drawn_cards.append(self.deck.pop(0))
         return drawn_cards
-    
+
     def draw_to_meadow(self):
     # Replenish the meadow immediately after a card is taken
         new_cards = self.draw_cards(1)
@@ -138,7 +138,7 @@ class Game:
             return new_cards
         else:
             return []
-        
+
     def draw_to_hand(self, *args):
         new_cards = self.draw_cards(1)
         if new_cards:
@@ -160,9 +160,17 @@ class Game:
             agent.played_cards = []  # Reset the played cards for each agent
             agent.hand = self.draw_cards(agent.hand_starting_amount + stating_amount_index)  # Deal cards to the agent's hand from the shuffled deck
 
+    def has_no_moves(self, agent):
+        # Check if all agents are out of moves
+        agent_out_of_moves = (agent.workers == 0 and agent.recalls == agent.max_recalls and not any(agent.can_play_card(card) for card in agent.hand + self.meadow))
+        if agent_out_of_moves:
+            print("Agent is out of moves")
+            return True
+        return False
+
     def is_game_over(self):
         # Check if all agents are out of moves
-        all_agents_out_of_moves = all(agent.workers == 0 and agent.recalls == agent.max_recalls and not any(agent.can_play_card(card) for card in agent.hand + self.meadow) for agent in self.agents)
+        all_agents_out_of_moves = all(self.has_no_moves(agent) for agent in self.agents)
         if all_agents_out_of_moves:
             print("All players are out of moves. The game is over.")
             return True
@@ -191,7 +199,7 @@ class Game:
         return state_representation
 
     def play_turn(self):
-        
+
         if self.meadow is not None:
             self.meadow_update_callback(self.meadow)  # Update the meadow display
 
@@ -220,7 +228,7 @@ class Game:
         # AI attempts to select an action
         for agent_play_turn_index, agent in enumerate(self.agents):
             # Skip the turn if the agent is out of moves
-            if agent.workers == 0 and agent.recalls == agent.max_recalls and not any(agent.can_play_card(card) for card in agent.hand + self.meadow):
+            if self.has_no_moves(agent):
                 print(f"AI {self.agents.index(agent)} is out of moves and will pass this turn.")
                 actions_taken.append((None, None))  # Append a None action for this agent
                 continue  # Skip the rest of the turn for this agent
@@ -246,7 +254,7 @@ class Game:
                     if self.meadow is not None:
                         self.meadow_update_callback(self.meadow)  # Update the meadow display
                     self.meadow.extend(self.draw_to_meadow())
-                    
+
             elif action == 'receive_resources' and agent.workers > 0:
                 resources_received = 3  # Define the amount of resources received when choosing to receive resources
                 agent.receive_resources(resources_received)
@@ -269,17 +277,23 @@ class Game:
     def calculate_score(self):
         scores = [sum(card.points for card in agent.played_cards) for agent in self.agents]
         return scores
-    
+
     def recall_workers(self, agent, player_index):
         """
         Handle the recall workers action for the agent.
         """
         if agent.workers == 0 and agent.recalls < agent.max_recalls:
-            if agent.workers == 0 and agent.recalls == 0:
+            if agent.recalls == 0:
                 agent.workers += 3  # Get another worker
+                print(f"Spring.")
+            elif agent.recalls == 1:
+                agent.workers += 4  # Get another worker
+                print(f"Summer.")
             else:
-                agent.workers += 5  # Get another 2 workers
+                agent.workers += 6  # Get another 2 workers
+                print(f"Bonus worker for Fall.")
             agent.recalls += 1  # Increment the recall count
+            print(f"AI {self.agents.index(agent)} is preparing for season: recalling workers and getting an additional worker.")
             # Allow the player to draw up to 2 cards, without exceeding 8 cards in hand
             cards_to_draw = min(2, 8 - len(agent.hand))
             for _ in range(cards_to_draw):  # Start at 0 to ensure the loop runs the correct number of times
@@ -292,6 +306,5 @@ class Game:
                     agent.hand.extend(new_cards)
                     if self.hand_update_callback:
                         self.hand_update_callback(agent.hand, self.agents.index(agent))
-            print(f"AI {self.agents.index(agent)} is preparing for season: recalling workers and getting an additional worker.")
         else:
             print(f"AI {self.agents.index(agent)} cannot recall workers at this time.")

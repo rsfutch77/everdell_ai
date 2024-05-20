@@ -15,7 +15,7 @@ class AIPlayer(ReinforcementLearningAgent):
         self.hand_starting_amount = 5  # Initialize the hand limit for the AIPlayer
         self.card_to_play = None  # Initialize the card to play attribute
         self.recalls = 0  # Initialize the recall count for the AIPlayer
-        self.max_recalls = 2  # Maximum number of recalls allowed per game
+        self.max_recalls = 3  # Maximum number of recalls allowed per game
 
     def receive_resources(self, amount):
         # Method to increase the agent's resources
