@@ -29,6 +29,37 @@ from ui import train_model
 train_model(root, num_agents_entry, num_episodes_entry, randomize_agents_var)
 ```
 
+Game Functions
+---------------
+Below is a list of game functions that are handled:
+
+1. Seasons
+2. Meadow
+3. Hands
+
+Below is a list of game functions that are not yet handled:
+
+1. Basic Events
+2. Special Events
+3. Forest Locations
+4. Haven
+5. Journey
+6. Real card names, points, cost
+7. Real resources
+8. Occupation
+9. Occupation lock
+10. Real card rules
+11. Fools occupation
+12. Wanderer free spot
+13. Dungeon
+14. Ruins
+15. 
+
+
+AI Limitiations
+---------------
+- 
+
 Contributing
 ------------
 Contributions to this project are welcome. Please fork the repository and submit a pull request with your changes.

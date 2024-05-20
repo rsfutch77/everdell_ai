@@ -289,22 +289,22 @@ class Game:
             elif agent.recalls == 1:
                 agent.workers += 4  # Get another worker
                 print(f"Summer.")
+                # Allow the player to draw up to 2 cards, without exceeding 8 cards in hand
+                cards_to_draw = min(2, 8 - len(agent.hand))
+                for _ in range(cards_to_draw):  # Start at 0 to ensure the loop runs the correct number of times
+                    new_cards = self.draw_to_hand(player_index, len(agent.hand))
+                if cards_to_draw > 0:
+                    agent.hand.extend(new_cards)
+                    if self.hand_update_callback:
+                        self.hand_update_callback(agent.hand, self.agents.index(agent))
+                    if new_cards:
+                        agent.hand.extend(new_cards)
+                        if self.hand_update_callback:
+                            self.hand_update_callback(agent.hand, self.agents.index(agent))
             else:
                 agent.workers += 6  # Get another 2 workers
                 print(f"Bonus worker for Fall.")
             agent.recalls += 1  # Increment the recall count
             print(f"AI {self.agents.index(agent)} is preparing for season: recalling workers and getting an additional worker.")
-            # Allow the player to draw up to 2 cards, without exceeding 8 cards in hand
-            cards_to_draw = min(2, 8 - len(agent.hand))
-            for _ in range(cards_to_draw):  # Start at 0 to ensure the loop runs the correct number of times
-                new_cards = self.draw_to_hand(player_index, len(agent.hand))
-            if new_cards:
-                agent.hand.extend(new_cards)
-                if self.hand_update_callback:
-                    self.hand_update_callback(agent.hand, self.agents.index(agent))
-                if new_cards:
-                    agent.hand.extend(new_cards)
-                    if self.hand_update_callback:
-                        self.hand_update_callback(agent.hand, self.agents.index(agent))
         else:
-            print(f"AI {self.agents.index(agent)} cannot recall workers at this time.")
+            raise Exception(f"AI {self.agents.index(agent)} cannot recall workers at this time.")
