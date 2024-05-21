@@ -50,8 +50,8 @@ def train_model(root, num_agents_entry, num_episodes_entry, randomize_agents_var
             # If the value is not a valid integer, default to 2 agents
             number_of_agents = 2
     agents = [AIPlayer(alpha=0.1, gamma=0.9, epsilon=0.1) for _ in range(number_of_agents)]
-    deck = [GameCard(name, points, cost) for name, points, cost, quantity in cards for _ in range(quantity)]
-    game = ai_game.Game(deck, agents, randomize_agents_var, turn_update_callback=update_turn_counter, ui_root=root, time_to_wait_entry=time_to_wait_entry, meadow_update_callback=update_meadow_display, hand_update_callback=update_hand_display)
+    card_dict = setup_cards()
+    game = ai_game.Game(card_dict, agents, randomize_agents_var, turn_update_callback=update_turn_counter, ui_root=root, time_to_wait_entry=time_to_wait_entry, meadow_update_callback=update_meadow_display, hand_update_callback=update_hand_display)
     game.train(num_episodes)
     messagebox.showinfo("Training", "Model training complete!")
 
@@ -61,6 +61,10 @@ def toggle_num_agents_entry():
         num_agents_entry.config(state='disabled')
     else:
         num_agents_entry.config(state='normal')
+
+def setup_cards():
+    # Create a list of Card objects using the quantity attribute from the cards definition
+    return [GameCard(name, points, cost, quantity) for name, points, cost, quantity in cards for _ in range(quantity)]
         
 def user_selects_meadow_card(meadow_card_comboboxes, root):
     # Function to handle user selection of meadow cards
@@ -90,7 +94,7 @@ def user_selects_hand_card(hand_combo_boxes, root, player_index, hand_size):
         root.update()
         selection = hand_combo_boxes[player_index][hand_size].get()
     # Create a dictionary mapping card names to Card objects
-    card_dict = {name: GameCard(name, points, cost) for name, points, cost, quantity in cards}
+    card_dict = setup_cards()
     # Find the card object by name using the dictionary
     selected_card = card_dict.get(selection, None)
     return selected_card
@@ -102,8 +106,8 @@ def load_and_test_model(root):
     # Disable exploration to use the model for inference
     agent.epsilon = 0
     agents = [agent, ai_game.ReinforcementLearningAgent(alpha=0.1, gamma=0.9, epsilon=0.1)]
-    local_deck = [GameCard(name, points, cost) for name, points, cost, quantity in cards for _ in range(quantity)]
-    game = ai_game.Game(local_deck, agents, randomize_agents_var, turn_update_callback=update_turn_counter, ui_root=root, time_to_wait_entry=time_to_wait_entry, meadow_update_callback=update_meadow_display, hand_update_callback=update_hand_display)
+    card_dict = setup_cards()
+    game = ai_game.Game(card_dict, agents, randomize_agents_var, turn_update_callback=update_turn_counter, ui_root=root, time_to_wait_entry=time_to_wait_entry, meadow_update_callback=update_meadow_display, hand_update_callback=update_hand_display)
     # Override the drawing when testing the model
     def draw_to_meadow_override():
         selected_card = user_selects_meadow_card(meadow_card_comboboxes, root)
