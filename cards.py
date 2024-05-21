@@ -4,31 +4,32 @@ class Card:
         self.name = name
         self.points = points
         self.cost = cost  # Assign the fixed cost
+        
 
-#Card Name, Points, Cost, Quantity in Deck
+#Card Name, Points, Cost (Wood, Resin, Stone, Berries), Quantity in Deck
 cards = [
     #Basic cards that just provide a bonus on activation/harvest
-    ("Farm", 2, 2, 8),
-    ("Mine", 2, 1, 3),
-    ("Twig Barge", 2, 3, 3), 
-    ("Resin Refinery", 3, 2, 3),
-    ("Fairgrounds", 3, 3, 3),
+    ("Farm", 1, 2, 1, 0, 0, 8),
+    ("Mine",2, 1, 1, 1, 0, 3),
+    ("Twig Barge", 1, 1, 0, 1, 0, 3), 
+    ("Resin Refinery", 1, 0, 1, 1, 0, 3),
+    ("Fairgrounds", 3, 1, 2, 1, 0, 3),
     
     #Takes up space in opponent's city
-    ("Fool", 4, 4, 2),
+    ("Fool", -2, 0, 0, 0, 3, 2),
     
     #Does not take up space
-    ("Wanderer", 4, 5, 3), 
+    ("Wanderer", 1, 0, 0,0, 2, 3), 
 
     #Prosperity cards
-    ("Theater", 5, 7, 2),   
-    ("Architect", 5, 7, 2),   
-    ("Palace", 5, 7, 2),
-    ("Gatherer", 5, 7, 3),
-    ("School", 5, 7, 2),
-    ("Castle", 5, 7, 2),
-    ("Ever Tree", 5, 7, 2),
-    ("King", 5, 7, 2),
+    ("Theater", 3, 3, 1, 1, 2),   
+    ("Architect", 2, 0, 0, 0, 4, 2),   
+    ("Palace", 1, 2, 3, 3, 0, 2),
+    ("Gatherer", 2, 0, 0, 0, 2, 4),
+    ("School", 2, 2, 2, 0, 0, 2),
+    ("Castle", 4, 2, 3, 3, 0, 2),
+    ("Ever Tree", 5, 3, 3, 3, 0, 2),
+    ("King", 4, 0,0,0,6, 2),
     
     #Cards that reveal
     #("Postal Pigeon", 5, 7, 3),
