@@ -8,6 +8,7 @@ import random
 class Game:
 
     def __init__(self, deck, agents, randomize_agents, turn_update_callback=None, ui_root=None, time_to_wait_entry=None, meadow_update_callback=None, hand_update_callback=None):
+        self.card_play_frequency = {}  # Dictionary to track the frequency of card plays
         self.hand_update_callback = hand_update_callback
         self.meadow_update_callback = meadow_update_callback
         self.time_to_wait_entry = time_to_wait_entry
@@ -110,6 +111,19 @@ class Game:
         plt.xlabel('Learning Step')
         plt.ylabel('TD Error')
 
+        # Plot the frequency of each card being played
+        if self.card_play_frequency:
+            plt.figure()
+            card_names = list(self.card_play_frequency.keys())
+            frequencies = list(self.card_play_frequency.values())
+            plt.bar(card_names, frequencies)
+            plt.title('Card Play Frequency')
+            plt.xlabel('Card Name')
+            plt.ylabel('Frequency')
+            plt.xticks(rotation=90)
+            plt.tight_layout()  # Adjust layout to prevent label cutoff
+            plt.show()
+
         if not self.randomize_agents.get():
             # Plot the win rates over episodes
             plt.figure()  # Create a new figure
@@ -122,7 +136,6 @@ class Game:
         plt.show()
 
         self.agents[0].save_model('ai_model.pkl')
-
     def draw_cards(self, number):
         drawn_cards = []
         for _ in range(number):
@@ -254,6 +267,8 @@ class Game:
                     if self.meadow is not None:
                         self.meadow_update_callback(self.meadow)  # Update the meadow display
                     self.meadow.extend(self.draw_to_meadow())
+                # Update the card play frequency
+                self.card_play_frequency[card.name] = self.card_play_frequency.get(card.name, 0) + 1
 
             elif action == 'receive_resources' and agent.workers > 0:
                 resources_received = 3  # Define the amount of resources received when choosing to receive resources
