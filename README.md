@@ -39,26 +39,35 @@ Below is a list of game functions that are handled:
 
 Below is a list of game functions that are not yet handled:
 
-1. Basic Events
-2. Special Events
-3. Forest Locations
-4. Haven
-5. Journey
-6. Real card names, points, cost
-7. Real resources
-8. Occupation
-9. Occupation lock
-10. Real card rules
-11. Fools occupation
-12. Wanderer free spot
-13. Dungeon
-14. Ruins
-15. 
-
+- Real card names, points, cost
+- Basic locations
+- Real card rules that don't do anything until end game
+- Real card rules that affect other cards in play
+- Real card rules that simply gain stuff when played
+- Real card rules that add a worker location
+- Real card rules that activate when a card is played
+- Real card rules that can change the cost of a card to play
+- Both harvests
+- Unique cards
+- Basic Events
+- Shared locations
+- Forest locations
+- Special Events
+- Haven
+- Journey
+- Occupation
+- Occupation lock
+- Extra locations when there are 4 players
+- Open Destination cards
+- Discarding cards that would be over the hand limit when donating cards to an opponent
+- Drawing all cards from the meadow before replenishing when multiple cards are drawn from the meadow
+- If a player has passed, they can not be given any resources or cards
+- Allow the AI to choose to pass
+- In the case of ties, the player with more events wins, if there is still a tie, then count resources
 
 AI Limitiations
 ---------------
-- 
+- The AI 
 
 Contributing
 ------------
