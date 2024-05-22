@@ -33,9 +33,10 @@ Game Functions
 ---------------
 Below is a list of game functions that are handled:
 
-1. Seasons
+1. Recalling workers for each season
 2. Meadow
 3. Hands
+4. Drawing cards in summer
 
 Below is a list of game functions that are not yet handled:
 
@@ -64,6 +65,7 @@ Below is a list of game functions that are not yet handled:
 - If a player has passed, they can not be given any resources or cards
 - Allow the AI to choose to pass
 - In the case of ties, the player with more events wins, if there is still a tie, then count resources
+- Re-shuffling an empty deck
 
 AI Limitiations
 ---------------

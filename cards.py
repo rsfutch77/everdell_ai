@@ -1,10 +1,11 @@
 
 class Card:
-    def __init__(self, name, points, wood, resin, berries, quantity):
+    def __init__(self, name, points, wood, resin, stone, berries, quantity):
         self.name = name
         self.points = points
         self.wood = wood
         self.resin = resin
+        self.stone = stone
         self.berries = berries
         self.quantity = quantity
         

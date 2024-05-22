@@ -8,7 +8,7 @@ import random
 randomize_agents_var = None  # Global variable for the randomize agents checkbox state
 
 def update_meadow_display(meadow_cards):
-    card_names_in_deck = list(set(name for name, points, cost, quantity in cards))
+    card_names_in_deck = list(set(name for name, points, wood, resin, stone, berries, quantity in cards))
     for i, combobox in enumerate(meadow_card_comboboxes):
         combobox['values'] = card_names_in_deck
         if meadow_cards != None:
@@ -18,7 +18,7 @@ def update_meadow_display(meadow_cards):
                 combobox.set("")
 
 def update_hand_display(hand_cards, player_index):
-     card_names_in_deck = list(set(name for name, points, cost, quantity in cards))
+     card_names_in_deck = list(set(name for name, points, wood, resin, stone, berries, quantity in cards))
      for i, combobox in enumerate(hand_combo_boxes[player_index]):
          combobox['values'] = card_names_in_deck
          if i < len(hand_cards):
@@ -64,7 +64,7 @@ def toggle_num_agents_entry():
 
 def setup_cards():
     # Create a list of Card objects using the quantity attribute from the cards definition
-    return [GameCard(name, points, cost, quantity) for name, points, cost, quantity in cards for _ in range(quantity)]
+    return [GameCard(name, points, wood, resin, stone, berries, quantity) for name, points, wood, resin, stone, berries, quantity in cards for _ in range(quantity)]
         
 def user_selects_meadow_card(meadow_card_comboboxes, root):
     # Function to handle user selection of meadow cards
@@ -77,7 +77,7 @@ def user_selects_meadow_card(meadow_card_comboboxes, root):
         root.update()
         selection = meadow_card_comboboxes[7].get()
     # Create a dictionary mapping card names to Card objects
-    card_dict = {name: GameCard(name, points, cost) for name, points, cost, quantity in cards}
+    card_dict = {name: GameCard(name, points, wood, resin, stone, berries) for name, points, wood, resin, stone, berries in cards}
     # Find the card object by name using the dictionary
     selected_card = card_dict.get(selection, None)
     return selected_card

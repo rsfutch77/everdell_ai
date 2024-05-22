@@ -169,7 +169,10 @@ class Game:
         for stating_amount_index, agent in enumerate(self.agents):
             agent.workers = 2
             agent.recalls = 0  # Reset the recall count for each agent
-            agent.resources = 0
+            agent.wood = 0
+            agent.resin = 0
+            agent.stone = 0
+            agent.berries = 0
             agent.played_cards = []  # Reset the played cards for each agent
             agent.hand = self.draw_cards(agent.hand_starting_amount + stating_amount_index)  # Deal cards to the agent's hand from the shuffled deck
 
@@ -198,18 +201,20 @@ class Game:
         for agent in self.agents:
             played_points = [card.points for card in agent.played_cards]
             state_representation.extend(played_points)
-        if current_player_index is not None:
-            # Include the points and costs of cards in the current player's hand as features
-            current_player_hand_features = [(card.points, card.cost) for card in self.agents[current_player_index].hand]
-            for points, cost in current_player_hand_features:
-                state_representation.extend([points, cost])
-        # Include the points and costs of cards in the meadow as features
-        meadow_features = [(card.points, card.cost) for card in self.meadow]
-        for points, cost in meadow_features:
-            state_representation.extend([points, cost])
+            for card in agent.hand:
+                state_representation.extend([card.points, card.wood, card.resin, card.stone, card.berries])
+        for card in self.meadow:
+            state_representation.extend([card.points, card.wood, card.resin, card.stone, card.berries])
         # Normalize or scale the features if necessary
         # ...
         return state_representation
+
+    def play_card(self, agent, card, agent_index):
+        agent.wood -= card.wood  # Deduct the cost from the AI player's resources
+        agent.resin -= card.resin
+        agent.stone -= card.stone
+        agent.berries -= card.berries
+        print(f"AI {agent_index} plays {card.name}.")
 
     def play_turn(self):
 
@@ -234,7 +239,7 @@ class Game:
         actions_taken = []  # List to store the actions taken by each agent
 
         for agent in self.agents:
-            print(f"Starting turn with AI {self.agents.index(agent)} resources: {agent.resources}")
+            print(f"Starting turn with AI {self.agents.index(agent)} Wood: {agent.wood} Resin: {agent.resin} Stone: {agent.stone} Berries: {agent.berries}")
             print(f"AI {self.agents.index(agent)} has {agent.workers} workers remaining.")
             print(f"AI {self.agents.index(agent)} hand: {[card.name for card in agent.hand]}")
 
@@ -255,8 +260,7 @@ class Game:
             else:
                 action, card = (None, None)
             if action == 'play_card' and card:
-                agent.resources -= card.cost  # Deduct the cost from the AI player's resources
-                print(f"AI {self.agents.index(agent)} plays {card.name} costing {card.cost}. Remaining resources: {agent.resources}.")
+                self.play_card(agent, card, agent_play_turn_index)
                 agent.played_cards.append(card)
                 if card in agent.hand:
                     agent.hand.remove(card)
@@ -271,9 +275,8 @@ class Game:
                 self.card_play_frequency[card.name] = self.card_play_frequency.get(card.name, 0) + 1
 
             elif action == 'receive_resources' and agent.workers > 0:
-                resources_received = 3  # Define the amount of resources received when choosing to receive resources
-                agent.receive_resources(resources_received)
-                print(f"AI {self.agents.index(agent)} receives {resources_received} resources. Total resources: {agent.resources}")
+                received_resources = agent.receive_resources(agent.resource_pick)
+                print(f"AI {self.agents.index(agent)} receives {', '.join(received_resources)} resources.")
             elif action == 'recall_workers':
                 self.recall_workers(agent, agent_play_turn_index)
             else:
