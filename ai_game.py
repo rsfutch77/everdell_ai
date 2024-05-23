@@ -15,7 +15,7 @@ class Game:
         self.turn_update_callback = turn_update_callback
         self.ui_root = ui_root
         self.initial_deck = list(deck)  # Store the initial state of the deck
-        self.agents = agents if all(isinstance(agent, AIPlayer) for agent in agents) else [AIPlayer(wins=0) for _ in range(2)]
+        self.agents = agents
         self.ties = 0
         self.randomize_agents = randomize_agents  # Store the randomize_agents variable
 
@@ -43,6 +43,9 @@ class Game:
                 tie_calculator += 1
 
         return tie_calculator, winner
+        self.reset_game()
+        for agent in self.agents:
+            agent.game = self
 
     def train(self, num_episodes):
         self.ties = 0
@@ -94,23 +97,14 @@ class Game:
             print(f"Ties: {self.ties / (episode + 1):.2%}")
 
 
-        # Save the AI model after training
+        
         if not self.randomize_agents.get():
             plt.figure()  # Create a new figure
             for agent in self.agents:
                 plt.plot(agent.td_errors)
-        else:
-            plt.figure()  # Create a new figure for agent[0] only
-            x_values = range(1, num_episodes + 1)
-            plt.plot(x_values, all_episodes_td_errors, marker='o')  # Plot TD errors with markers for clarity
-            # Calculate and plot the trendline
-            z = np.polyfit(x_values, all_episodes_td_errors, 1)
-            p = np.poly1d(z)
-            plt.plot(x_values, p(x_values), "r--")  # Plot the trendline
-        plt.title('TD Error Over Time')
-        plt.xlabel('Learning Step')
-        plt.ylabel('TD Error')
-
+            plt.title('TD Error Over Time')
+            plt.xlabel('Learning Step')
+            plt.ylabel('TD Error')
         # Plot the frequency of each card being played
         if self.card_play_frequency:
             plt.figure()
@@ -122,8 +116,6 @@ class Game:
             plt.ylabel('Frequency')
             plt.xticks(rotation=90)
             plt.tight_layout()  # Adjust layout to prevent label cutoff
-            plt.show()
-
         if not self.randomize_agents.get():
             # Plot the win rates over episodes
             plt.figure()  # Create a new figure
@@ -132,10 +124,11 @@ class Game:
             plt.title('AI Win Rate Over Time')
             plt.xlabel('Episode')
             plt.ylabel('Win Rate')
-
         plt.show()
 
+        # Save the AI model after training
         self.agents[0].save_model('ai_model.pkl')
+
     def draw_cards(self, number):
         drawn_cards = []
         for _ in range(number):
@@ -152,13 +145,7 @@ class Game:
         else:
             return []
 
-    def draw_to_hand(self, *args):
-        new_cards = self.draw_cards(1)
-        if new_cards:
-            print(f"{new_cards[0].name} was drawn into the hand")
-            return new_cards
-        else:
-            return []
+
 
     def reset_game(self):
         self.current_turn = 0
@@ -209,11 +196,13 @@ class Game:
         # ...
         return state_representation
 
-    def play_card(self, agent, card, agent_index):
+    def play_card(self, agent, card, agent_index, game):
         agent.wood -= card.wood  # Deduct the cost from the AI player's resources
         agent.resin -= card.resin
         agent.stone -= card.stone
         agent.berries -= card.berries
+        # Activate the card's effect if it has one
+        card.activate(agent, game)
         print(f"AI {agent_index} plays {card.name}.")
 
     def play_turn(self):
@@ -260,7 +249,7 @@ class Game:
             else:
                 action, card = (None, None)
             if action == 'play_card' and card:
-                self.play_card(agent, card, agent_play_turn_index)
+                self.play_card(agent, card, agent_play_turn_index, self)
                 agent.played_cards.append(card)
                 if card in agent.hand:
                     agent.hand.remove(card)
@@ -268,9 +257,8 @@ class Game:
                     self.hand_update_callback(agent.hand, agent_play_turn_index)
                 else:
                     self.meadow.remove(card)
-                    if self.meadow is not None:
-                        self.meadow_update_callback(self.meadow)  # Update the meadow display
                     self.meadow.extend(self.draw_to_meadow())
+                    self.meadow_update_callback(self.meadow)  # Update the meadow display
                 # Update the card play frequency
                 self.card_play_frequency[card.name] = self.card_play_frequency.get(card.name, 0) + 1
 
@@ -307,18 +295,8 @@ class Game:
             elif agent.recalls == 1:
                 agent.workers += 4  # Get another worker
                 print(f"Summer.")
-                # Allow the player to draw up to 2 cards, without exceeding 8 cards in hand
-                cards_to_draw = min(2, 8 - len(agent.hand))
-                for _ in range(cards_to_draw):  # Start at 0 to ensure the loop runs the correct number of times
-                    new_cards = self.draw_to_hand(player_index, len(agent.hand))
-                if cards_to_draw > 0:
-                    agent.hand.extend(new_cards)
-                    if self.hand_update_callback:
-                        self.hand_update_callback(agent.hand, self.agents.index(agent))
-                    if new_cards:
-                        agent.hand.extend(new_cards)
-                        if self.hand_update_callback:
-                            self.hand_update_callback(agent.hand, self.agents.index(agent))
+                # Allow the player to draw up to the quantity of cards, without exceeding 8 cards in hand
+                agent.draw_to_hand(self.draw_cards(min(2, agent.max_cards_in_hand - len(agent.hand))))
             else:
                 agent.workers += 6  # Get another 2 workers
                 print(f"Bonus worker for Fall.")

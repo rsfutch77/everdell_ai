@@ -21,6 +21,7 @@ class AIPlayer(ReinforcementLearningAgent):
         self.resource_pick = None
         self.recalls = 0  # Initialize the recall count for the AIPlayer
         self.max_recalls = 3  # Maximum number of recalls allowed per game
+        self.max_cards_in_hand = 8
 
     def receive_resources(self, resource_type):
         # Method to increase the agent's resources and return the received resource
@@ -39,6 +40,10 @@ class AIPlayer(ReinforcementLearningAgent):
             received_resources.append('berries')
         self.workers -= 1  # Decrement a worker to receive resources
         return received_resources
+
+    def draw_to_hand(self, new_cards, *args):
+        if new_cards != None:
+            self.hand.extend(new_cards)
 
     def can_play_card(self, card):
         # Check if the card can be played based on available resources and return the action
@@ -86,7 +91,5 @@ class AIPlayer(ReinforcementLearningAgent):
             card = game.agents[agent_index].card_to_play  # Assuming card_to_play is now an instance of Card
             if card:
                 reward = card.points * 0.01  # Small reward for the card's point value
-
-
             
         return reward
