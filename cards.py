@@ -25,10 +25,18 @@ def twig_barge_activation(player, *args):
     player.wood += 2
 def resin_refinery_activation(player, *args):
     player.resin += 1
-def fairgrounds_activation(player, game):
+def fairgrounds_activation(player, game, *args):
     player.draw_to_hand(game.draw_cards(min(2, player.max_cards_in_hand - len(player.hand))))
-def fool_activation(player, *args):
-    pass  # Fool card may have a different effect or no effect
+def fool_activation(player, game, *args):
+    # Find the next player in the game
+    next_player_index = (game.agents.index(player) + 1) % len(game.agents)
+    next_player = game.agents[next_player_index]
+    # Move the Fool card to the next player's played cards
+    fool_card = next((card for card in player.played_cards if card.name == "Fool"), None)
+    if fool_card:
+        player.played_cards.remove(fool_card)
+        next_player.played_cards.append(fool_card)
+        print(f"Fool card played into opponent's played cards by AI {game.agents.index(player)}")
 def wanderer_activation(player, *args):
     pass  # Wanderer card may have a different effect or no effect
 def theater_activation(player, *args):

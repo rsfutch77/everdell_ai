@@ -90,6 +90,9 @@ class AIPlayer(ReinforcementLearningAgent):
         elif action == 'play_card':
             card = game.agents[agent_index].card_to_play  # Assuming card_to_play is now an instance of Card
             if card:
-                reward = card.points * 0.01  # Small reward for the card's point value
+                if card.name == "Fool":
+                    reward = -card.points * 0.01  # Reverse reward for fool
+                else:
+                    reward = card.points * 0.01  # Small reward for the card's point value
             
         return reward

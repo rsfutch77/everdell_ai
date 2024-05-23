@@ -37,9 +37,12 @@ Below is a list of game functions that are handled:
 2. Meadow
 3. Hands
 4. Drawing cards in summer
+5. Real card names, points, cost
 
 Below is a list of game functions that are not yet handled:
 
+- 15 card city limit, including for the fool
+- AI deciding which person to give the fool to (current just picks the next player)
 - Real card names, points, cost
 - Basic locations
 - Real card rules that don't do anything until end game

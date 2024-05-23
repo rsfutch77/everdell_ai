@@ -201,9 +201,20 @@ class Game:
         agent.resin -= card.resin
         agent.stone -= card.stone
         agent.berries -= card.berries
+        agent.played_cards.append(card)
+        print(f"AI {agent_index} plays {card.name}.")
         # Activate the card's effect if it has one
         card.activate(agent, game)
-        print(f"AI {agent_index} plays {card.name}.")
+        if card in agent.hand:
+            agent.hand.remove(card)
+            print(f"That card was played from the hand.")
+            self.hand_update_callback(agent.hand, agent_index)
+        else:
+            self.meadow.remove(card)
+            self.meadow.extend(self.draw_to_meadow())
+            self.meadow_update_callback(self.meadow)  # Update the meadow display
+        # Update the card play frequency
+        self.card_play_frequency[card.name] = self.card_play_frequency.get(card.name, 0) + 1
 
     def play_turn(self):
 
@@ -250,17 +261,6 @@ class Game:
                 action, card = (None, None)
             if action == 'play_card' and card:
                 self.play_card(agent, card, agent_play_turn_index, self)
-                agent.played_cards.append(card)
-                if card in agent.hand:
-                    agent.hand.remove(card)
-                    print(f"That card was played from the hand.")
-                    self.hand_update_callback(agent.hand, agent_play_turn_index)
-                else:
-                    self.meadow.remove(card)
-                    self.meadow.extend(self.draw_to_meadow())
-                    self.meadow_update_callback(self.meadow)  # Update the meadow display
-                # Update the card play frequency
-                self.card_play_frequency[card.name] = self.card_play_frequency.get(card.name, 0) + 1
 
             elif action == 'receive_resources' and agent.workers > 0:
                 received_resources = agent.receive_resources(agent.resource_pick)
