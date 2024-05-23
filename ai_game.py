@@ -161,6 +161,7 @@ class Game:
             agent.stone = 0
             agent.berries = 0
             agent.played_cards = []  # Reset the played cards for each agent
+            agent.non_city_cards = []  # Reset the non-city cards for each agent
             agent.hand = self.draw_cards(agent.hand_starting_amount + stating_amount_index)  # Deal cards to the agent's hand from the shuffled deck
 
     def has_no_moves(self, agent):
@@ -281,7 +282,7 @@ class Game:
         return {'turn': self.current_turn, 'played_cards': self.played_cards}
 
     def calculate_score(self):
-        scores = [sum(card.points for card in agent.played_cards) for agent in self.agents]
+        scores = [sum(card.points for card in agent.played_cards + agent.non_city_cards) for agent in self.agents]
         return scores
 
     def recall_workers(self, agent, player_index):

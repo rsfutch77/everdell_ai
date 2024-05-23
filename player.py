@@ -23,6 +23,7 @@ class AIPlayer(ReinforcementLearningAgent):
         self.max_recalls = 3  # Maximum number of recalls allowed per game
         self.max_cards_in_hand = 8
         self.city_limit = 15
+        self.non_city_cards = []  # Initialize the list of cards that have been activated but do not count towards the city limit
 
     def receive_resources(self, resource_type):
         # Method to increase the agent's resources and return the received resource

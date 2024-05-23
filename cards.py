@@ -42,8 +42,16 @@ def fool_activation(player, game, *args):
         player.played_cards.remove(fool_card)
         next_player.played_cards.append(fool_card)
         print(f"Fool card played into opponent's played cards by AI {game.agents.index(player)}")
-def wanderer_activation(player, *args):
-    pass  # Wanderer card may have a different effect or no effect
+def wanderer_activation(player, game, *args):
+     # Draw cards for the Wanderer activation without adding it to played cards
+     player.draw_to_hand(game.draw_cards(min(3, player.max_cards_in_hand - len(player.hand))))
+     # Remove the Wanderer card from the player's hand
+     wanderer_card = next((card for card in player.played_cards if card.name == "Wanderer"), None)
+     if wanderer_card:
+         player.played_cards.remove(wanderer_card)
+         # Instead of adding to played_cards, add to a separate list that doesn't count towards the city limit
+         player.non_city_cards.append(wanderer_card)
+         print(f"Wanderer card activated by AI {game.agents.index(player)} but does not occupy space in city")
 def theater_activation(player, *args):
     pass
 def architect_activation(player, *args):
