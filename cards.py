@@ -1,7 +1,8 @@
 class Card:
-    def __init__(self, name, card_type, points, wood, resin, stone, berries, quantity):
+    def __init__(self, name, card_type, rarity, points, wood, resin, stone, berries, quantity):
         self.name = name
         self.card_type = card_type  # 'character' or 'construction'
+        self.rarity = rarity  # 'unique' or 'common'
         self.points = points
         self.wood = wood
         self.resin = resin
@@ -193,24 +194,24 @@ activation_effects = {
 #Card Name, Points, Cost (Wood, Resin, Stone, Berries), Quantity in Deck
 cards = [
     #Basic cards that just provide a bonus on activation/harvest
-    ("Farm"          , "construction",  1, 2, 1, 0, 0, 8),  # Farm now has an activation effect
-    ("Mine"          , "construction",  2, 1, 1, 1, 0, 3),
-    ("Twig Barge"    , "construction",  1, 1, 0, 1, 0, 3), 
-    ("Resin Refinery", "construction",  1, 0, 1, 1, 0, 3),
-    ("Fairgrounds"   , "construction",  3, 1, 2, 1, 0, 3),
+    ("Farm"          , "construction", "common",  1, 2, 1, 0, 0, 8),  # Farm now has an activation effect
+    ("Mine"          , "construction", "common",  2, 1, 1, 1, 0, 3),
+    ("Twig Barge"    , "construction", "common",  1, 1, 0, 1, 0, 3), 
+    ("Resin Refinery", "construction", "common",  1, 0, 1, 1, 0, 3),
+    ("Fairgrounds"   , "construction", "unique",  3, 1, 2, 1, 0, 3),
     #Takes up space in opponent's city
-    ("Fool"          , "character", -2, 0, 0, 0, 3, 2),
+    ("Fool"          , "character",    "unique", -2, 0, 0, 0, 3, 2),
     #Does not take up space
-    ("Wanderer"      , "character",  1, 0, 0, 0, 2, 3), 
+    ("Wanderer"      , "character",    "common",  1, 0, 0, 0, 2, 3), 
     #Prosperity cards
-    ("Theater"       , "construction",  3, 3, 1, 1, 0, 2),   
-    ("Architect"     , "character",  2, 0, 0, 0, 4, 2),   
-    ("Palace"        , "construction",  1, 2, 3, 3, 0, 2),
-    ("Gatherer"      , "character",  2, 0, 0, 0, 2, 4),
-    ("School"        , "construction",  2, 2, 2, 0, 0, 2),
-    ("Castle"        , "construction",  4, 2, 3, 3, 0, 2),
-    ("Ever Tree"     , "construction",  5, 3, 3, 3, 0, 2),
-    ("King"          , "character",  4, 0, 0, 0, 6, 2),
+    ("Theater"       , "construction", "unique",  3, 3, 1, 1, 0, 2),   
+    ("Architect"     , "character",    "unique",  2, 0, 0, 0, 4, 2),   
+    ("Palace"        , "construction", "unique",  1, 2, 3, 3, 0, 2),
+    ("Gatherer"      , "character",    "common",  2, 0, 0, 0, 2, 4),
+    ("School"        , "construction", "unique",  2, 2, 2, 0, 0, 2),
+    ("Castle"        , "construction", "unique",  4, 2, 3, 3, 0, 2),
+    ("Ever Tree"     , "construction", "unique",  5, 3, 3, 3, 0, 2),
+    ("King"          , "character",    "unique",  4, 0, 0, 0, 6, 2),
     #Cards that reveal
     #("Postal Pigeon", 5, 7, 3),
     #Cards that activate on playing a card

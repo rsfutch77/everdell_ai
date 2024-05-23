@@ -8,7 +8,7 @@ import random
 randomize_agents_var = None  # Global variable for the randomize agents checkbox state
 
 def update_meadow_display(meadow_cards):
-    card_names_in_deck = list(set(name for name, card_type, points, wood, resin, stone, berries, quantity in (card + (0,) * (7 - len(card)) for card in cards)))
+    card_names_in_deck = list(set(name for name, card_type, rarity, points, wood, resin, stone, berries, quantity in (card + (0,) * (8 - len(card)) for card in cards)))
     for i, combobox in enumerate(meadow_card_comboboxes):
         combobox['values'] = card_names_in_deck
         if meadow_cards != None:
@@ -18,7 +18,7 @@ def update_meadow_display(meadow_cards):
                 combobox.set("")
 
 def update_hand_display(hand_cards, player_index):
-     card_names_in_deck = list(set(name for name, card_type, points, wood, resin, stone, berries, quantity in (card + (0,) * (7 - len(card)) for card in cards)))
+     card_names_in_deck = list(set(name for name, card_type, rarity, points, wood, resin, stone, berries, quantity in (card + (0,) * (8 - len(card)) for card in cards)))
      for i, combobox in enumerate(hand_combo_boxes[player_index]):
          combobox['values'] = card_names_in_deck
          if i < len(hand_cards):
@@ -65,9 +65,9 @@ def toggle_num_agents_entry():
 def setup_cards():
     # Create a list of Card objects using the quantity attribute from the cards definition
     # Handle tuples with different lengths by providing default values
-    return [GameCard(name, card_type, points, wood, resin, stone, berries, quantity)
-            for name, card_type, points, wood, resin, stone, berries, quantity in
-            (card + (0,) * (7 - len(card)) for card in cards)
+    return [GameCard(name, card_type, rarity, points, wood, resin, stone, berries, quantity)
+            for name, card_type, rarity, points, wood, resin, stone, berries, quantity in
+            (card + (0,) * (8 - len(card)) for card in cards)
             for _ in range(quantity)]
 
 def user_selects_meadow_card(meadow_card_comboboxes, root):
@@ -81,7 +81,7 @@ def user_selects_meadow_card(meadow_card_comboboxes, root):
         root.update()
         selection = meadow_card_comboboxes[7].get()
     # Create a dictionary mapping card names to Card objects
-    card_dict = {name: GameCard(name, points, wood, resin, stone, berries) for name, points, wood, resin, stone, berries in cards}
+    card_dict = {name: GameCard(name, card_type, rarity, points, wood, resin, stone, berries, quantity) for name, card_type, rarity, points, wood, resin, stone, berries, quantity in cards}
     # Find the card object by name using the dictionary
     selected_card = card_dict.get(selection, None)
     return selected_card
@@ -97,6 +97,7 @@ def user_selects_hand_card(hand_combo_boxes, root, player_index, hand_size):
         root.update_idletasks()
         root.update()
         selection = hand_combo_boxes[player_index][hand_size].get()
+    card_dict = {name: GameCard(name, card_type, rarity, points, wood, resin, stone, berries, quantity) for name, card_type, rarity, points, wood, resin, stone, berries, quantity in cards}
     # Create a dictionary mapping card names to Card objects
     card_dict = setup_cards()
     # Find the card object by name using the dictionary
