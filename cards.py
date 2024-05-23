@@ -28,9 +28,14 @@ def resin_refinery_activation(player, *args):
 def fairgrounds_activation(player, game, *args):
     player.draw_to_hand(game.draw_cards(min(2, player.max_cards_in_hand - len(player.hand))))
 def fool_activation(player, game, *args):
-    # Find the next player in the game
-    next_player_index = (game.agents.index(player) + 1) % len(game.agents)
-    next_player = game.agents[next_player_index]
+    # Find the next available player in the game to give the fool to
+    iterate_players = 0
+    next_player_index = 0
+    while True:
+        next_player_index = (game.agents.index(player) + 1 + iterate_players) % len(game.agents)
+        next_player = game.agents[next_player_index]
+        if len(game.agents[next_player_index].played_cards) < game.agents[next_player_index].city_limit - 1:
+            break
     # Move the Fool card to the next player's played cards
     fool_card = next((card for card in player.played_cards if card.name == "Fool"), None)
     if fool_card:

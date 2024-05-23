@@ -165,7 +165,7 @@ class Game:
 
     def has_no_moves(self, agent):
         # Check if all agents are out of moves
-        agent_out_of_moves = (agent.workers == 0 and agent.recalls == agent.max_recalls and not any(agent.can_play_card(card) for card in agent.hand + self.meadow))
+        agent_out_of_moves = (agent.workers == 0 and agent.recalls == agent.max_recalls and not any(agent.can_play_card(card, self) for card in agent.hand + self.meadow))
         if agent_out_of_moves:
             print("Agent is out of moves")
             return True
@@ -253,7 +253,7 @@ class Game:
 
             # Update the numerical game state after the meadow is replenished
             numerical_game_state = self.get_numerical_game_state(agent_play_turn_index)
-            selected_action = agent.select_action(agent.hand, self.meadow, numerical_game_state)
+            selected_action = agent.select_action(agent.hand, self.meadow, numerical_game_state, self)
             actions_taken.append(selected_action)  # Append the selected action for this agent
             if selected_action is not None:
                 action, card = selected_action

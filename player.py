@@ -22,6 +22,7 @@ class AIPlayer(ReinforcementLearningAgent):
         self.recalls = 0  # Initialize the recall count for the AIPlayer
         self.max_recalls = 3  # Maximum number of recalls allowed per game
         self.max_cards_in_hand = 8
+        self.city_limit = 15
 
     def receive_resources(self, resource_type):
         # Method to increase the agent's resources and return the received resource
@@ -45,19 +46,21 @@ class AIPlayer(ReinforcementLearningAgent):
         if new_cards != None:
             self.hand.extend(new_cards)
 
-    def can_play_card(self, card):
+    def can_play_card(self, card, game):
         # Check if the card can be played based on available resources and return the action
-        if (card.wood <= self.wood and card.resin <= self.resin and card.stone <= self.stone and card.berries <= self.berries):
+        if (card.name == "Fool" and card.berries <= self.berries and any(len(agent.played_cards) < self.city_limit for agent in game.agents)):
+            return ('play_card', card)
+        elif (card.wood <= self.wood and card.resin <= self.resin and card.stone <= self.stone and card.berries <= self.berries and len(self.played_cards) < self.city_limit):
             return ('play_card', card)
         else:
             return None
 
-    def select_action(self, hand, meadow, numerical_game_state):
+    def select_action(self, hand, meadow, numerical_game_state, game):
         # The game_state parameter should be a numerical representation
         # Meadow is a list of cards available to all players
         state = numerical_game_state
         # Include an additional action for receiving resources
-        available_actions = [('play_card', card) for card in hand + meadow if self.can_play_card(card)]
+        available_actions = [('play_card', card) for card in hand + meadow if self.can_play_card(card, game)]
         # Add the 'receive_resources' action only if there are workers available
         if self.workers > 0:
             for resource_type in ['wood', 'resin', 'stone', 'berries']:
