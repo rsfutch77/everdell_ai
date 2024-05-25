@@ -39,11 +39,10 @@ Below is a list of game functions that are handled:
 4. Drawing cards in summer
 5. Real card names, points, cost
 6. 15 card city limit, including for the fool
+7. Unique cards
 
 Below is a list of game functions that are not yet handled:
-
-- AI deciding which person to give the fool to (currently just picks the next player)
-- Real card names, points, cost
+V1 Plan:
 - Basic locations
 - Real card rules that don't do anything until end game
 - Real card rules that affect other cards in play
@@ -52,7 +51,6 @@ Below is a list of game functions that are not yet handled:
 - Real card rules that activate when a card is played
 - Real card rules that can change the cost of a card to play
 - Both harvests
-- Unique cards
 - Basic Events
 - Shared locations
 - Forest locations
@@ -61,18 +59,21 @@ Below is a list of game functions that are not yet handled:
 - Journey
 - Occupation
 - Occupation lock
-- Extra locations when there are 4 players
 - Open Destination cards
+- Add ID# and details of each card to game state (if needed?)
+- When testing, pause after each draw to select the correct cards into all positions and wait for a continue button
+V2 Plan:
+- Extra locations when there are 4 players
 - Discarding cards that would be over the hand limit when donating cards to an opponent
 - Drawing all cards from the meadow before replenishing when multiple cards are drawn from the meadow
 - If a player has passed, they can not be given any resources or cards
-- Allow the AI to choose to pass
 - In the case of ties, the player with more events wins, if there is still a tie, then count resources
-- Re-shuffling an empty deck
+- Re-shuffling an empty deck in training mode
+- AI deciding which person to give the fool to (currently just picks the next player)
 
 AI Limitiations
 ---------------
-- The AI 
+- 
 
 Contributing
 ------------

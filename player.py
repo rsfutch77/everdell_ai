@@ -8,14 +8,9 @@ from everdell_ai.agent import ReinforcementLearningAgent
 class AIPlayer(ReinforcementLearningAgent):      
 
     def __init__(self, alpha=0.1, gamma=0.9, epsilon=0.1, resources=10, wins=0):
+        self.reset_agent()  # Reset all agent attributes to their initial values
         super().__init__(alpha, gamma, epsilon)
         self.wins = wins  # Initialize the number of wins for the AIPlayer
-        self.workers = 2  # Initialize the number of workers for the AIPlayer
-        self.hand = []  # Initialize the hand of cards for the AIPlayer
-        self.wood = 0  # Initialize the wood resource count for the AIPlayer
-        self.resin = 0  # Initialize the resin resource count for the AIPlayer
-        self.stone = 0  # Initialize the stone resource count for the AIPlayer
-        self.berries = 0  # Initialize the berries resource count for the AIPlayer
         self.hand_starting_amount = 5  # Initialize the hand limit for the AIPlayer
         self.card_to_play = None  # Initialize the card to play attribute
         self.resource_pick = None
@@ -23,25 +18,51 @@ class AIPlayer(ReinforcementLearningAgent):
         self.max_recalls = 3  # Maximum number of recalls allowed per game
         self.max_cards_in_hand = 8
         self.city_limit = 15
-        self.non_city_cards = []  # Initialize the list of cards that have been activated but do not count towards the city limit
+
+    def reset_agent(self):
+        # Reset all agent attributes to zero, then set specific values
+        self.tokens = 0
+        self.workers = 2
+        self.hand = []
+        self.wood = 0
+        self.resin = 0
+        self.stone = 0
+        self.berries = 0
+        self.played_cards = []
+        self.non_city_cards = []
+        self.recalls = 0
+        self.card_to_play = None
+        self.resource_pick = None
 
     def receive_resources(self, resource_type):
         # Method to increase the agent's resources and return the received resource
-        received_resources = []
-        if resource_type == 'wood':
-            self.wood += 1
-            received_resources.append('wood')
-        elif resource_type == 'resin':
+        cards_to_draw = 0
+        if resource_type == 'wood3':
+            self.wood += 3
+        elif resource_type == 'wood2_card':
+            self.wood += 2
+            cards_to_draw = 1
+        elif resource_type == 'resin2':
+            self.resin += 2
+        elif resource_type == 'resin_card':
             self.resin += 1
-            received_resources.append('resin')
+            cards_to_draw = 1
+        elif resource_type == 'card2_token':
+            self.add_tokens(1)
+            cards_to_draw = 2
         elif resource_type == 'stone':
             self.stone += 1
-            received_resources.append('stone')
-        elif resource_type == 'berries':
+        elif resource_type == 'berry_card':
             self.berries += 1
-            received_resources.append('berries')
+            cards_to_draw = 1
+        elif resource_type == 'berry':
+            self.berries += 1
         self.workers -= 1  # Decrement a worker to receive resources
-        return received_resources
+        return resource_type, cards_to_draw
+
+    def add_tokens(self, amount):
+        # Method to increase the agent's tokens
+        self.tokens += amount
 
     def draw_to_hand(self, new_cards, *args):
         if new_cards != None:
@@ -67,7 +88,7 @@ class AIPlayer(ReinforcementLearningAgent):
         available_actions = [('play_card', card) for card in hand + meadow if self.can_play_card(card, game)]
         # Add the 'receive_resources' action only if there are workers available
         if self.workers > 0:
-            for resource_type in ['wood', 'resin', 'stone', 'berries']:
+            for resource_type in ['wood3', 'wood2_card', 'resin2', 'resin_card', 'card2_token', 'stone', 'berry_card', 'berry']:
                 available_actions.append(('receive_resources', resource_type))
         # Add the 'recall_workers' action only if the agent can recall workers
         if self.workers == 0 and self.recalls < self.max_recalls:
@@ -101,5 +122,6 @@ class AIPlayer(ReinforcementLearningAgent):
                     reward = -card.points * 0.01  # Reverse reward for fool
                 else:
                     reward = card.points * 0.01  # Small reward for the card's point value
+
             
         return reward

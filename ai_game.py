@@ -154,14 +154,7 @@ class Game:
         self.played_cards = []
         self.meadow = self.draw_cards(8)  # Draw 8 cards into the meadow
         for stating_amount_index, agent in enumerate(self.agents):
-            agent.workers = 2
-            agent.recalls = 0  # Reset the recall count for each agent
-            agent.wood = 0
-            agent.resin = 0
-            agent.stone = 0
-            agent.berries = 0
-            agent.played_cards = []  # Reset the played cards for each agent
-            agent.non_city_cards = []  # Reset the non-city cards for each agent
+            agent.reset_agent()  # Reset all agent attributes
             agent.hand = self.draw_cards(agent.hand_starting_amount + stating_amount_index)  # Deal cards to the agent's hand from the shuffled deck
 
     def has_no_moves(self, agent):
@@ -264,7 +257,9 @@ class Game:
                 self.play_card(agent, card, agent_play_turn_index, self)
 
             elif action == 'receive_resources' and agent.workers > 0:
-                received_resources = agent.receive_resources(agent.resource_pick)
+                received_resources, cards_to_draw = agent.receive_resources(agent.resource_pick)
+                new_cards = self.draw_cards(cards_to_draw)
+                agent.draw_to_hand(new_cards)
                 print(f"AI {self.agents.index(agent)} receives {', '.join(received_resources)} resources.")
             elif action == 'recall_workers':
                 self.recall_workers(agent, agent_play_turn_index)
@@ -282,7 +277,7 @@ class Game:
         return {'turn': self.current_turn, 'played_cards': self.played_cards}
 
     def calculate_score(self):
-        scores = [sum(card.points for card in agent.played_cards + agent.non_city_cards) for agent in self.agents]
+        scores = [sum(card.points for card in agent.played_cards + agent.non_city_cards) + agent.tokens for agent in self.agents]
         return scores
 
     def recall_workers(self, agent, player_index):
