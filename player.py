@@ -18,6 +18,7 @@ class AIPlayer(ReinforcementLearningAgent):
         self.max_recalls = 3  # Maximum number of recalls allowed per game
         self.max_cards_in_hand = 8
         self.city_limit = 15
+        self.prosperity_cards = []  # Initialize the list of prosperity cards for endgame scoring
 
     def reset_agent(self):
         # Reset all agent attributes to zero, then set specific values
@@ -33,6 +34,7 @@ class AIPlayer(ReinforcementLearningAgent):
         self.recalls = 0
         self.card_to_play = None
         self.resource_pick = None
+        self.prosperity_cards = []  # Reset the list of prosperity cards for the next game
 
     def receive_resources(self, resource_type):
         # Method to increase the agent's resources and return the received resource

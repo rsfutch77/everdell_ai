@@ -277,7 +277,14 @@ class Game:
         return {'turn': self.current_turn, 'played_cards': self.played_cards}
 
     def calculate_score(self):
-        scores = [sum(card.points for card in agent.played_cards + agent.non_city_cards) + agent.tokens for agent in self.agents]
+        scores = []
+        for agent in self.agents:
+            base_score = sum(card.points for card in agent.played_cards + agent.non_city_cards)
+            prosperity_score = 0
+            for card in agent.prosperity_cards:
+                prosperity_score = card.activate(agent, self)  # Activate endgame scoring for prosperity cards
+            total_score = base_score + agent.tokens + prosperity_score
+            scores.append(total_score)
         return scores
 
     def recall_workers(self, agent, player_index):

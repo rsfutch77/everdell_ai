@@ -40,10 +40,10 @@ Below is a list of game functions that are handled:
 5. Real card names, points, cost
 6. 15 card city limit, including for the fool
 7. Unique cards
+8. Basic locations
 
 Below is a list of game functions that are not yet handled:
 V1 Plan:
-- Basic locations
 - Real card rules that don't do anything until end game
 - Real card rules that affect other cards in play
 - Real card rules that simply gain stuff when played

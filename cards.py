@@ -1,7 +1,8 @@
 class Card:
-    def __init__(self, name, card_type, rarity, points, wood, resin, stone, berries, quantity):
+    def __init__(self, name, card_type, rarity, points, wood, resin, stone, berries, quantity, card_color):
         self.name = name
-        self.card_type = card_type  # 'character' or 'construction'
+        self.card_type = card_type  # 'character', 'construction', etc.
+        self.card_type = card_type  # 'character', 'construction', or 'prosperity'
         self.rarity = rarity  # 'unique' or 'common'
         self.points = points
         self.wood = wood
@@ -9,11 +10,14 @@ class Card:
         self.stone = stone
         self.berries = berries
         self.quantity = quantity
+        self.card_color = None  # Initialize card_color attribute
         self.activation_effect = self.get_activation_effect()
 
     def activate(self, player, game):
         if self.activation_effect:
             self.activation_effect(player, game)
+        if self.card_type == 'prosperity':
+            player.prosperity_cards.append(self)  # Add prosperity card to player's list for endgame scoring
 
     def get_activation_effect(self):
         return activation_effects.get(self.name, None)
@@ -54,8 +58,12 @@ def wanderer_activation(player, game, *args):
          # Instead of adding to played_cards, add to a separate list that doesn't count towards the city limit
          player.non_city_cards.append(wanderer_card)
          print(f"Wanderer card activated by AI {game.agents.index(player)} but does not occupy space in city")
-def theater_activation(player, *args):
-    pass
+def theater_activation(player, game, *args):
+    unique_characters = set()
+    for card in player.played_cards:
+        if card.card_type == 'character' and card.rarity == 'unique':
+            unique_characters.add(card.name)
+    return len(unique_characters)  # Add one point for each unique character
 def architect_activation(player, *args):
     pass  # Architect card may have a different effect or no effect
 def palace_activation(player, *args):
@@ -194,24 +202,24 @@ activation_effects = {
 #Card Name, Points, Cost (Wood, Resin, Stone, Berries), Quantity in Deck
 cards = [
     #Basic cards that just provide a bonus on activation/harvest
-    ("Farm"          , "construction", "common",  1, 2, 1, 0, 0, 8),  # Farm now has an activation effect
-    ("Mine"          , "construction", "common",  2, 1, 1, 1, 0, 3),
-    ("Twig Barge"    , "construction", "common",  1, 1, 0, 1, 0, 3), 
-    ("Resin Refinery", "construction", "common",  1, 0, 1, 1, 0, 3),
-    ("Fairgrounds"   , "construction", "unique",  3, 1, 2, 1, 0, 3),
+    ("Farm"          , "construction", "common",  1, 2, 1, 0, 0, 8, "green"),
+    ("Mine"          , "construction", "common",  2, 1, 1, 1, 0, 3, "green"),
+    ("Twig Barge"    , "construction", "common",  1, 1, 0, 1, 0, 3, "green"),
+    ("Resin Refinery", "construction", "common",  1, 0, 1, 1, 0, 3, "green"),
+    ("Fairgrounds"   , "construction", "unique",  3, 1, 2, 1, 0, 3, "green"),
     #Takes up space in opponent's city
-    ("Fool"          , "character",    "unique", -2, 0, 0, 0, 3, 2),
+    ("Fool"          , "character",    "unique", -2, 0, 0, 0, 3, 2, "adventure"),
     #Does not take up space
-    ("Wanderer"      , "character",    "common",  1, 0, 0, 0, 2, 3), 
+    ("Wanderer"      , "character",    "common",  1, 0, 0, 0, 2, 3, "adventure"),
     #Prosperity cards
-    ("Theater"       , "construction", "unique",  3, 3, 1, 1, 0, 2),   
-    ("Architect"     , "character",    "unique",  2, 0, 0, 0, 4, 2),   
-    ("Palace"        , "construction", "unique",  1, 2, 3, 3, 0, 2),
-    ("Gatherer"      , "character",    "common",  2, 0, 0, 0, 2, 4),
-    ("School"        , "construction", "unique",  2, 2, 2, 0, 0, 2),
-    ("Castle"        , "construction", "unique",  4, 2, 3, 3, 0, 2),
-    ("Ever Tree"     , "construction", "unique",  5, 3, 3, 3, 0, 2),
-    ("King"          , "character",    "unique",  4, 0, 0, 0, 6, 2),
+    ("Theater"       , "construction", "unique",  3, 3, 1, 1, 0, 2, "prosperity"),
+    ("Architect"     , "character",    "unique",  2, 0, 0, 0, 4, 2, "prosperity"),
+    ("Palace"        , "construction", "unique",  1, 2, 3, 3, 0, 2, "prosperity"),
+    ("Gatherer"      , "character",    "common",  2, 0, 0, 0, 2, 4, "prosperity"),
+    ("School"        , "construction", "unique",  2, 2, 2, 0, 0, 2, "prosperity"),
+    ("Castle"        , "construction", "unique",  4, 2, 3, 3, 0, 2, "prosperity"),
+    ("Ever Tree"     , "construction", "unique",  5, 3, 3, 3, 0, 2, "prosperity"),
+    ("King"          , "character",    "unique",  4, 0, 0, 0, 6, 2, "prosperity"),
     #Cards that reveal
     #("Postal Pigeon", 5, 7, 3),
     #Cards that activate on playing a card
