@@ -49,7 +49,10 @@ class AIPlayer(ReinforcementLearningAgent):
 
     def can_play_card(self, card, game):
         # Check if the card can be played based on available resources and return the action
-        if (card.name == "Fool" and card.berries <= self.berries and any(len(agent.played_cards) < self.city_limit for agent in game.agents)):
+        unique_card_already_played = card.rarity == "unique" and any(played_card.name == card.name for played_card in self.played_cards)
+        if unique_card_already_played:
+            return None
+        elif (card.name == "Fool" and card.berries <= self.berries and any(len(agent.played_cards) < self.city_limit for agent in game.agents)):
             return ('play_card', card)
         elif (card.wood <= self.wood and card.resin <= self.resin and card.stone <= self.stone and card.berries <= self.berries and len(self.played_cards) < self.city_limit):
             return ('play_card', card)
