@@ -63,6 +63,7 @@ V1 Plan:
 - Add ID# and details of each card to game state (if needed?)
 - When testing, pause after each draw to select the correct cards into all positions and wait for a continue button
 V2 Plan:
+- Gatherers should only add points for pairs with Harvesters, not just any lone Harvester
 - Extra locations when there are 4 players
 - Discarding cards that would be over the hand limit when donating cards to an opponent
 - Drawing all cards from the meadow before replenishing when multiple cards are drawn from the meadow

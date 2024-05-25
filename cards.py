@@ -65,17 +65,28 @@ def theater_activation(player, game, *args):
             unique_characters.add(card.name)
     return len(unique_characters)  # Add one point for each unique character
 def architect_activation(player, *args):
-    pass  # Architect card may have a different effect or no effect
+    # Return the number of resin and stone the player has, maximizing at 6
+    return min(6, player.resin + player.stone)
 def palace_activation(player, *args):
-    pass
+    unique_constructions = set()
+    for card in player.played_cards:
+        if card.card_type == 'construction' and card.rarity == 'unique':
+            unique_constructions.add(card.name)
+    return len(unique_constructions)  # Return the number of unique construction cards
 def gatherer_activation(player, *args):
-    pass
+    # Check for the presence of a card named "Harvester" in the played cards
+    if any(card.name == "Harvester" for card in player.played_cards):
+        return 3
+    return 0
 def school_activation(player, *args):
-    pass
+    common_characters = sum(1 for card in player.played_cards if card.card_type == 'character' and card.rarity == 'common')
+    return common_characters
 def castle_activation(player, *args):
-    pass
+    common_construction = sum(1 for card in player.played_cards if card.card_type == 'construction' and card.rarity == 'common')
+    return common_construction
 def ever_tree_activation(player, *args):
-    pass
+    # Add 1 point for each prosperity card the player ha 
+    return len(player.prosperity_cards)
 def king_activation(player, *args):
     pass
 def postal_pigeon_activation(player):
