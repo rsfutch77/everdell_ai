@@ -214,13 +214,18 @@ class Game:
         return state_representation
 
     def play_card(self, agent, card, agent_index, game, action):
-        # Deduct the cost from the AI player's resources
-        agent.wood -= card.wood
-        agent.resin -= card.resin
-        agent.stone -= card.stone
-    def play_card(self, agent, card, agent_index, game, action):
         # Check if the action is to play the card with the Innkeeper's effect
-        if action == 'play_card_with_innkeeper':
+        if action == 'play_card_with_crane':
+            resources_to_reduce = 3
+            agent.stone -= max(card.stone - 3, 0)
+            resources_to_reduce -= max(card.stone - 3, 0)
+            if resources_to_reduce > 0:
+                agent.resin -= max(card.resin - 3, 0)
+            resources_to_reduce -= max(card.resin - 3, 0)
+            if resources_to_reduce > 0:
+                agent.wood -= max(card.wood - 3, 0)
+            resources_to_reduce -= max(card.wood - 3, 0)
+        elif action == 'play_card_with_innkeeper':
             # Reduce the berry cost by 3, but not below 0
             agent.berries -= max(card.berries - 3, 0)
         elif action == 'play_card_with_pigeon':
@@ -296,6 +301,14 @@ class Game:
                         agent.played_cards.remove(innkeeper_card_to_discard)       
                         self.discard_cards([innkeeper_card_to_discard])
                         print(f"Innkeeper card discarded by AI {agent_play_turn_index}")
+                    self.play_card(agent, card, agent_play_turn_index, self, action)
+                elif selected_action[0] == 'play_card_with_crane':
+                    action, card, crane_card_to_discard = selected_action
+                    # Discard the Crane card after using its effect
+                    if crane_card_to_discard in agent.played_cards:
+                        agent.played_cards.remove(crane_card_to_discard)       
+                        self.discard_cards([crane_card_to_discard])
+                        print(f"Crane card discarded by AI {agent_play_turn_index}")
                     self.play_card(agent, card, agent_play_turn_index, self, action)
                 else:
                     action, card = selected_action

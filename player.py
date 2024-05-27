@@ -76,7 +76,9 @@ class AIPlayer(ReinforcementLearningAgent):
         # Check if the card can be played based on available resources and return the action
         unique_card_already_played = card.rarity == "unique" and card.name != "Fool" and any(played_card.name == card.name for played_card in self.played_cards)
         innkeeper_card = next((played_card for played_card in self.played_cards if played_card.name == "Innkeeper"), None)
-        can_use_innkeeper = innkeeper_card and card.card_type == 'character' and self.berries < card.berries and self.berries > (card.berries - 3)
+        can_use_innkeeper = innkeeper_card and card.card_type == 'character' and self.resources_less_than_cost(card) and self.resources_at_least_reduced_cost(card)
+        crane_card = next((played_card for played_card in self.played_cards if played_card.name == "Crane"), None)
+        can_use_crane = crane_card and self.resources_less_than_cost(card) and self.resources_at_least_reduced_cost(card)
         if unique_card_already_played:
             return None
         elif (card.name == "Fool" and card.berries <= self.berries and any(len(agent.played_cards) < self.city_limit for agent in game.agents)):
@@ -85,8 +87,16 @@ class AIPlayer(ReinforcementLearningAgent):
             return ('play_card', card)
         elif can_use_innkeeper:
             return ('play_card_with_innkeeper', card, innkeeper_card)
+        elif can_use_crane:
+            return ('play_card_with_crane', card, crane_card)
         else:
             return None
+
+    def resources_less_than_cost(self, card):
+        return (card.wood < self.wood or card.resin < self.resin or card.stone < self.stone or card.berries < self.berries)
+
+    def resources_at_least_reduced_cost(self, card):
+        return ((self.wood + self.resin + self.stone + self.berries) >= max((card.wood + card.resin + card.stone + card.berries) - 3, 0))
 
     def determine_available_actions(self, hand, meadow, game):
         # Determine the available actions for the AI player, including playing cards and receiving resources

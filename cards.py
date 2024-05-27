@@ -156,6 +156,8 @@ def courthouse_trigger_effect(player, game, card_played):
         print(f"Courthouse gains {action[0]}")
 def innkeeper_activation(player, *args):
     pass  # Innkeeper card may have a different effect or no effect
+def crane_activation(player, *args):
+    pass  # Innkeeper card may have a different effect or no effect
 def judge_activation(player, *args):
     pass  # Judge card may have a different effect or no effect
 def crane_activation(player, *args):
@@ -238,6 +240,7 @@ activation_effects = {
     "Courthouse": courthouse_activation,
     "Courthouse": courthouse_activation,
     "Innkeeper": innkeeper_activation,
+    "Crane": crane_activation,
     "Judge": judge_activation,
     "Crane": crane_activation,
     "Undertaker": undertaker_activation,

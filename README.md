@@ -46,7 +46,6 @@ Below is a list of game functions that are handled:
 Below is a list of game functions that are not yet handled:
 V1 Plan:
 - Real card rules that affect other cards in play
-- Real card rules that simply gain stuff when played
 - Real card rules that add a worker location
 - Real card rules that activate when a card is played
 - Real card rules that can change the cost of a card to play
@@ -74,6 +73,7 @@ V2 Plan:
 - Re-shuffling an empty deck in training mode
 - AI deciding which person to give the fool to (currently just picks the next player)
 - Also the ai does not handle checking for if the opponent already has a fool and might give them 2 fools
+- The crane currently only reduces the cost of resources starting with stone and any other resources if there is any leftover, the AI should be able to choose which of any of the resources to reduce
 
 AI Limitiations
 ---------------
