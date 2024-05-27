@@ -122,7 +122,7 @@ def postal_pigeon_activation(player, game, *args):
             game.discard_cards(game.revealed_cards)
             game.revealed_cards.clear()
             selected_card = action[1]
-            game.play_card(player, selected_card, game.agents.index(player), game)
+            game.play_card(player, selected_card, game.agents.index(player), game, 'play_card_with_pigeon')
             print(f"AI {game.agents.index(player)} immediately plays {selected_card.name} from the revealed cards.")
     else:
         print(f"AI {game.agents.index(player)} could not play any cards from the pigeon's effect.")
@@ -154,11 +154,11 @@ def courthouse_trigger_effect(player, game, card_played):
             player.stone += 1
             game.courthouse_resource_choices['stone'] += 1
         print(f"Courthouse gains {action[0]}")
-def innkeeper_activation(player):
+def innkeeper_activation(player, *args):
     pass  # Innkeeper card may have a different effect or no effect
-def judge_activation(player):
+def judge_activation(player, *args):
     pass  # Judge card may have a different effect or no effect
-def crane_activation(player):
+def crane_activation(player, *args):
     pass  # Crane card may have a different effect or no effect
 def undertaker_activation(player):
     pass  # Undertaker card may have a different effect or no effect
@@ -306,9 +306,9 @@ cards = [
     ("Shopkeeper"    , "character",    "unique",  1, 0, 0, 0, 2, 3, "blue"),
     ("Courthouse"    , "construction", "unique",  2, 1, 1, 2, 0, 2, "blue"),
     #Cards that reduce cost
-    #("Innkeeper", 5, 7, 3),
-    #("Judge", 5, 7, 2),
-    #("Crane", 5, 7, 3),
+    ("Innkeeper"     , "character",    "unique",  1, 0, 0, 0, 1, 3, "blue"),
+    ("Judge"         , "character",    "unique",  2, 0, 0, 0, 3, 2, "blue"),
+    ("Crane"         , "construction", "unique",  1, 0, 0, 1, 0, 2, "blue"),
     #Discards from Meadow
     #("Undertaker", 5, 7, 2),
     #If/then cards

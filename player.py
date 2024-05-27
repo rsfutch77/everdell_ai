@@ -75,18 +75,26 @@ class AIPlayer(ReinforcementLearningAgent):
     def can_play_card(self, card, game):
         # Check if the card can be played based on available resources and return the action
         unique_card_already_played = card.rarity == "unique" and card.name != "Fool" and any(played_card.name == card.name for played_card in self.played_cards)
+        innkeeper_card = next((played_card for played_card in self.played_cards if played_card.name == "Innkeeper"), None)
+        can_use_innkeeper = innkeeper_card and card.card_type == 'character' and self.berries < card.berries and self.berries > (card.berries - 3)
         if unique_card_already_played:
             return None
         elif (card.name == "Fool" and card.berries <= self.berries and any(len(agent.played_cards) < self.city_limit for agent in game.agents)):
             return ('play_card', card)
         elif (card.wood <= self.wood and card.resin <= self.resin and card.stone <= self.stone and card.berries <= self.berries and len(self.played_cards) < self.city_limit):
             return ('play_card', card)
+        elif can_use_innkeeper:
+            return ('play_card_with_innkeeper', card, innkeeper_card)
         else:
             return None
 
     def determine_available_actions(self, hand, meadow, game):
         # Determine the available actions for the AI player, including playing cards and receiving resources
-        available_actions = [('play_card', card) for card in hand + meadow if self.can_play_card(card, game)]
+        available_actions = []
+        for card in hand + meadow:
+            can_play = self.can_play_card(card, game)
+            if can_play:
+                available_actions.append(can_play)
         # Add the 'receive_resources' action only if there are workers available
         if self.workers > 0:
             for resource_type in ['wood3', 'wood2_card', 'resin2', 'resin_card', 'card2_token', 'stone', 'berry_card', 'berry']:
@@ -95,7 +103,15 @@ class AIPlayer(ReinforcementLearningAgent):
         if self.workers == 0 and self.recalls < self.max_recalls:
             available_actions.append(('recall_workers', None))
         action = self.choose_action(available_actions)
-        self.card_to_play = action[1] if action and action[0] == 'play_card' else None
+        if action and action[0] == 'play_card_with_innkeeper':
+            self.card_to_play = action[1]
+            self.innkeeper_card_to_discard = action[2]
+        elif action and action[0] == 'play_card':
+            self.card_to_play = action[1]
+            self.innkeeper_card_to_discard = None
+        else:
+            self.card_to_play = None
+            self.innkeeper_card_to_discard = None
         self.resource_pick = action[1] if action and action[0] == 'receive_resources' else None
         return action
     

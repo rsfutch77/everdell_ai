@@ -213,11 +213,25 @@ class Game:
         # ...
         return state_representation
 
-    def play_card(self, agent, card, agent_index, game):
-        agent.wood -= card.wood  # Deduct the cost from the AI player's resources
+    def play_card(self, agent, card, agent_index, game, action):
+        # Deduct the cost from the AI player's resources
+        agent.wood -= card.wood
         agent.resin -= card.resin
         agent.stone -= card.stone
-        agent.berries -= card.berries
+    def play_card(self, agent, card, agent_index, game, action):
+        # Check if the action is to play the card with the Innkeeper's effect
+        if action == 'play_card_with_innkeeper':
+            # Reduce the berry cost by 3, but not below 0
+            agent.berries -= max(card.berries - 3, 0)
+        elif action == 'play_card_with_pigeon':
+            # Eliminate the cost altogether if played with the pigeon's effect
+            pass
+        else:
+            # Deduct the cost from the AI player's resources
+            agent.wood -= card.wood
+            agent.resin -= card.resin
+            agent.stone -= card.stone
+            agent.berries -= card.berries
         agent.played_cards.append(card)
         print(f"AI {agent_index} plays {card.name}.")
         # Check for and trigger any on-trigger effects
@@ -271,18 +285,24 @@ class Game:
                 print(f"AI {self.agents.index(agent)} is out of moves and will pass this turn.")
                 actions_taken.append((None, None))  # Append a None action for this agent
                 continue  # Skip the rest of the turn for this agent
-
-            # Update the numerical game state after the meadow is replenished
-            numerical_game_state = self.get_numerical_game_state(agent_play_turn_index)
+            
             selected_action = agent.determine_available_actions(agent.hand, self.meadow, self)
             actions_taken.append(selected_action)  # Append the selected action for this agent
             if selected_action is not None:
-                action, card = selected_action
+                if selected_action[0] == 'play_card_with_innkeeper':
+                    action, card, innkeeper_card_to_discard = selected_action
+                    # Discard the Innkeeper card after using its effect
+                    if innkeeper_card_to_discard in agent.played_cards:
+                        agent.played_cards.remove(innkeeper_card_to_discard)       
+                        self.discard_cards([innkeeper_card_to_discard])
+                        print(f"Innkeeper card discarded by AI {agent_play_turn_index}")
+                    self.play_card(agent, card, agent_play_turn_index, self, action)
+                else:
+                    action, card = selected_action
             else:
                 action, card = (None, None)
             if action == 'play_card' and card:
-                self.play_card(agent, card, agent_play_turn_index, self)
-
+                self.play_card(agent, card, agent_play_turn_index, self, action)
             elif action == 'receive_resources' and agent.workers > 0:
                 received_resources, cards_to_draw = agent.receive_resources(agent.resource_pick)
                 new_cards = self.draw_cards(cards_to_draw)
@@ -290,9 +310,6 @@ class Game:
                 print(f"AI {self.agents.index(agent)} receives {received_resources} resources.")
             elif action == 'recall_workers':
                 self.recall_workers(agent, agent_play_turn_index)
-            else:
-                print(f"AI {self.agents.index(agent)} cannot play a card this turn.")
-                agent.card_to_play = None
 
         print(f"Deck size after turn: {len(self.deck)}")
         self.current_turn += 1
