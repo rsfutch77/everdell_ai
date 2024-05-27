@@ -82,10 +82,7 @@ class AIPlayer(ReinforcementLearningAgent):
         else:
             return None
 
-    def select_action(self, hand, meadow, numerical_game_state, game):
-        # The game_state parameter should be a numerical representation
-        # Meadow is a list of cards available to all players
-        state = numerical_game_state
+    def select_action(self, hand, meadow, game):
         # Include an additional action for receiving resources
         available_actions = [('play_card', card) for card in hand + meadow if self.can_play_card(card, game)]
         # Add the 'receive_resources' action only if there are workers available

@@ -8,6 +8,8 @@ import random
 class Game:
 
     def __init__(self, deck, agents, randomize_agents, turn_update_callback=None, ui_root=None, time_to_wait_entry=None, meadow_update_callback=None, hand_update_callback=None):
+        self.discard = []  # List to hold discarded cards
+        self.revealed_cards = []  # List to hold revealed cards
         self.card_play_frequency = {}  # Dictionary to track the frequency of card plays
         self.hand_update_callback = hand_update_callback
         self.meadow_update_callback = meadow_update_callback
@@ -144,8 +146,20 @@ class Game:
             return new_cards
         else:
             return []
+        
+    def discard_cards(self, cards_to_discard):
+        """
+        Discard a list of cards to the discard pile.     
+        """
+        self.discard.extend(cards_to_discard)
 
-
+    def reveal_cards(self, number):
+        """
+        Reveal cards from the top of the deck and add them to the revealed hand.
+        """
+        revealed = self.draw_cards(number)
+        self.revealed_cards.extend(card for card in revealed)
+        return revealed
 
     def reset_game(self):
         self.current_turn = 0
@@ -203,7 +217,7 @@ class Game:
             agent.hand.remove(card)
             print(f"That card was played from the hand.")
             self.hand_update_callback(agent.hand, agent_index)
-        else:
+        elif card in game.meadow:
             self.meadow.remove(card)
             self.meadow.extend(self.draw_to_meadow())
             self.meadow_update_callback(self.meadow)  # Update the meadow display
@@ -247,7 +261,7 @@ class Game:
 
             # Update the numerical game state after the meadow is replenished
             numerical_game_state = self.get_numerical_game_state(agent_play_turn_index)
-            selected_action = agent.select_action(agent.hand, self.meadow, numerical_game_state, self)
+            selected_action = agent.select_action(agent.hand, self.meadow, self)
             actions_taken.append(selected_action)  # Append the selected action for this agent
             if selected_action is not None:
                 action, card = selected_action

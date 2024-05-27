@@ -89,8 +89,37 @@ def ever_tree_activation(player, *args):
     return len(player.prosperity_cards)
 def king_activation(player, *args):
     pass
-def postal_pigeon_activation(player):
-    pass  # Postal Pigeon card may have a different effect or no effect
+def postal_pigeon_activation(player, game):
+    # Reveal 2 cards from the deck
+    game.reveal_cards(2)
+    # Remove any cards with more than 3 points from the revealed cards and add them to the discard list
+    cards_to_discard = [card for card in game.revealed_cards if card.points > 3]
+    # Remove any unique cards from the revealed cards that match the player's played cards or cannot be played
+    unique_played_card_names = {card.name for card in player.played_cards if card.rarity == 'unique'}
+    cards_to_discard += [card for card in game.revealed_cards if card.name in unique_played_card_names]
+    game.revealed_cards = [card for card in game.revealed_cards if card not in cards_to_discard]
+    game.discard_cards(cards_to_discard)
+    print(f"Postal Pigeon revealed: {[card.name for card in game.revealed_cards]}")
+    print(f"Discarded: {[card.name for card in cards_to_discard]}")
+    # AI selects one card from the revealed cards using its machine learning model
+    if game.revealed_cards:
+        # Build a list of options for the AI to choose from
+        available_actions = [('pick_card', card) for card in game.revealed_cards]
+        # Use the AI's select_action method to choose a card
+        action = player.choose_action(available_actions)
+        if action and action[0] == 'pick_card':
+            # Play the selected card immediately
+            selected_card = action[1]
+            game.play_card(player, selected_card, game.agents.index(player), game)
+            game.revealed_cards.remove(selected_card)
+            print(f"AI {game.agents.index(player)} immediately plays {selected_card.name} from the revealed cards.")
+    # Discard any remaining revealed cards
+    if game.revealed_cards:
+        print(f"Discarding remaining revealed cards: {[card.name for card in game.revealed_cards]}")
+        game.discard_cards(game.revealed_cards)
+        game.revealed_cards.clear()
+    else:
+        print(f"AI {game.agents.index(player)} could not play any cards from the pigeon's effect.")
 def historian_activation(player):
     pass  # Historian card may have a different effect or no effect
 def shopkeeper_activation(player):
@@ -232,7 +261,7 @@ cards = [
     ("Ever Tree"     , "construction", "unique",  5, 3, 3, 3, 0, 2, "prosperity"),
     ("King"          , "character",    "unique",  4, 0, 0, 0, 6, 2, "prosperity"),
     #Cards that reveal
-    #("Postal Pigeon", 5, 7, 3),
+    ("Postal Pigeon" , "character",    "common",  0, 0, 0, 0, 2, 3, "adventure"),
     #Cards that activate on playing a card
     #("Historian", 5, 7, 3),
     #("Shopkeeper", 5, 7, 3),
