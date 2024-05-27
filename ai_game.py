@@ -99,7 +99,7 @@ class Game:
             print(f"Ties: {self.ties / (episode + 1):.2%}")
 
 
-        
+
         if not self.randomize_agents.get():
             plt.figure()  # Create a new figure
             for agent in self.agents:
@@ -146,7 +146,7 @@ class Game:
             return new_cards
         else:
             return []
-        
+
     def discard_cards(self, cards_to_discard):
         """
         Discard a list of cards to the discard pile.     
@@ -213,6 +213,9 @@ class Game:
         print(f"AI {agent_index} plays {card.name}.")
         # Activate the card's effect if it has one
         card.activate(agent, game)
+        # Check for and trigger any on-trigger effects
+        for trigger_card in agent.on_trigger:
+            trigger_card.trigger(agent, game)
         if card in game.meadow:
             self.meadow.remove(card)
             self.meadow.extend(self.draw_to_meadow())

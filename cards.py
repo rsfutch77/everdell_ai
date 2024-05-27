@@ -10,8 +10,14 @@ class Card:
         self.stone = stone
         self.berries = berries
         self.quantity = quantity
+        self.card_color = card_color
         self.card_color = None  # Initialize card_color attribute
         self.activation_effect = self.get_activation_effect()
+        self.trigger_effect = self.get_trigger_effect()
+
+    def trigger(self, player, game):
+        if self.trigger_effect:
+            self.trigger_effect(player, game)
 
     def activate(self, player, game):
         if self.activation_effect:
@@ -21,6 +27,9 @@ class Card:
 
     def get_activation_effect(self):
         return activation_effects.get(self.name, None)
+
+    def get_trigger_effect(self):
+        return trigger_effects.get(self.name, None)
 
 # Define activation effects for cards
 def farm_activation(player, *args):
@@ -117,8 +126,14 @@ def postal_pigeon_activation(player, game):
             print(f"AI {game.agents.index(player)} immediately plays {selected_card.name} from the revealed cards.")
     else:
         print(f"AI {game.agents.index(player)} could not play any cards from the pigeon's effect.")
-def historian_activation(player):
-    pass  # Historian card may have a different effect or no effect
+def historian_activation(player, game):
+    # Historian card's activation effect is to be added to the on_trigger list
+    historian_card = next((card for card in player.hand if card.name == "Historian"), None)
+    if historian_card:
+        player.on_trigger.append(historian_card)
+def historian_trigger_effect(player, game):
+    # Historian's trigger effect is that the player draws a card
+    player.draw_to_hand(game.draw_cards(min(1, player.max_cards_in_hand - len(player.hand))))
 def shopkeeper_activation(player):
     pass  # Shopkeeper card may have a different effect or no effect
 def courthouse_activation(player):
@@ -201,6 +216,7 @@ activation_effects = {
     "King": king_activation,
     "Postal Pigeon": postal_pigeon_activation,
     "Historian": historian_activation,
+    "Historian": historian_activation,
     "Shopkeeper": shopkeeper_activation,
     "Courthouse": courthouse_activation,
     "Innkeeper": innkeeper_activation,
@@ -234,6 +250,12 @@ activation_effects = {
     "Bard": bard_activation,
     # Add other card activation functions here
 }
+
+# Map card names to their trigger functions
+trigger_effects = {
+    "Historian": historian_trigger_effect,
+    # Add other card trigger functions here
+}
         
 
 #Card Name, Points, Cost (Wood, Resin, Stone, Berries), Quantity in Deck
@@ -260,7 +282,7 @@ cards = [
     #Cards that reveal
     ("Postal Pigeon" , "character",    "common",  0, 0, 0, 0, 2, 3, "adventure"),
     #Cards that activate on playing a card
-    #("Historian", 5, 7, 3),
+    ("Historian"     , "character",    "unique",  1, 0, 0, 0, 2, 3, "blue"),
     #("Shopkeeper", 5, 7, 3),
     #("Courthouse", 5, 7, 2),
     #Cards that reduce cost
