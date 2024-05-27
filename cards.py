@@ -15,13 +15,13 @@ class Card:
         self.activation_effect = self.get_activation_effect()
         self.trigger_effect = self.get_trigger_effect()
 
-    def trigger(self, player, game):
+    def trigger(self, player, game, card_played):
         if self.trigger_effect:
-            self.trigger_effect(player, game)
+            self.trigger_effect(player, game, card_played)
 
     def activate(self, player, game):
         if self.activation_effect:
-            self.activation_effect(player, game)
+            self.activation_effect(player, game, self)
         if self.card_type == 'prosperity':
             player.prosperity_cards.append(self)  # Add prosperity card to player's list for endgame scoring
 
@@ -98,7 +98,7 @@ def ever_tree_activation(player, *args):
     return len(player.prosperity_cards)
 def king_activation(player, *args):
     pass
-def postal_pigeon_activation(player, game):
+def postal_pigeon_activation(player, game, *args):
     # Reveal 2 cards from the deck
     game.reveal_cards(2)
     # Remove any cards with more than 3 points from the revealed cards and add them to the discard list
@@ -126,16 +126,17 @@ def postal_pigeon_activation(player, game):
             print(f"AI {game.agents.index(player)} immediately plays {selected_card.name} from the revealed cards.")
     else:
         print(f"AI {game.agents.index(player)} could not play any cards from the pigeon's effect.")
-def historian_activation(player, game):
-    # Historian card's activation effect is to be added to the on_trigger list
-    historian_card = next((card for card in player.hand if card.name == "Historian"), None)
-    if historian_card:
-        player.on_trigger.append(historian_card)
-def historian_trigger_effect(player, game):
+def historian_activation(player, _, card, *args):
+    player.on_trigger.append(card)
+def historian_trigger_effect(player, game, *args):
     # Historian's trigger effect is that the player draws a card
     player.draw_to_hand(game.draw_cards(min(1, player.max_cards_in_hand - len(player.hand))))
-def shopkeeper_activation(player):
-    pass  # Shopkeeper card may have a different effect or no effect
+def shopkeeper_activation(player, _, card, *args):
+    player.on_trigger.append(card)
+def shopkeeper_trigger_effect(player, game, card_played):
+    if card_played.card_type == 'character':
+        player.berries += 1
+        print(f"Shopkeeper effect: AI {game.agents.index(player)} gains 1 berry for playing a character card.")
 def courthouse_activation(player):
     pass  # Courthouse card may have a different effect or no effect
 def innkeeper_activation(player):
@@ -254,6 +255,7 @@ activation_effects = {
 # Map card names to their trigger functions
 trigger_effects = {
     "Historian": historian_trigger_effect,
+    "Shopkeeper": shopkeeper_trigger_effect,
     # Add other card trigger functions here
 }
         
@@ -283,7 +285,7 @@ cards = [
     ("Postal Pigeon" , "character",    "common",  0, 0, 0, 0, 2, 3, "adventure"),
     #Cards that activate on playing a card
     ("Historian"     , "character",    "unique",  1, 0, 0, 0, 2, 3, "blue"),
-    #("Shopkeeper", 5, 7, 3),
+    ("Shopkeeper"    , "character",    "unique",  1, 0, 0, 0, 2, 3, "blue"),
     #("Courthouse", 5, 7, 2),
     #Cards that reduce cost
     #("Innkeeper", 5, 7, 3),

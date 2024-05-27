@@ -211,11 +211,11 @@ class Game:
         agent.berries -= card.berries
         agent.played_cards.append(card)
         print(f"AI {agent_index} plays {card.name}.")
-        # Activate the card's effect if it has one
-        card.activate(agent, game)
         # Check for and trigger any on-trigger effects
         for trigger_card in agent.on_trigger:
-            trigger_card.trigger(agent, game)
+            trigger_card.trigger(agent, game, card)
+        # Activate the card's effect if it has one
+        card.activate(agent, game)
         if card in game.meadow:
             self.meadow.remove(card)
             self.meadow.extend(self.draw_to_meadow())
