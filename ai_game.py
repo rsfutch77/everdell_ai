@@ -7,7 +7,7 @@ import random
 
 class Game:
 
-    def __init__(self, deck, agents, randomize_agents, turn_update_callback=None, ui_root=None, time_to_wait_entry=None, meadow_update_callback=None, hand_update_callback=None):
+    def __init__(self, deck, agents, randomize_agents, turn_update_callback=None, episode_update_callback=None, ui_root=None, time_to_wait_entry=None, meadow_update_callback=None, hand_update_callback=None):
         self.courthouse_resource_choices = {'wood': 0, 'resin': 0, 'stone': 0}  # Track resource choices for Courthouse
         self.discard = []  # List to hold discarded cards
         self.revealed_cards = []  # List to hold revealed cards
@@ -21,6 +21,7 @@ class Game:
         self.agents = agents
         self.ties = 0
         self.randomize_agents = randomize_agents  # Store the randomize_agents variable
+        self.episode_update_callback = episode_update_callback  # Store the episode_update_callback
 
         self.reset_game
 
@@ -92,6 +93,10 @@ class Game:
                 self.agents[winner].wins += 1
 
 
+            # Update the episode counter in the UI
+            if self.episode_update_callback:
+                self.episode_update_callback(episode + 1)
+
             print(f"Episode {episode + 1}:")
             for agent in self.agents:
                 win_rate = agent.wins / (episode + 1)
@@ -112,7 +117,9 @@ class Game:
         if self.card_play_frequency:
             plt.figure()
             card_names = list(self.card_play_frequency.keys())
-            frequencies = list(self.card_play_frequency.values())
+            # Normalize frequencies by the quantity of each card in the deck
+            card_quantities = {card.name: card.quantity for card in self.initial_deck}
+            frequencies = [self.card_play_frequency[card_name] / card_quantities[card_name] for card_name in card_names]
             plt.bar(card_names, frequencies)
             plt.title('Card Play Frequency')
             plt.xlabel('Card Name')
@@ -290,7 +297,7 @@ class Game:
                 print(f"AI {self.agents.index(agent)} is out of moves and will pass this turn.")
                 actions_taken.append((None, None))  # Append a None action for this agent
                 continue  # Skip the rest of the turn for this agent
-            
+
             selected_action = agent.determine_available_actions(agent.hand, self.meadow, self)
             actions_taken.append(selected_action)  # Append the selected action for this agent
             if selected_action is not None:

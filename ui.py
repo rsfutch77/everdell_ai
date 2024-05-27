@@ -51,7 +51,7 @@ def train_model(root, num_agents_entry, num_episodes_entry, randomize_agents_var
             number_of_agents = 2
     agents = [AIPlayer(alpha=0.1, gamma=0.9, epsilon=0.1) for _ in range(number_of_agents)]
     card_dict = setup_cards()
-    game = ai_game.Game(card_dict, agents, randomize_agents_var, turn_update_callback=update_turn_counter, ui_root=root, time_to_wait_entry=time_to_wait_entry, meadow_update_callback=update_meadow_display, hand_update_callback=update_hand_display)
+    game = ai_game.Game(card_dict, agents, randomize_agents_var, turn_update_callback=update_turn_counter, episode_update_callback=update_episode_counter, ui_root=root, time_to_wait_entry=time_to_wait_entry, meadow_update_callback=update_meadow_display, hand_update_callback=update_hand_display)
     game.train(num_episodes)
     messagebox.showinfo("Training", "Model training complete!")
 
@@ -112,7 +112,7 @@ def load_and_test_model(root):
     agent.epsilon = 0
     agents = [agent, ai_game.ReinforcementLearningAgent(alpha=0.1, gamma=0.9, epsilon=0.1)]
     card_dict = setup_cards()
-    game = ai_game.Game(card_dict, agents, randomize_agents_var, turn_update_callback=update_turn_counter, ui_root=root, time_to_wait_entry=time_to_wait_entry, meadow_update_callback=update_meadow_display, hand_update_callback=update_hand_display)
+    game = ai_game.Game(card_dict, agents, randomize_agents_var, turn_update_callback=update_turn_counter, episode_update_callback=update_episode_counter, ui_root=root, time_to_wait_entry=time_to_wait_entry, meadow_update_callback=update_meadow_display, hand_update_callback=update_hand_display)
     # Override the drawing when testing the model
     def draw_to_meadow_override():
         selected_card = user_selects_meadow_card(meadow_card_comboboxes, root)
@@ -137,10 +137,14 @@ def load_and_test_model(root):
 
 def update_turn_counter(turn):
     turn_counter_label.config(text=f"Turn: {turn + 1}")
+    
+def update_episode_counter(episode):
+    episode_counter_label.config(text=f"Episode: {episode}")
 
 def setup_ui():
     global turn_counter_label, time_to_wait_entry, num_agents_entry, num_episodes_entry
     global turn_counter_label, time_to_wait_entry, num_agents_entry, num_episodes_entry, randomize_agents_var
+    global episode_counter_label
     global meadow_card_comboboxes
     global hand_combo_boxes
     root = tk.Tk()
@@ -148,6 +152,9 @@ def setup_ui():
     # Turn counter label
     turn_counter_label = tk.Label(root, text="Turn: 0")
     turn_counter_label.pack(anchor='ne', padx=10, pady=10)
+    # Episode counter label
+    episode_counter_label = tk.Label(root, text="Episode: 0")  # This label will be updated by the update_episode_counter function
+    episode_counter_label.pack(anchor='ne', padx=10, pady=5)
 
     # Meadow cards frame
     meadow_frame = tk.Frame(root)
