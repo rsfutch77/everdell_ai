@@ -95,7 +95,7 @@ def postal_pigeon_activation(player, game):
     # Remove any cards with more than 3 points from the revealed cards and add them to the discard list
     cards_to_discard = [card for card in game.revealed_cards if card.points > 3]
     # Remove any unique cards from the revealed cards that match the player's played cards or cannot be played
-    unique_played_card_names = {card.name for card in player.played_cards if card.rarity == 'unique'}
+    unique_played_card_names = {card.name for card in player.played_cards if card.rarity == 'unique' and card.name != "Fool"}
     cards_to_discard += [card for card in game.revealed_cards if card.name in unique_played_card_names]
     game.revealed_cards = [card for card in game.revealed_cards if card not in cards_to_discard]
     game.discard_cards(cards_to_discard)
@@ -108,16 +108,13 @@ def postal_pigeon_activation(player, game):
         # Use the AI's select_action method to choose a card
         action = player.choose_action(available_actions)
         if action and action[0] == 'pick_card':
-            # Play the selected card immediately
+            # Discard any remaining revealed cards
+            print(f"Discarding remaining revealed cards: {[card.name for card in game.revealed_cards]}")
+            game.discard_cards(game.revealed_cards)
+            game.revealed_cards.clear()
             selected_card = action[1]
             game.play_card(player, selected_card, game.agents.index(player), game)
-            game.revealed_cards.remove(selected_card)
             print(f"AI {game.agents.index(player)} immediately plays {selected_card.name} from the revealed cards.")
-    # Discard any remaining revealed cards
-    if game.revealed_cards:
-        print(f"Discarding remaining revealed cards: {[card.name for card in game.revealed_cards]}")
-        game.discard_cards(game.revealed_cards)
-        game.revealed_cards.clear()
     else:
         print(f"AI {game.agents.index(player)} could not play any cards from the pigeon's effect.")
 def historian_activation(player):

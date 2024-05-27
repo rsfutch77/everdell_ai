@@ -72,7 +72,7 @@ class AIPlayer(ReinforcementLearningAgent):
 
     def can_play_card(self, card, game):
         # Check if the card can be played based on available resources and return the action
-        unique_card_already_played = card.rarity == "unique" and any(played_card.name == card.name for played_card in self.played_cards)
+        unique_card_already_played = card.rarity == "unique" and card.name != "Fool" and any(played_card.name == card.name for played_card in self.played_cards)
         if unique_card_already_played:
             return None
         elif (card.name == "Fool" and card.berries <= self.berries and any(len(agent.played_cards) < self.city_limit for agent in game.agents)):
@@ -82,8 +82,8 @@ class AIPlayer(ReinforcementLearningAgent):
         else:
             return None
 
-    def select_action(self, hand, meadow, game):
-        # Include an additional action for receiving resources
+    def determine_available_actions(self, hand, meadow, game):
+        # Determine the available actions for the AI player, including playing cards and receiving resources
         available_actions = [('play_card', card) for card in hand + meadow if self.can_play_card(card, game)]
         # Add the 'receive_resources' action only if there are workers available
         if self.workers > 0:

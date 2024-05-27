@@ -41,10 +41,10 @@ Below is a list of game functions that are handled:
 6. 15 card city limit, including for the fool
 7. Unique cards
 8. Basic locations
+9. Prosperity cards
 
 Below is a list of game functions that are not yet handled:
 V1 Plan:
-- Real card rules that don't do anything until end game
 - Real card rules that affect other cards in play
 - Real card rules that simply gain stuff when played
 - Real card rules that add a worker location
@@ -55,6 +55,7 @@ V1 Plan:
 - Shared locations
 - Forest locations
 - Special Events
+- King card rules
 - Haven
 - Journey
 - Occupation
@@ -63,6 +64,7 @@ V1 Plan:
 - Add ID# and details of each card to game state (if needed?)
 - When testing, pause after each draw to select the correct cards into all positions and wait for a continue button
 V2 Plan:
+- play_card currently prioritizes taking cards from the meadow, but we need the ai to choose either the one from the hand or the meadow
 - Gatherers should only add points for pairs with Harvesters, not just any lone Harvester
 - Extra locations when there are 4 players
 - Discarding cards that would be over the hand limit when donating cards to an opponent
@@ -71,6 +73,7 @@ V2 Plan:
 - In the case of ties, the player with more events wins, if there is still a tie, then count resources
 - Re-shuffling an empty deck in training mode
 - AI deciding which person to give the fool to (currently just picks the next player)
+- Also the ai does not handle checking for if the opponent already has a fool and might give them 2 fools
 
 AI Limitiations
 ---------------

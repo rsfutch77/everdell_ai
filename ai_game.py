@@ -213,14 +213,15 @@ class Game:
         print(f"AI {agent_index} plays {card.name}.")
         # Activate the card's effect if it has one
         card.activate(agent, game)
-        if card in agent.hand:
-            agent.hand.remove(card)
-            print(f"That card was played from the hand.")
-            self.hand_update_callback(agent.hand, agent_index)
-        elif card in game.meadow:
+        if card in game.meadow:
             self.meadow.remove(card)
             self.meadow.extend(self.draw_to_meadow())
             self.meadow_update_callback(self.meadow)  # Update the meadow display
+            print(f"That card was played from the meadow.")
+        elif card in agent.hand:
+            agent.hand.remove(card)
+            self.hand_update_callback(agent.hand, agent_index)
+            print(f"That card was played from the hand.")
         # Update the card play frequency
         self.card_play_frequency[card.name] = self.card_play_frequency.get(card.name, 0) + 1
 
@@ -261,7 +262,7 @@ class Game:
 
             # Update the numerical game state after the meadow is replenished
             numerical_game_state = self.get_numerical_game_state(agent_play_turn_index)
-            selected_action = agent.select_action(agent.hand, self.meadow, self)
+            selected_action = agent.determine_available_actions(agent.hand, self.meadow, self)
             actions_taken.append(selected_action)  # Append the selected action for this agent
             if selected_action is not None:
                 action, card = selected_action
@@ -274,7 +275,7 @@ class Game:
                 received_resources, cards_to_draw = agent.receive_resources(agent.resource_pick)
                 new_cards = self.draw_cards(cards_to_draw)
                 agent.draw_to_hand(new_cards)
-                print(f"AI {self.agents.index(agent)} receives {', '.join(received_resources)} resources.")
+                print(f"AI {self.agents.index(agent)} receives {received_resources} resources.")
             elif action == 'recall_workers':
                 self.recall_workers(agent, agent_play_turn_index)
             else:
