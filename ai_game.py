@@ -8,6 +8,7 @@ import random
 class Game:
 
     def __init__(self, deck, agents, randomize_agents, turn_update_callback=None, ui_root=None, time_to_wait_entry=None, meadow_update_callback=None, hand_update_callback=None):
+        self.courthouse_resource_choices = {'wood': 0, 'resin': 0, 'stone': 0}  # Track resource choices for Courthouse
         self.discard = []  # List to hold discarded cards
         self.revealed_cards = []  # List to hold revealed cards
         self.card_play_frequency = {}  # Dictionary to track the frequency of card plays
@@ -53,6 +54,8 @@ class Game:
         self.ties = 0
         # Initialize a list to store the average TD errors for all episodes
         all_episodes_td_errors = []
+        # Reset the Courthouse resource choices tracking
+        self.courthouse_resource_choices = {'wood': 0, 'resin': 0, 'stone': 0}
         for episode in range(num_episodes):
             # Randomize the number of agents for each episode if enabled
             if self.randomize_agents.get():
@@ -98,8 +101,6 @@ class Game:
                     print(f"AI {self.agents.index(agent)} Win Rate: {agent.wins / (episode + 1):.2%}")
             print(f"Ties: {self.ties / (episode + 1):.2%}")
 
-
-
         if not self.randomize_agents.get():
             plt.figure()  # Create a new figure
             for agent in self.agents:
@@ -126,6 +127,14 @@ class Game:
             plt.title('AI Win Rate Over Time')
             plt.xlabel('Episode')
             plt.ylabel('Win Rate')
+        # Plot the Courthouse resource choices
+        plt.figure()
+        resources = list(self.courthouse_resource_choices.keys())
+        choices = list(self.courthouse_resource_choices.values())
+        plt.bar(resources, choices)
+        plt.title('Courthouse Resource Choices')
+        plt.xlabel('Resource')
+        plt.ylabel('Number of Times Chosen')
         plt.show()
 
         # Save the AI model after training

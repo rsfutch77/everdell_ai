@@ -137,8 +137,23 @@ def shopkeeper_trigger_effect(player, game, card_played):
     if card_played.card_type == 'character':
         player.berries += 1
         print(f"Shopkeeper effect: AI {game.agents.index(player)} gains 1 berry for playing a character card.")
-def courthouse_activation(player):
-    pass  # Courthouse card may have a different effect or no effect
+def courthouse_activation(player, _, card, *args):
+    player.on_trigger.append(card)
+def courthouse_trigger_effect(player, game, card_played):
+    if card_played.card_type == 'construction':
+        available_actions = ['wood', 'resin', 'stone']
+        # Use the AI's method to choose
+        action = player.choose_action(available_actions)
+        if action and action == 'wood':
+            player.wood += 1
+            game.courthouse_resource_choices['wood'] += 1
+        elif action and action == 'resin':
+            player.resin += 1
+            game.courthouse_resource_choices['resin'] += 1
+        elif action and action == 'stone':
+            player.stone += 1
+            game.courthouse_resource_choices['stone'] += 1
+        print(f"Courthouse gains {action[0]}")
 def innkeeper_activation(player):
     pass  # Innkeeper card may have a different effect or no effect
 def judge_activation(player):
@@ -220,6 +235,8 @@ activation_effects = {
     "Historian": historian_activation,
     "Shopkeeper": shopkeeper_activation,
     "Courthouse": courthouse_activation,
+    "Courthouse": courthouse_activation,
+    "Courthouse": courthouse_activation,
     "Innkeeper": innkeeper_activation,
     "Judge": judge_activation,
     "Crane": crane_activation,
@@ -256,6 +273,7 @@ activation_effects = {
 trigger_effects = {
     "Historian": historian_trigger_effect,
     "Shopkeeper": shopkeeper_trigger_effect,
+    "Courthouse": courthouse_trigger_effect,
     # Add other card trigger functions here
 }
         
@@ -286,7 +304,7 @@ cards = [
     #Cards that activate on playing a card
     ("Historian"     , "character",    "unique",  1, 0, 0, 0, 2, 3, "blue"),
     ("Shopkeeper"    , "character",    "unique",  1, 0, 0, 0, 2, 3, "blue"),
-    #("Courthouse", 5, 7, 2),
+    ("Courthouse"    , "construction", "unique",  2, 1, 1, 2, 0, 2, "blue"),
     #Cards that reduce cost
     #("Innkeeper", 5, 7, 3),
     #("Judge", 5, 7, 2),
