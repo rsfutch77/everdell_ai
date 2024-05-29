@@ -7,7 +7,7 @@ from everdell_ai.agent import ReinforcementLearningAgent
 
 class AIPlayer(ReinforcementLearningAgent):      
 
-    def __init__(self, alpha=0.1, gamma=0.9, epsilon=0.1, resources=10, wins=0):
+    def __init__(self, alpha=0.1, gamma=0.9, epsilon=0.1, wins=0):
         self.reset_agent()  # Reset all agent attributes to their initial values
         super().__init__(alpha, gamma, epsilon)
         self.wins = wins  # Initialize the number of wins for the AIPlayer
@@ -79,21 +79,61 @@ class AIPlayer(ReinforcementLearningAgent):
         can_use_innkeeper = innkeeper_card and card.card_type == 'character' and self.resources_less_than_cost(card) and self.resources_at_least_reduced_cost(card)
         crane_card = next((played_card for played_card in self.played_cards if played_card.name == "Crane"), None)
         can_use_crane = crane_card and self.resources_less_than_cost(card) and self.resources_at_least_reduced_cost(card)
-        if unique_card_already_played:
-            return None
-        elif (card.name == "Fool" and card.berries <= self.berries and any(len(agent.played_cards) < self.city_limit for agent in game.agents)):
+        judge_card = next((played_card for played_card in self.played_cards if played_card.name == "Judge"), None)
+        can_use_judge = judge_card and self.determine_swapped_resources(card, check_only=True)
+        if (card.name == "Fool" and card.berries <= self.berries and any(len(agent.played_cards) < self.city_limit for agent in game.agents)):
             return ('play_card', card)
-        elif (card.wood <= self.wood and card.resin <= self.resin and card.stone <= self.stone and card.berries <= self.berries and len(self.played_cards) < self.city_limit):
+        elif len(self.played_cards) > self.city_limit:
+            return None
+        elif unique_card_already_played:
+            return None
+        elif (card.wood <= self.wood and card.resin <= self.resin and card.stone <= self.stone and card.berries <= self.berries):
             return ('play_card', card)
         elif can_use_innkeeper:
             return ('play_card_with_innkeeper', card, innkeeper_card)
         elif can_use_crane:
             return ('play_card_with_crane', card, crane_card)
+        elif can_use_judge:
+            return ('play_card_with_judge', card, judge_card)
         else:
             return None
 
+    def determine_swapped_resources(self, card, check_only=False):
+        # Determine the swapped resources for the Judge card and check if the resources meet at least the reduced cost
+        for resource in ['wood', 'resin', 'stone', 'berries']:
+            if getattr(self, resource) > 0:
+                for target_resource in ['wood', 'resin', 'stone', 'berries']:
+                    if resource != target_resource:
+                        swapped_resources = {
+                            'wood': self.wood - 1 if resource == 'wood' else self.wood,
+                            'resin': self.resin - 1 if resource == 'resin' else self.resin,
+                            'stone': self.stone - 1 if resource == 'stone' else self.stone,
+                            'berries': self.berries - 1 if resource == 'berries' else self.berries,
+                            target_resource: getattr(self, target_resource) + 1
+                        }
+                        if (swapped_resources['wood'] >= card.wood and
+                            swapped_resources['resin'] >= card.resin and
+                            swapped_resources['stone'] >= card.stone and
+                            swapped_resources['berries'] >= card.berries):
+                            #Fix all the swapped resources here becuase I don't understand what this funciton is above
+                            #Target resource is what we need
+                            #Resource is what we have extra of
+                            #It fails to subtract the cost of the target resource from the card
+                            #It seems to add all of the agent's other resources, except then it subtracts 1 from the resource that we are swapping
+                            #So what we do here is set swapped resources back to the card's orginial values, subtract 1 target, and add one resource
+                            swapped_resources['wood'] = card.wood
+                            swapped_resources['resin'] = card.resin
+                            swapped_resources['stone'] = card.stone
+                            swapped_resources['berries'] = card.berries
+                            swapped_resources[target_resource] = getattr(card, target_resource) - 1
+                            swapped_resources[resource] = getattr(card, resource) + 1
+                            if check_only:
+                                return True
+                            return swapped_resources
+        return False
+    
     def resources_less_than_cost(self, card):
-        return (card.wood < self.wood or card.resin < self.resin or card.stone < self.stone or card.berries < self.berries)
+        return (card.wood > self.wood and card.resin > self.resin and card.stone > self.stone and card.berries > self.berries)
 
     def resources_at_least_reduced_cost(self, card):
         return ((self.wood + self.resin + self.stone + self.berries) >= max((card.wood + card.resin + card.stone + card.berries) - 3, 0))
@@ -116,14 +156,25 @@ class AIPlayer(ReinforcementLearningAgent):
         if action and action[0] == 'play_card_with_innkeeper':
             self.card_to_play = action[1]
             self.innkeeper_card_to_discard = action[2]
+            self.swapped_resources = None
+        elif action and action[0] == 'play_card_with_judge':
+            self.card_to_play = action[1]
+            self.judge_card_to_use = action[2]
+            self.swapped_resources = self.determine_swapped_resources(action[1])
         elif action and action[0] == 'play_card':
             self.card_to_play = action[1]
             self.innkeeper_card_to_discard = None
+            self.judge_card_to_use = None
+            self.swapped_resources = None
         else:
             self.card_to_play = None
             self.innkeeper_card_to_discard = None
+            self.judge_card_to_use = None
+            self.swapped_resources = None
         self.resource_pick = action[1] if action and action[0] == 'receive_resources' else None
         return action
+
+
     
     def get_reward(self, game, action, done, agent_index):
         # Reward function that gives a small reward for playing a high point value card,

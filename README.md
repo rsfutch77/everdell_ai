@@ -71,13 +71,16 @@ V2 Plan:
 - If a player has passed, they can not be given any resources or cards
 - In the case of ties, the player with more events wins, if there is still a tie, then count resources
 - Re-shuffling an empty deck in training mode
-- AI deciding which person to give the fool to (currently just picks the next player)
-- Also the ai does not handle checking for if the opponent already has a fool and might give them 2 fools
-- The crane currently only reduces the cost of resources starting with stone and any other resources if there is any leftover, the AI should be able to choose which of any of the resources to reduce
 
-AI Limitiations
+AI Limitiations and Future Improvements
 ---------------
-- 
+- AI could decide which person to give the fool to (currently just picks the next player)
+- The AI does not handle checking for if the opponent already has a fool and might give them 2 fools which is a unique card
+- The AI currently checks that all opponents have free space for a fool, it only needs one
+- The crane currently only reduces the cost of resources starting with stone and any other resources if there is any leftover, the AI should be able to choose which of any combination of the resources to reduce
+- The AI currently has a fixed setting to choose the next resource on the list to replace another resource with when using the judge. Ideally the AI would should be able to choose which resource to swap if there is more than one option. 
+- The AI currently prioritizes using innkeepers, then cranes, then judges, but ideally it should be able to choose between these. This also skews the stats towards innkeepers and away from judges. 
+- The AI currently only uses the judge when it has to, but in theory it could choose to use the judge even when it could otherwise afford the card
 
 Contributing
 ------------

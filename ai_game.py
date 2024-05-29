@@ -8,6 +8,7 @@ import random
 class Game:
 
     def __init__(self, deck, agents, randomize_agents, turn_update_callback=None, episode_update_callback=None, ui_root=None, time_to_wait_entry=None, meadow_update_callback=None, hand_update_callback=None):
+        self.specific_card_play_frequency = {'Judge': 0, 'Innkeeper': 0, 'Crane': 0}  # Track specific card play frequency
         self.courthouse_resource_choices = {'wood': 0, 'resin': 0, 'stone': 0}  # Track resource choices for Courthouse
         self.discard = []  # List to hold discarded cards
         self.revealed_cards = []  # List to hold revealed cards
@@ -142,6 +143,14 @@ class Game:
         plt.title('Courthouse Resource Choices')
         plt.xlabel('Resource')
         plt.ylabel('Number of Times Chosen')
+        # Plot the specific card play frequency
+        plt.figure()
+        card_names = ['Judge', 'Innkeeper', 'Crane']
+        frequencies = [self.specific_card_play_frequency[card_name] for card_name in card_names]
+        plt.bar(card_names, frequencies)
+        plt.title('Specific Card Play Frequency')
+        plt.xlabel('Card Name')
+        plt.ylabel('Frequency')
         plt.show()
 
         # Save the AI model after training
@@ -223,6 +232,7 @@ class Game:
     def play_card(self, agent, card, agent_index, game, action):
         # Check if the action is to play the card with the Innkeeper's effect
         if action == 'play_card_with_crane':
+            self.specific_card_play_frequency['Crane'] += 1  # Increment Crane usage
             resources_to_reduce = 3
             agent.stone -= max(card.stone - 3, 0)
             resources_to_reduce -= max(card.stone - 3, 0)
@@ -232,12 +242,25 @@ class Game:
             if resources_to_reduce > 0:
                 agent.wood -= max(card.wood - 3, 0)
             resources_to_reduce -= max(card.wood - 3, 0)
+            print(f"Using Crane")
         elif action == 'play_card_with_innkeeper':
             # Reduce the berry cost by 3, but not below 0
+            self.specific_card_play_frequency['Innkeeper'] += 1  # Increment Innkeeper usage
             agent.berries -= max(card.berries - 3, 0)
+            print(f"Using Innkeeper")
         elif action == 'play_card_with_pigeon':
             # Eliminate the cost altogether if played with the pigeon's effect
+            print(f"Using pigeon")
             pass
+        elif action == 'play_card_with_judge':
+            # Use the swapped resources instead of the card's original resources
+            self.specific_card_play_frequency['Judge'] += 1  # Increment Judge usage
+            swapped_resources = agent.determine_swapped_resources(card)
+            agent.wood -= swapped_resources['wood']
+            agent.resin -= swapped_resources['resin']
+            agent.stone -= swapped_resources['stone']
+            agent.berries -= swapped_resources['berries']
+            print(f"Using Judge")
         else:
             # Deduct the cost from the AI player's resources
             agent.wood -= card.wood
@@ -299,7 +322,12 @@ class Game:
                 continue  # Skip the rest of the turn for this agent
 
             selected_action = agent.determine_available_actions(agent.hand, self.meadow, self)
-            actions_taken.append(selected_action)  # Append the selected action for this agent
+            # Ensure selected_action is a tuple with three elements
+            if selected_action is not None and len(selected_action) == 2:
+                selected_action = selected_action + (None,)
+            elif selected_action is None:
+                selected_action = (None, None, None)
+            actions_taken.append(selected_action)
             if selected_action is not None:
                 if selected_action[0] == 'play_card_with_innkeeper':
                     action, card, innkeeper_card_to_discard = selected_action
@@ -317,19 +345,19 @@ class Game:
                         self.discard_cards([crane_card_to_discard])
                         print(f"Crane card discarded by AI {agent_play_turn_index}")
                     self.play_card(agent, card, agent_play_turn_index, self, action)
-                else:
-                    action, card = selected_action
-            else:
-                action, card = (None, None)
-            if action == 'play_card' and card:
-                self.play_card(agent, card, agent_play_turn_index, self, action)
-            elif action == 'receive_resources' and agent.workers > 0:
-                received_resources, cards_to_draw = agent.receive_resources(agent.resource_pick)
-                new_cards = self.draw_cards(cards_to_draw)
-                agent.draw_to_hand(new_cards)
-                print(f"AI {self.agents.index(agent)} receives {received_resources} resources.")
-            elif action == 'recall_workers':
-                self.recall_workers(agent, agent_play_turn_index)
+                elif selected_action[0] == 'play_card_with_judge':
+                    action, card, judge = selected_action
+                    self.play_card(agent, card, agent_play_turn_index, self, action)
+                elif selected_action[0] == 'play_card':
+                    action, card, _ = selected_action
+                    self.play_card(agent, card, agent_play_turn_index, self, action)
+                elif selected_action[0] == 'receive_resources' and agent.workers > 0:
+                    received_resources, cards_to_draw = agent.receive_resources(agent.resource_pick)
+                    new_cards = self.draw_cards(cards_to_draw)
+                    agent.draw_to_hand(new_cards)
+                    print(f"AI {self.agents.index(agent)} receives {received_resources} resources.")
+                elif selected_action[0] == 'recall_workers':
+                    self.recall_workers(agent, agent_play_turn_index)
 
         print(f"Deck size after turn: {len(self.deck)}")
         self.current_turn += 1
