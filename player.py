@@ -133,7 +133,7 @@ class AIPlayer(ReinforcementLearningAgent):
         return False
     
     def resources_less_than_cost(self, card):
-        return (card.wood > self.wood and card.resin > self.resin and card.stone > self.stone and card.berries > self.berries)
+        return (card.wood > self.wood or card.resin > self.resin or card.stone > self.stone or card.berries > self.berries)
 
     def resources_at_least_reduced_cost(self, card):
         return ((self.wood + self.resin + self.stone + self.berries) >= max((card.wood + card.resin + card.stone + card.berries) - 3, 0))
@@ -156,6 +156,10 @@ class AIPlayer(ReinforcementLearningAgent):
         if action and action[0] == 'play_card_with_innkeeper':
             self.card_to_play = action[1]
             self.innkeeper_card_to_discard = action[2]
+            self.swapped_resources = None
+        elif action and action[0] == 'play_card_with_crane':
+            self.card_to_play = action[1]
+            self.crane_card_to_discard = action[2]
             self.swapped_resources = None
         elif action and action[0] == 'play_card_with_judge':
             self.card_to_play = action[1]
