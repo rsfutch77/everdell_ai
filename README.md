@@ -45,10 +45,10 @@ Below is a list of game functions that are handled:
 
 Below is a list of game functions that are not yet handled:
 V1 Plan:
+- Normalize stats vs card quantity in deck
 - Real card rules that affect other cards in play
 - Real card rules that add a worker location
 - Real card rules that activate when a card is played
-- Real card rules that can change the cost of a card to play
 - Both harvests
 - Basic Events
 - Shared locations

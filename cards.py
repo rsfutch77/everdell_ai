@@ -38,6 +38,31 @@ def mine_activation(player, *args):
     player.stone += 1
 def twig_barge_activation(player, *args):
     player.wood += 2
+def undertaker_activation(player, game, *args):
+    discarded_cards = game.meadow[:3]
+    game.discard.extend(discarded_cards)
+    game.meadow = game.meadow[3:]
+    # Replenish the meadow with new cards from the deck
+    for _ in range(3):
+        game.meadow.extend(game.draw_to_meadow())
+    print(f"Undertaker effect: Discarded cards from the meadow: {[card.name for card in discarded_cards]}")
+    # Allow the player to pick a card from the meadow
+    if game.meadow:
+        # Build a list of actions for the AI to choose from
+        available_actions = [('pick_card', card) for card in game.meadow]
+        # Use the AI's choose_action method to choose a card
+        action = player.choose_action(available_actions)
+        chosen_card = action[1] if action and action[0] == 'pick_card' else None
+        if chosen_card:
+            # Update the Undertaker card pick frequency
+            game.undertaker_card_pick_frequency[chosen_card.name] = game.undertaker_card_pick_frequency.get(chosen_card.name, 0) + 1
+            game.meadow.remove(chosen_card)
+            player.hand.append(chosen_card)
+            print(f"Undertaker effect: Player picked {chosen_card.name} from the meadow")
+            game.meadow.extend(game.draw_to_meadow())
+    # Update the meadow display if a callback is set
+    if game.meadow_update_callback:
+        game.meadow_update_callback(game.meadow)
 def resin_refinery_activation(player, *args):
     player.resin += 1
 def fairgrounds_activation(player, game, *args):
@@ -162,8 +187,6 @@ def judge_activation(player, *args):
     pass  # Judge card may have a different effect or no effect
 def crane_activation(player, *args):
     pass  # Crane card may have a different effect or no effect
-def undertaker_activation(player):
-    pass  # Undertaker card may have a different effect or no effect
 def harvester_activation(player):
     pass  # Harvester card may have a different effect or no effect
 def shepherd_activation(player):
@@ -218,6 +241,7 @@ def bard_activation(player):
 # Map card names to their activation functions
 activation_effects = {
     "Farm": farm_activation,
+    "Undertaker": undertaker_activation,
     "Mine": mine_activation,
     "Twig Barge": twig_barge_activation,
     "Resin Refinery": resin_refinery_activation,
@@ -313,7 +337,7 @@ cards = [
     ("Judge"         , "character",    "unique",  2, 0, 0, 0, 3, 2, "blue"),
     ("Crane"         , "construction", "unique",  1, 0, 0, 1, 0, 2, "blue"),
     #Discards from Meadow
-    #("Undertaker", 5, 7, 2),
+    ("Undertaker"    , "character",    "unique",  1, 0, 0, 0, 2, 2, "adventure"),
     #If/then cards
     #("Harvester", 5, 7, 4),
     #("Shepherd", 5, 7, 2),

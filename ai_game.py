@@ -8,6 +8,7 @@ import random
 class Game:
 
     def __init__(self, deck, agents, randomize_agents, turn_update_callback=None, episode_update_callback=None, ui_root=None, time_to_wait_entry=None, meadow_update_callback=None, hand_update_callback=None):
+        self.undertaker_card_pick_frequency = {}  # Track card pick frequency after Undertaker activation
         self.specific_card_play_frequency = {'Judge': 0, 'Innkeeper': 0, 'Crane': 0}  # Track specific card play frequency
         self.courthouse_resource_choices = {'wood': 0, 'resin': 0, 'stone': 0}  # Track resource choices for Courthouse
         self.discard = []  # List to hold discarded cards
@@ -151,6 +152,17 @@ class Game:
         plt.title('Specific Card Play Frequency')
         plt.xlabel('Card Name')
         plt.ylabel('Frequency')
+        # Plot the Undertaker card pick frequency
+        if self.undertaker_card_pick_frequency:
+            plt.figure()
+            card_names = list(self.undertaker_card_pick_frequency.keys())
+            frequencies = [self.undertaker_card_pick_frequency[card_name] for card_name in card_names]
+            plt.bar(card_names, frequencies)
+            plt.title('Undertaker Card Pick Frequency')
+            plt.xlabel('Card Name')
+            plt.ylabel('Frequency')
+            plt.xticks(rotation=90)
+            plt.tight_layout()  # Adjust layout to prevent label cutoff
         plt.show()
 
         # Save the AI model after training
