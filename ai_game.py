@@ -9,7 +9,7 @@ class Game:
 
     def __init__(self, deck, agents, randomize_agents, turn_update_callback=None, episode_update_callback=None, ui_root=None, time_to_wait_entry=None, meadow_update_callback=None, hand_update_callback=None):
         self.undertaker_card_pick_frequency = {}  # Track card pick frequency after Undertaker activation
-        self.specific_card_play_frequency = {'Judge': 0, 'Innkeeper': 0, 'Crane': 0}  # Track specific card play frequency
+        self.card_play_frequency_discounters = {'Judge': 0, 'Innkeeper': 0, 'Crane': 0}  # Track specific card play frequency
         self.courthouse_resource_choices = {'wood': 0, 'resin': 0, 'stone': 0}  # Track resource choices for Courthouse
         self.discard = []  # List to hold discarded cards
         self.revealed_cards = []  # List to hold revealed cards
@@ -144,12 +144,12 @@ class Game:
         plt.title('Courthouse Resource Choices')
         plt.xlabel('Resource')
         plt.ylabel('Number of Times Chosen')
-        # Plot the specific card play frequency
+        # Plot the card play frequency for discounters
         plt.figure()
         card_names = ['Judge', 'Innkeeper', 'Crane']
-        frequencies = [self.specific_card_play_frequency[card_name] for card_name in card_names]
+        frequencies = [self.card_play_frequency_discounters[card_name] for card_name in card_names]
         plt.bar(card_names, frequencies)
-        plt.title('Specific Card Play Frequency')
+        plt.title('Card Play Frequency for Discounters')
         plt.xlabel('Card Name')
         plt.ylabel('Frequency')
         # Plot the Undertaker card pick frequency
@@ -244,7 +244,7 @@ class Game:
     def play_card(self, agent, card, agent_index, game, action):
         # Check if the action is to play the card with the Innkeeper's effect
         if action == 'play_card_with_crane':
-            self.specific_card_play_frequency['Crane'] += 1  # Increment Crane usage
+            self.card_play_frequency_discounters['Crane'] += 1  # Increment Crane usage
             resources_to_reduce = 3
             agent.stone -= max(card.stone - 3, 0)
             resources_to_reduce -= max(card.stone - 3, 0)
@@ -257,7 +257,7 @@ class Game:
             print(f"Using Crane")
         elif action == 'play_card_with_innkeeper':
             # Reduce the berry cost by 3, but not below 0
-            self.specific_card_play_frequency['Innkeeper'] += 1  # Increment Innkeeper usage
+            self.card_play_frequency_discounters['Innkeeper'] += 1  # Increment Innkeeper usage
             agent.berries -= max(card.berries - 3, 0)
             print(f"Using Innkeeper")
         elif action == 'play_card_with_pigeon':
@@ -266,7 +266,7 @@ class Game:
             pass
         elif action == 'play_card_with_judge':
             # Use the swapped resources instead of the card's original resources
-            self.specific_card_play_frequency['Judge'] += 1  # Increment Judge usage
+            self.card_play_frequency_discounters['Judge'] += 1  # Increment Judge usage
             swapped_resources = agent.determine_swapped_resources(card)
             agent.wood -= swapped_resources['wood']
             agent.resin -= swapped_resources['resin']
