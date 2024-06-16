@@ -74,7 +74,7 @@ def fool_activation(player, game, *args):
     while True:
         next_player_index = (game.agents.index(player) + 1 + iterate_players) % len(game.agents)
         next_player = game.agents[next_player_index]
-        if len(game.agents[next_player_index].played_cards) < game.agents[next_player_index].city_limit - 1:
+        if len(game.agents[next_player_index].played_cards) <= game.agents[next_player_index].city_limit:
             break
     # Move the Fool card to the next player's played cards
     fool_card = next((card for card in player.played_cards if card.name == "Fool"), None)
