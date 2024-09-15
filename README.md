@@ -45,7 +45,6 @@ Below is a list of game functions that are handled:
 
 Below is a list of game functions that are not yet handled:
 V1 Plan:
-- Normalize stats vs card quantity in deck
 - Real card rules that affect other cards in play
 - Real card rules that add a worker location
 - Real card rules that activate when a card is played
@@ -64,13 +63,15 @@ V1 Plan:
 - When testing, pause after each draw to select the correct cards into all positions and wait for a continue button
 V2 Plan:
 - play_card currently prioritizes taking cards from the meadow, but we need the ai to choose either the one from the hand or the meadow
-- Gatherers should only add points for pairs with Harvesters, not just any lone Harvester
+- Gatherers should only add points for pairs with Harvesters, not just any lone Harvester.
+- Similarly, harvesters should only grant resources when paired.
 - Extra locations when there are 4 players
 - Discarding cards that would be over the hand limit when donating cards to an opponent
 - Drawing all cards from the meadow before replenishing when multiple cards are drawn from the meadow
 - If a player has passed, they can not be given any resources or cards
 - In the case of ties, the player with more events wins, if there is still a tie, then count resources
 - Re-shuffling an empty deck in training mode
+- The Chapel and Shepherd are not implemented yet because they are annoying
 
 AI Limitiations and Future Improvements
 ---------------

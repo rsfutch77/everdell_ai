@@ -187,14 +187,41 @@ def judge_activation(player, *args):
     pass  # Judge card may have a different effect or no effect
 def crane_activation(player, *args):
     pass  # Crane card may have a different effect or no effect
-def harvester_activation(player):
-    pass  # Harvester card may have a different effect or no effect
+def harvester_activation(player, *args):
+    # Check if the player has both a Gatherer and a Farm
+    has_gatherer = any(card.name == "Gatherer" for card in player.played_cards)
+    has_farm = any(card.name == "Farm" for card in player.played_cards)
+    
+    if has_gatherer and has_farm:
+        # Allow the player to pick one of the resources
+        available_resources = ['wood', 'resin', 'stone']
+        chosen_resource = player.choose_action(available_resources)
+        
+        if chosen_resource == 'wood':
+            player.wood += 1
+        elif chosen_resource == 'resin':
+            player.resin += 1
+        elif chosen_resource == 'stone':
+            player.stone += 1
+        
+        print(f"Harvester activation: Player gains 1 {chosen_resource}.")
 def shepherd_activation(player):
     pass  # Shepherd card may have a different effect or no effect
-def barge_toad_activation(player):
-    pass  # Barge Toad card may have a different effect or no effect
-def general_store_activation(player):
-    pass  # General Store card may have a different effect or no effect
+def barge_toad_activation(player, *args):
+    # Calculate the number of farms in the player's city
+    num_farms = sum(1 for card in player.played_cards if card.name == "Farm")
+    # Gain two wood for each farm
+    wood_gained = num_farms * 2
+    player.wood += wood_gained
+    print(f"Barge Toad activation: Player gains {wood_gained} wood for {num_farms} farms.")
+def general_store_activation(player, *args):
+    # Gain one berry
+    berries_gained = 1
+    # Check if the player has a Farm card
+    if any(card.name == "Farm" for card in player.played_cards):
+        berries_gained += 1
+    player.berries += berries_gained
+    print(f"General Store activation: Player gains {berries_gained} berries.")
 def miner_mole_activation(player):
     pass  # Miner Mole card may have a different effect or no effect
 def chip_sweep_activation(player):
@@ -339,10 +366,10 @@ cards = [
     #Discards from Meadow
     ("Undertaker"    , "character",    "unique",  1, 0, 0, 0, 2, 2, "adventure"),
     #If/then cards
-    #("Harvester", 5, 7, 4),
-    #("Shepherd", 5, 7, 2),
-    #("Barge Toad", 5, 7, 3),
-    #("General Store", 5, 7, 3),
+    ("Harvester"     , "character",    "common", 2, 0, 0, 0, 3, 4, "green"),
+    #("Shepherd"     , "character",    "x",      0, 0, 0, 0, 0, 0, "x"),
+    ("Barge Toad"    , "character",    "common", 1, 0, 0, 0, 2, 3, "green"),
+    ("General Store" , "construction", "common", 1, 0, 1, 1, 0, 3, "green"),
     #Harvests
     #("Miner Mole", 5, 7, 3),
     #("Chip Sweep", 5, 7, 3),
