@@ -144,19 +144,23 @@ class Game:
         plt.title('Courthouse Resource Choices')
         plt.xlabel('Resource')
         plt.ylabel('Number of Times Chosen')
-        # Plot the card play frequency for discounters
+        # Plot the card play frequency for discounters (which of these cards is used most often to get a discount)
         plt.figure()
         card_names = ['Judge', 'Innkeeper', 'Crane']
-        frequencies = [self.card_play_frequency_discounters[card_name] for card_name in card_names]
+        # Normalize frequencies by the quantity of each card in the deck
+        card_quantities = {card.name: card.quantity for card in self.initial_deck}
+        frequencies = [self.card_play_frequency_discounters[card_name] / card_quantities[card_name] for card_name in card_names]
         plt.bar(card_names, frequencies)
         plt.title('Card Play Frequency for Discounters')
         plt.xlabel('Card Name')
         plt.ylabel('Frequency')
-        # Plot the Undertaker card pick frequency
+        # Plot the Undertaker card pick frequency (which cards does the undertaker draw from the meadow)
         if self.undertaker_card_pick_frequency:
             plt.figure()
             card_names = list(self.undertaker_card_pick_frequency.keys())
-            frequencies = [self.undertaker_card_pick_frequency[card_name] for card_name in card_names]
+            # Normalize frequencies by the quantity of each card in the deck
+            card_quantities = {card.name: card.quantity for card in self.initial_deck}
+            frequencies = [self.undertaker_card_pick_frequency[card_name] / card_quantities[card_name] for card_name in card_names]
             plt.bar(card_names, frequencies)
             plt.title('Undertaker Card Pick Frequency')
             plt.xlabel('Card Name')
