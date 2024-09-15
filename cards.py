@@ -11,7 +11,6 @@ class Card:
         self.berries = berries
         self.quantity = quantity
         self.card_color = card_color
-        self.card_color = None  # Initialize card_color attribute
         self.activation_effect = self.get_activation_effect()
         self.trigger_effect = self.get_trigger_effect()
 
@@ -224,8 +223,22 @@ def general_store_activation(player, *args):
     print(f"General Store activation: Player gains {berries_gained} berries.")
 def miner_mole_activation(player):
     pass  # Miner Mole card may have a different effect or no effect
-def chip_sweep_activation(player):
-    pass  # Chip Sweep card may have a different effect or no effect
+def chip_sweep_activation(player, game, *args):
+    # Filter the player's played cards to find those with a "green" card color
+    green_cards = [card for card in player.played_cards if card.card_color == "green" and card.name != "Chip Sweep"]
+    
+    if green_cards:
+        # Allow the player to choose one of the green cards to activate
+        available_actions = [('activate_card', card) for card in green_cards]
+        action = player.choose_action(available_actions)
+        chosen_card = action[1] if action and action[0] == 'activate_card' else None
+        
+        if chosen_card:
+            # Track the activation frequency of the chosen card
+            game.chip_sweep_activation_frequency[chosen_card.name] = game.chip_sweep_activation_frequency.get(chosen_card.name, 0) + 1
+            # Activate the chosen card
+            chosen_card.activate(player, game)
+            print(f"Chip Sweep activation: Player reactivates {chosen_card.name}.")
 def ranger_activation(player):
     pass  # Ranger card may have a different effect or no effect
 def teacher_activation(player):
@@ -371,8 +384,8 @@ cards = [
     ("Barge Toad"    , "character",    "common", 1, 0, 0, 0, 2, 3, "green"),
     ("General Store" , "construction", "common", 1, 0, 1, 1, 0, 3, "green"),
     #Harvests
-    #("Miner Mole", 5, 7, 3),
-    #("Chip Sweep", 5, 7, 3),
+    #("Miner Mole"   , "character",    "common", 1, 0, 0, 0, 2, 3, "green"),
+    ("Chip Sweep"    , "character",    "common", 2, 0, 0, 0, 3, 3, "green"),
     #Moves worker
     #("Ranger", 5, 7, 2),
     #Gives to opponent

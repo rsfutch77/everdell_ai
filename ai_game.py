@@ -9,6 +9,7 @@ class Game:
 
     def __init__(self, deck, agents, randomize_agents, turn_update_callback=None, episode_update_callback=None, ui_root=None, time_to_wait_entry=None, meadow_update_callback=None, hand_update_callback=None):
         self.undertaker_card_pick_frequency = {}  # Track card pick frequency after Undertaker activation
+        self.chip_sweep_activation_frequency = {}  # Track card activation frequency after Chip Sweep activation
         self.card_play_frequency_discounters = {'Judge': 0, 'Innkeeper': 0, 'Crane': 0}  # Track specific card play frequency
         self.courthouse_resource_choices = {'wood': 0, 'resin': 0, 'stone': 0}  # Track resource choices for Courthouse
         self.discard = []  # List to hold discarded cards
@@ -163,6 +164,19 @@ class Game:
             frequencies = [self.undertaker_card_pick_frequency[card_name] / card_quantities[card_name] for card_name in card_names]
             plt.bar(card_names, frequencies)
             plt.title('Undertaker Card Pick Frequency')
+            plt.xlabel('Card Name')
+            plt.ylabel('Frequency')
+            plt.xticks(rotation=90)
+            plt.tight_layout()  # Adjust layout to prevent label cutoff
+        # Plot the Chip Sweep activation frequency
+        if self.chip_sweep_activation_frequency:
+            plt.figure()
+            card_names = list(self.chip_sweep_activation_frequency.keys())
+            # Normalize frequencies by the quantity of each card in the deck
+            card_quantities = {card.name: card.quantity for card in self.initial_deck}
+            frequencies = [self.chip_sweep_activation_frequency[card_name] / card_quantities[card_name] for card_name in card_names]
+            plt.bar(card_names, frequencies)
+            plt.title('Chip Sweep Activation Frequency')
             plt.xlabel('Card Name')
             plt.ylabel('Frequency')
             plt.xticks(rotation=90)
