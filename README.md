@@ -45,9 +45,9 @@ Below is a list of game functions that are handled:
 
 Below is a list of game functions that are not yet handled:
 V1 Plan:
-- Real card rules that affect other cards in play
-- Real card rules that add a worker location
-- Real card rules that activate when a card is played
+- Card rules that affect other cards in play
+- Card rules that add a worker location
+- Card rules that activate when a card is played
 - Both harvests
 - Basic Events
 - Shared locations

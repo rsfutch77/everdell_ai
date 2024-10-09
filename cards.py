@@ -221,8 +221,24 @@ def general_store_activation(player, *args):
         berries_gained += 1
     player.berries += berries_gained
     print(f"General Store activation: Player gains {berries_gained} berries.")
-def miner_mole_activation(player):
-    pass  # Miner Mole card may have a different effect or no effect
+def miner_mole_activation(player, game, *args):
+    # Collect all green cards from opponents' played cards, excluding "Storehouse" and "Miner Mole"
+    opponent_green_cards = [
+        card for opponent in game.agents if opponent != player
+        for card in opponent.played_cards
+        if card.card_color == "green" and card.name not in ["Storehouse", "Miner Mole"]
+    ]
+    
+    if opponent_green_cards:
+        # Allow the player to choose one of the green cards to copy
+        available_actions = [('copy_card', card) for card in opponent_green_cards]
+        action = player.choose_action(available_actions)
+        chosen_card = action[1] if action and action[0] == 'copy_card' else None
+        
+        if chosen_card:
+            # Activate the chosen card's effect
+            chosen_card.activate(player, game)
+            print(f"Miner Mole activation: Player copies {chosen_card.name} from an opponent.")
 def chip_sweep_activation(player, game, *args):
     # Filter the player's played cards to find those with a "green" card color
     green_cards = [card for card in player.played_cards if card.card_color == "green" and card.name != "Chip Sweep"]
@@ -384,7 +400,7 @@ cards = [
     ("Barge Toad"    , "character",    "common", 1, 0, 0, 0, 2, 3, "green"),
     ("General Store" , "construction", "common", 1, 0, 1, 1, 0, 3, "green"),
     #Harvests
-    #("Miner Mole"   , "character",    "common", 1, 0, 0, 0, 2, 3, "green"),
+    ("Miner Mole"    , "character",    "common", 1, 0, 0, 0, 3, 3, "green"),
     ("Chip Sweep"    , "character",    "common", 2, 0, 0, 0, 3, 3, "green"),
     #Moves worker
     #("Ranger", 5, 7, 2),
