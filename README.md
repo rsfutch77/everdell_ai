@@ -42,21 +42,21 @@ Below is a list of game functions that are handled:
 7. Unique cards
 8. Basic locations
 9. Prosperity cards
+10. Card rules that affect other cards in play
 
 Below is a list of game functions that are not yet handled:
 V1 Plan:
-- Card rules that affect other cards in play
 - Card rules that add a worker location
 - Card rules that activate when a card is played
 - Both harvests
 - Basic Events
-- Shared locations
+- Shared and limited locations (including the rangers ability)
 - Forest locations
 - Special Events
 - King card rules
 - Haven
 - Journey
-- Occupation
+- Occupation and bonus occupations (i.e. Ranger adding another dungeon spot)
 - Occupation lock
 - Open Destination cards
 - Add ID# and details of each card to game state (if needed?)
