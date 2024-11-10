@@ -133,7 +133,7 @@ def postal_pigeon_activation(player, game, *args):
     game.revealed_cards = [card for card in game.revealed_cards if card not in cards_to_discard]
     game.discard_cards(cards_to_discard)
     print(f"Postal Pigeon revealed: {[card.name for card in game.revealed_cards]}")
-    print(f"Discarded: {[card.name for card in cards_to_discard]}")
+    print(f"Discarded due to not being able to play: {[card.name for card in cards_to_discard]}")
     # AI selects one card from the revealed cards using its machine learning model
     if game.revealed_cards:
         # Build a list of options for the AI to choose from
@@ -267,8 +267,46 @@ def ranger_activation(player, game, *args):
         print(f"Ranger activation: Player retrieves a worker and receives {chosen_resource}.")
     else:
         print("Ranger activation failed: No workers are deployed to retrieve.")
-def teacher_activation(player):
-    pass  # Teacher card may have a different effect or no effect
+    print("Ranger activation complete.")
+def teacher_activation(player, game, *args):
+    # Draw 2 cards to the player's hand
+    new_cards = game.draw_cards(min(2, player.max_cards_in_hand - len(player.hand)))
+    player.draw_to_hand(new_cards)
+    # Update the teacher card draw frequency
+    game.teacher_card_draw_frequency[len(new_cards)] += 1
+    
+    if len(new_cards) > 1:
+        # Allow the player to choose one card to give to an opponent
+        available_actions = [('give_card', card) for card in new_cards]
+        action = player.choose_action(available_actions)
+        chosen_card = action[1] if action and action[0] == 'give_card' else None
+
+        player.hand.remove(chosen_card)
+        # Find the next available player in the game to give the card to
+        iterate_players = 0
+        next_player_index = 0
+        while True:
+            next_player_index = (game.agents.index(player) + 1 + iterate_players) % len(game.agents)
+            next_player = game.agents[next_player_index]
+            if len(next_player.played_cards) <= next_player.city_limit:
+                break
+        if len(next_player.hand) < next_player.max_cards_in_hand:
+            next_player.hand.append(chosen_card)
+            # Update the teacher card giveaway frequency
+            print(f"Teacher activation: Player gives {chosen_card.name} to opponent AI {next_player_index}.")
+        else:
+            game.discard_cards([chosen_card])
+            print(f"Teacher activation: {chosen_card.name} discarded as opponent AI {next_player_index}'s hand is full.")
+        game.teacher_card_giveaway_frequency[chosen_card.name] = game.teacher_card_giveaway_frequency.get(chosen_card.name, 0) + 1
+        for card in new_cards:
+            if card != chosen_card:
+                # Update the teacher card kept frequency
+                game.teacher_card_kept_frequency[card.name] = game.teacher_card_kept_frequency.get(card.name, 0) + 1
+    elif len(new_cards) == 1:
+        print("Teacher activation: Only one card was drawn, so no card was given to an opponent.")
+    else:
+        print("Teacher activation: No cards were drawn, so no card was given to an opponent.")
+    print("Teacher activation complete.")
 def monk_activation(player):
     pass  # Monk card may have a different effect or no effect
 def clock_tower_activation(player):
@@ -413,9 +451,9 @@ cards = [
     ("Miner Mole"    , "character",    "common", 1, 0, 0, 0, 3, 3, "green"),
     ("Chip Sweep"    , "character",    "common", 2, 0, 0, 0, 3, 3, "green"),
     #Moves worker
-    ("Ranger"        , "character",    "common", 1, 0, 0, 0, 2, 2, "adventure"),
+    ("Ranger"        , "character",    "unique", 1, 0, 0, 0, 2, 2, "adventure"),
     #Gives to opponent
-    #("Teacher", 5, 7, 3),
+    ("Teacher"       , "character",    "common", 2, 0, 0, 0, 2, 3, "green"),
     #("Monk", 5, 7, 2),
     #Cards with pay requirements
     #("Clock Tower", 5, 7, 3),

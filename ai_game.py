@@ -11,6 +11,9 @@ class Game:
         self.undertaker_card_pick_frequency = {}  # Track card pick frequency after Undertaker activation
         self.chip_sweep_activation_frequency = {}  # Track card activation frequency after Chip Sweep activation
         self.card_play_frequency_discounters = {'Judge': 0, 'Innkeeper': 0, 'Crane': 0}  # Track specific card play frequency
+        self.teacher_card_draw_frequency = {0: 0, 1: 0, 2: 0}  # Track how often 0, 1, or 2 cards are drawn
+        self.teacher_card_giveaway_frequency = {}  # Track how often each card is given away
+        self.teacher_card_kept_frequency = {}  # Track how often each card is kept
         self.courthouse_resource_choices = {'wood': 0, 'resin': 0, 'stone': 0}  # Track resource choices for Courthouse
         self.discard = []  # List to hold discarded cards
         self.revealed_cards = []  # List to hold revealed cards
@@ -177,6 +180,40 @@ class Game:
             frequencies = [self.chip_sweep_activation_frequency[card_name] / card_quantities[card_name] for card_name in card_names]
             plt.bar(card_names, frequencies)
             plt.title('Chip Sweep Activation Frequency')
+            plt.xlabel('Card Name')
+            plt.ylabel('Frequency')
+            plt.xticks(rotation=90)
+            plt.tight_layout()  # Adjust layout to prevent label cutoff
+        # Plot the Teacher card draw frequency
+        plt.figure()
+        draw_counts = list(self.teacher_card_draw_frequency.keys())
+        frequencies = list(self.teacher_card_draw_frequency.values())
+        plt.bar(draw_counts, frequencies)
+        plt.title('Teacher Card Draw Frequency')
+        plt.xlabel('Number of Cards Drawn')
+        plt.ylabel('Frequency')
+        # Plot the Teacher card giveaway frequency
+        if self.teacher_card_giveaway_frequency:
+            plt.figure()
+            card_names = list(self.teacher_card_giveaway_frequency.keys())
+            # Normalize frequencies by the quantity of each card in the deck
+            card_quantities = {card.name: card.quantity for card in self.initial_deck}
+            frequencies = [self.teacher_card_giveaway_frequency[card_name] / card_quantities[card_name] for card_name in card_names]
+            plt.bar(card_names, frequencies)
+            plt.title('Teacher Card Giveaway Frequency')
+            plt.xlabel('Card Name')
+            plt.ylabel('Frequency')
+            plt.xticks(rotation=90)
+            plt.tight_layout()  # Adjust layout to prevent label cutoff
+        # Plot the Teacher card kept frequency
+        if self.teacher_card_kept_frequency:
+            plt.figure()
+            card_names = list(self.teacher_card_kept_frequency.keys())
+            # Normalize frequencies by the quantity of each card in the deck
+            card_quantities = {card.name: card.quantity for card in self.initial_deck}
+            frequencies = [self.teacher_card_kept_frequency[card_name] / card_quantities[card_name] for card_name in card_names]
+            plt.bar(card_names, frequencies)
+            plt.title('Teacher Card Kept Frequency')
             plt.xlabel('Card Name')
             plt.ylabel('Frequency')
             plt.xticks(rotation=90)
