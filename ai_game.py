@@ -426,6 +426,7 @@ class Game:
                 agent.workers += 6  # Get another 2 workers
                 print(f"Bonus worker for Fall.")
             agent.recalls += 1  # Increment the recall count
+            agent.max_workers = agent.workers  # Set max_workers to the current number of workers
             print(f"AI {self.agents.index(agent)} is preparing for season: recalling workers and getting an additional worker.")
         else:
             raise Exception(f"AI {self.agents.index(agent)} cannot recall workers at this time.")

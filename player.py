@@ -17,6 +17,7 @@ class AIPlayer(ReinforcementLearningAgent):
         self.recalls = 0  # Initialize the recall count for the AIPlayer
         self.max_recalls = 3  # Maximum number of recalls allowed per game
         self.max_cards_in_hand = 8
+        self.max_workers = 2  # Set the maximum number of workers
         self.city_limit = 15
         self.prosperity_cards = []  # Initialize the list of prosperity cards for endgame scoring
         self.on_trigger = []  # Initialize the list of cards with effects that trigger when other cards are played

@@ -255,8 +255,18 @@ def chip_sweep_activation(player, game, *args):
             # Activate the chosen card
             chosen_card.activate(player, game)
             print(f"Chip Sweep activation: Player reactivates {chosen_card.name}.")
-def ranger_activation(player):
-    pass  # Ranger card may have a different effect or no effect
+def ranger_activation(player, game, *args):
+    # Retrieve a worker and allow the player to deploy it again
+    if player.workers < player.max_workers:  # Check if any workers are deployed
+        player.workers += 1
+        # Choose a resource type to receive
+        available_resources = ['wood3', 'wood2_card', 'resin2', 'resin_card', 'card2_token', 'stone', 'berry_card', 'berry']
+        chosen_resource = player.choose_action(available_resources)
+        if chosen_resource:
+            player.receive_resources(chosen_resource)
+        print(f"Ranger activation: Player retrieves a worker and receives {chosen_resource}.")
+    else:
+        print("Ranger activation failed: No workers are deployed to retrieve.")
 def teacher_activation(player):
     pass  # Teacher card may have a different effect or no effect
 def monk_activation(player):
@@ -403,7 +413,7 @@ cards = [
     ("Miner Mole"    , "character",    "common", 1, 0, 0, 0, 3, 3, "green"),
     ("Chip Sweep"    , "character",    "common", 2, 0, 0, 0, 3, 3, "green"),
     #Moves worker
-    #("Ranger", 5, 7, 2),
+    ("Ranger"        , "character",    "common", 1, 0, 0, 0, 2, 2, "adventure"),
     #Gives to opponent
     #("Teacher", 5, 7, 3),
     #("Monk", 5, 7, 2),
