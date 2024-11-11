@@ -46,7 +46,6 @@ Below is a list of game functions that are handled:
 
 Below is a list of game functions that are not yet handled:
 V1 Plan:
-- Exceptions/warnings for AI limitations below
 - Card rules that add a worker location
 - Card rules that activate when a card is played
 - Both harvests
@@ -64,7 +63,7 @@ V1 Plan:
 - When testing, pause after each draw to select the correct cards into all positions and wait for a continue button
 - AI should choose which cards to discard for the undertaker rather than just picking the first 3 in the meadow
 V2 Plan:
-- play_card currently prioritizes taking cards from the meadow, but we need the ai to choose either the one from the hand or the meadow
+- 
 - Gatherers should only add points for pairs with Harvesters, not just any lone Harvester.
 - Similarly, harvesters should only grant resources when paired.
 - Extra locations when there are 4 players
@@ -77,10 +76,7 @@ V2 Plan:
 
 AI Limitiations and Future Improvements
 ---------------
-- The crane currently only reduces the cost of resources starting with stone and any other resources if there is any leftover, the AI should be able to choose which of any combination of the resources to reduce
-- The AI currently has a fixed setting to choose the next resource on the list to replace another resource with when using the judge. Ideally the AI would should be able to choose which resource to swap if there is more than one option. 
-- The AI currently prioritizes using innkeepers, then cranes, then judges, but ideally it should be able to choose between these. This also skews the stats towards innkeepers and away from judges. 
-- The AI currently only uses the judge when it has to, but in theory it could choose to use the judge even when it could otherwise afford the card
+See the TODOs with the CHOOSE tag throughout the code that identify places where we currently make heuristic assumptions that would prefferably be AI choices. Most of these are rare cases or cases that would be complex to implement via AI so I have left these for later.
 
 Contributing
 ------------

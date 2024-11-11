@@ -41,9 +41,10 @@ def mine_activation(player, *args):
 def twig_barge_activation(player, *args):
     player.wood += 2
 def undertaker_activation(player, game, *args):
-    discarded_cards = game.meadow[:3] #TODO Pick which cards the undertaker should discard instead of just the first three
-    root = tk.Tk()
+    discarded_cards = game.meadow[:3] 
     root.withdraw()  # Hide the root window
+    #TODO CHOOSE which cards the undertaker should discard instead of just the first three
+    root = tk.Tk()
     popup = tk.Toplevel(root)
     popup.title("Undertaker Warning")
     label = tk.Label(popup, text="AI is playing an Undertaker card. It currently only chooses the first 3 cards from the meadow to discard.")
@@ -53,6 +54,7 @@ def undertaker_activation(player, game, *args):
     else:
         button = tk.Button(popup, text="OK", command=popup.destroy)
         button.pack(pady=10)
+    ###
     for card in discarded_cards:
         game.undertaker_discard_frequency[card.name] = game.undertaker_discard_frequency.get(card.name, 0) + 1
     game.discard.extend(discarded_cards)
@@ -88,6 +90,7 @@ def resin_refinery_activation(player, *args):
 def fairgrounds_activation(player, game, *args):
     player.draw_to_hand(game.draw_cards(min(2, player.max_cards_in_hand - len(player.hand))), game)
 def fool_activation(player, game, *args):
+    #TODO CHOOSE a player for the fool instead of just the next player
     if len(game.agents) > 2:
         root = tk.Tk()
         root.withdraw()  # Hide the root window
@@ -100,8 +103,8 @@ def fool_activation(player, game, *args):
         else:
             button = tk.Button(popup, text="OK", command=popup.destroy)
             button.pack(pady=10)
+    ###
     # Find the next available player in the game to give the fool to
-    #TODO Pick a player for the fool instead of just the next player
     iterate_players = 0
     next_player_index = 0
     while True:
@@ -224,8 +227,6 @@ def courthouse_trigger_effect(player, game, card_played):
             game.courthouse_resource_choices['stone'] += 1
         print(f"Courthouse gains {action[0]}")
 def innkeeper_activation(player, *args):
-    pass  # Innkeeper card may have a different effect or no effect
-def crane_activation(player, *args):
     pass  # Innkeeper card may have a different effect or no effect
 def judge_activation(player, *args):
     pass  # Judge card may have a different effect or no effect

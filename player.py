@@ -1,5 +1,7 @@
 import sys
 import os
+import tkinter as tk
+from tkinter import messagebox
 # Add the parent directory to sys.path to allow for everdell_ai imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -168,6 +170,18 @@ class AIPlayer(ReinforcementLearningAgent):
         if self.workers == 0 and self.recalls < self.max_recalls:
             available_actions.append(('recall_workers', None))
         action = self.choose_action(available_actions)
+        #TODO CHOOSE whether to use Innkeeper or Judge or...  
+        root = tk.Tk()
+        popup = tk.Toplevel(root)
+        popup.title("Warning")
+        label = tk.Label(popup, text="The AI currently prioritizes using innkeepers, then cranes, then judges, but ideally it should be able to choose between these. This also skews the stats towards innkeepers and away from judges.")
+        label.pack(padx=20, pady=20)
+        if game.is_training_mode:
+            popup.after(1000, popup.destroy)  # Destroy the popup after 1 second if in training mode
+        else:
+            button = tk.Button(popup, text="OK", command=popup.destroy)
+            button.pack(pady=10)
+        ###
         if action and action[0] == 'play_card_with_innkeeper':
             self.card_to_play = action[1]
             self.innkeeper_card_to_discard = action[2]
@@ -177,6 +191,18 @@ class AIPlayer(ReinforcementLearningAgent):
             self.crane_card_to_discard = action[2]
             self.swapped_resources = None
         elif action and action[0] == 'play_card_with_judge':
+            #TODO CHOOSE whether to use the Judge or not
+            root = tk.Tk()
+            popup = tk.Toplevel(root)
+            popup.title("Warning")
+            label = tk.Label(popup, text="The AI currently only uses the Judge when it has to, but in theory it could choose to use the Judge even when it could otherwise afford the card")
+            label.pack(padx=20, pady=20)
+            if game.is_training_mode:
+                popup.after(1000, popup.destroy)  # Destroy the popup after 1 second if in training mode
+            else:
+                button = tk.Button(popup, text="OK", command=popup.destroy)
+                button.pack(pady=10)
+            ###
             self.card_to_play = action[1]
             self.judge_card_to_use = action[2]
             self.swapped_resources = self.determine_swapped_resources(action[1])

@@ -321,10 +321,24 @@ class Game:
         return state_representation
 
     def play_card(self, agent, card, agent_index, game, action):
+        #TODO CHOOSE which copy to play when you have the same card in the hand and meadow: "play_card currently prioritizes taking cards from the meadow, but the AI should choose either a card from the hand or the meadow when there is a copy of the same card in each.")
         # Check if the action is to play the card with the Innkeeper's effect
         if action == 'play_card_with_crane':
             self.card_play_frequency_discounters['Crane'] += 1  # Increment Crane usage
             resources_to_reduce = 3
+            #TODO CHOOSE which resources to reduce for the crane
+            root = tk.Tk()
+            root.withdraw()  # Hide the root window
+            popup = tk.Toplevel(root)
+            popup.title("Crane Warning")
+            label = tk.Label(popup, text="The crane currently only reduces the cost of resources starting with stone and any other resources if there is any leftover, the AI should be able to choose which of any combination of the resources to reduce.")
+            label.pack(padx=20, pady=20)
+            if game.is_training_mode:
+                popup.after(1000, popup.destroy)  # Destroy the popup after 1 second if in training mode
+            else:
+                button = tk.Button(popup, text="OK", command=popup.destroy)
+                button.pack(pady=10)
+            ###
             agent.stone -= max(card.stone - 3, 0)
             resources_to_reduce -= max(card.stone - 3, 0)
             if resources_to_reduce > 0:
@@ -346,6 +360,19 @@ class Game:
         elif action == 'play_card_with_judge':
             # Use the swapped resources instead of the card's original resources
             self.card_play_frequency_discounters['Judge'] += 1  # Increment Judge usage
+            #TODO CHOOSE which resources to swap for the Judge
+            root = tk.Tk()
+            root.withdraw()  # Hide the root window
+            popup = tk.Toplevel(root)
+            popup.title("Judge Warning")
+            label = tk.Label(popup, text="The AI currently has a fixed setting to choose the next resource on the list to replace another resource with when using the Judge. Ideally the AI would should be able to choose which resource to swap if there is more than one option.")
+            label.pack(padx=20, pady=20)
+            if game.is_training_mode:
+                popup.after(1000, popup.destroy)  # Destroy the popup after 1 second if in training mode
+            else:
+                button = tk.Button(popup, text="OK", command=popup.destroy)
+                button.pack(pady=10)
+            ###
             swapped_resources = agent.determine_swapped_resources(card)
             agent.wood -= swapped_resources['wood']
             agent.resin -= swapped_resources['resin']
