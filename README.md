@@ -1,9 +1,9 @@
-AI Card Game
+Everdell AI
 ============
 
 Overview
 --------
-This project implements a card game where players are controlled by AI agents using reinforcement learning. The agents learn to play cards to maximize their points while managing their resources.
+The goal of this project is to train an AI to play Everdell. Note that you cannot actually play Everdell using this app, it is only for training an AI and testing it while using the real game. The AI trains by Generative Adversarial play against another AI. Then you can switch to test mode where you tell the AI what cards are on your board and it will recommend a best course of action. No expansions are included.
 
 Setup
 -----
@@ -46,8 +46,6 @@ Below is a list of game functions that are handled:
 
 Below is a list of game functions that are not yet handled:
 V1 Plan:
-- Exception for more than 8 cards in the meadow
-- Pop ups for the existing exceptions
 - Exceptions/warnings for AI limitations below
 - Card rules that add a worker location
 - Card rules that activate when a card is played
@@ -79,8 +77,6 @@ V2 Plan:
 
 AI Limitiations and Future Improvements
 ---------------
-- AI could decide which person to give the fool to (currently just picks the next player)
-- The AI does not handle checking for if the opponent already has a fool and might give them 2 fools which is a unique card
 - The AI currently checks that all opponents have free space for a fool, it only needs one
 - The crane currently only reduces the cost of resources starting with stone and any other resources if there is any leftover, the AI should be able to choose which of any combination of the resources to reduce
 - The AI currently has a fixed setting to choose the next resource on the list to replace another resource with when using the judge. Ideally the AI would should be able to choose which resource to swap if there is more than one option. 
@@ -90,3 +86,8 @@ AI Limitiations and Future Improvements
 Contributing
 ------------
 Contributions to this project are welcome. Please fork the repository and submit a pull request with your changes.
+
+Bonus
+------------
+Check out this cool way to play Everdell online: https://github.com/ymichael/everdell
+If there's any interest, we could probably connect these two apps to play against an AI with your friends. 
