@@ -44,9 +44,15 @@ def undertaker_activation(player, game, *args):
     discarded_cards = game.meadow[:3] #TODO Pick which cards the undertaker should discard instead of just the first three
     root = tk.Tk()
     root.withdraw()  # Hide the root window
-    messagebox.showwarning("Undertaker Warning", "AI is playing a Undertaker card. It currently only chooses the first 3 cards from the meadow to discard.")
+    popup = tk.Toplevel(root)
+    popup.title("Undertaker Warning")
+    label = tk.Label(popup, text="AI is playing an Undertaker card. It currently only chooses the first 3 cards from the meadow to discard.")
+    label.pack(padx=20, pady=20)
     if game.is_training_mode:
-        root.after(1000, root.destroy)  # Destroy the popup after 1 second if in training mode
+        popup.after(1000, popup.destroy)  # Destroy the popup after 1 second if in training mode
+    else:
+        button = tk.Button(popup, text="OK", command=popup.destroy)
+        button.pack(pady=10)
     for card in discarded_cards:
         game.undertaker_discard_frequency[card.name] = game.undertaker_discard_frequency.get(card.name, 0) + 1
     game.discard.extend(discarded_cards)
@@ -85,9 +91,15 @@ def fool_activation(player, game, *args):
     if len(game.agents) > 2:
         root = tk.Tk()
         root.withdraw()  # Hide the root window
-        messagebox.showwarning("Fool Card Warning", "AI is playing a Fool card in a game with more than two players. It currently only picks the next player")
+        popup = tk.Toplevel(root)
+        popup.title("Fool Card Warning")
+        label = tk.Label(popup, text="AI is playing a Fool card in a game with more than two players. It currently only picks the next player.")
+        label.pack(padx=20, pady=20)
         if game.is_training_mode:
-            root.after(1000, root.destroy)  # Destroy the popup after 1 second if in training mode
+            popup.after(1000, popup.destroy)  # Destroy the popup after 1 second if in training mode
+        else:
+            button = tk.Button(popup, text="OK", command=popup.destroy)
+            button.pack(pady=10)
     # Find the next available player in the game to give the fool to
     #TODO Pick a player for the fool instead of just the next player
     #TODO Check if chosen player already has a fool
@@ -102,9 +114,15 @@ def fool_activation(player, game, *args):
     if any(card.name == "Fool" for card in next_player.played_cards):
         root = tk.Tk()
         root.withdraw()  # Hide the root window
-        messagebox.showwarning("Fool Card Warning", "The next player already has a Fool card. Checking for fools in other player's cities is not yet implemented.")
+        popup = tk.Toplevel(root)
+        popup.title("Fool Card Warning")
+        label = tk.Label(popup, text="The next player already has a Fool card. Checking for fools in other player's cities is not yet implemented.")
+        label.pack(padx=20, pady=20)
         if game.is_training_mode:
-            root.after(1000, root.destroy)  # Destroy the popup after 1 second if in training mode
+            popup.after(1000, popup.destroy)  # Destroy the popup after 1 second if in training mode
+        else:
+            button = tk.Button(popup, text="OK", command=popup.destroy)
+            button.pack(pady=10)
     fool_card = next((card for card in player.played_cards if card.name == "Fool"), None)
     if fool_card:
         player.played_cards.remove(fool_card)
