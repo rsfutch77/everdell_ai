@@ -131,7 +131,7 @@ class Game:
             card_quantities = {card.name: card.quantity for card in self.initial_deck}
             frequencies = [self.card_play_frequency[card_name] / card_quantities[card_name] for card_name in card_names]
             plt.bar(card_names, frequencies)
-            plt.title('Card Play Frequency')
+            plt.title('Card Play Frequency (Normalized)')
             plt.xlabel('Card Name')
             plt.ylabel('Frequency')
             plt.xticks(rotation=90)
@@ -155,10 +155,8 @@ class Game:
         # Plot the card play frequency for discounters (which of these cards is used most often to get a discount)
         plt.figure()
         card_names = ['Judge', 'Innkeeper', 'Crane']
-        # Normalize frequencies by the quantity of each card in the deck
         card_quantities = {card.name: card.quantity for card in self.initial_deck}
-        frequencies = [self.card_play_frequency_discounters[card_name] / card_quantities[card_name] for card_name in card_names]
-        plt.bar(card_names, frequencies)
+        plt.bar(card_names, card_quantities)
         plt.title('Card Play Frequency for Discounters')
         plt.xlabel('Card Name')
         plt.ylabel('Frequency')
@@ -170,7 +168,7 @@ class Game:
             card_quantities = {card.name: card.quantity for card in self.initial_deck}
             frequencies = [self.undertaker_card_pick_frequency[card_name] / card_quantities[card_name] for card_name in card_names]
             plt.bar(card_names, frequencies)
-            plt.title('Undertaker Card Pick Frequency')
+            plt.title('Undertaker Card Pick Frequency (Normalized)')
             plt.xlabel('Card Name')
             plt.ylabel('Frequency')
             plt.xticks(rotation=90)
@@ -204,7 +202,7 @@ class Game:
             card_quantities = {card.name: card.quantity for card in self.initial_deck}
             frequencies = [self.teacher_card_giveaway_frequency[card_name] / card_quantities[card_name] for card_name in card_names]
             plt.bar(card_names, frequencies)
-            plt.title('Teacher Card Giveaway Frequency')
+            plt.title('Teacher Card Giveaway Frequency (Normalized)')
             plt.xlabel('Card Name')
             plt.ylabel('Frequency')
             plt.xticks(rotation=90)
@@ -217,7 +215,7 @@ class Game:
             card_quantities = {card.name: card.quantity for card in self.initial_deck}
             frequencies = [self.teacher_card_kept_frequency[card_name] / card_quantities[card_name] for card_name in card_names]
             plt.bar(card_names, frequencies)
-            plt.title('Teacher Card Kept Frequency')
+            plt.title('Teacher Card Kept Frequency (Normalized)')
             plt.xlabel('Card Name')
             plt.ylabel('Frequency')
             plt.xticks(rotation=90)
