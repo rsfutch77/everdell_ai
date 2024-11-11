@@ -10,6 +10,7 @@ import random
 class Game:
 
     def __init__(self, deck, agents, randomize_agents, turn_update_callback=None, episode_update_callback=None, ui_root=None, time_to_wait_entry=None, meadow_update_callback=None, hand_update_callback=None):
+        self.is_training_mode = False  # Initialize training mode flag
         self.undertaker_card_pick_frequency = {}  # Track card pick frequency after Undertaker activation
         self.chip_sweep_activation_frequency = {}  # Track card activation frequency after Chip Sweep activation
         self.card_play_frequency_discounters = {'Judge': 0, 'Innkeeper': 0, 'Crane': 0}  # Track specific card play frequency
@@ -29,6 +30,7 @@ class Game:
         self.initial_deck = list(deck)  # Store the initial state of the deck
         self.agents = agents
         self.ties = 0
+        self.is_training_mode = True  # Set training mode to True when training starts
         self.randomize_agents = randomize_agents  # Store the randomize_agents variable
         self.episode_update_callback = episode_update_callback  # Store the episode_update_callback
 

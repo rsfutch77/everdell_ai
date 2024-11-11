@@ -79,7 +79,8 @@ def fool_activation(player, game, *args):
         root = tk.Tk()
         root.withdraw()  # Hide the root window
         messagebox.showwarning("Fool Card Warning", "AI is playing a Fool card in a game with more than two players. It currently only picks the next player")
-        root.after(1000, root.destroy)  # Destroy the popup after 1 second
+        if game.is_training_mode:
+            root.after(1000, root.destroy)  # Destroy the popup after 1 second if in training mode
     # Find the next available player in the game to give the fool to
     #TODO Pick a player for the fool instead of just the next player
     #TODO Check if chosen player already has a fool
@@ -95,7 +96,8 @@ def fool_activation(player, game, *args):
         root = tk.Tk()
         root.withdraw()  # Hide the root window
         messagebox.showwarning("Fool Card Warning", "The next player already has a Fool card. Checking for fools in other player's cities is not yet implemented.")
-        root.after(1000, root.destroy)  # Destroy the popup after 1 second
+        if game.is_training_mode:
+            root.after(1000, root.destroy)  # Destroy the popup after 1 second if in training mode
     fool_card = next((card for card in player.played_cards if card.name == "Fool"), None)
     if fool_card:
         player.played_cards.remove(fool_card)
