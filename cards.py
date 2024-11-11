@@ -93,7 +93,7 @@ def fool_activation(player, game, *args):
         root.withdraw()  # Hide the root window
         popup = tk.Toplevel(root)
         popup.title("Fool Card Warning")
-        label = tk.Label(popup, text="AI is playing a Fool card in a game with more than two players. It currently only picks the next player.")
+        label = tk.Label(popup, text="AI is playing a Fool card in a game with more than two players. It currently only picks the next player with room for it instead of looking at which city would be advantageous to put the Fool in.")
         label.pack(padx=20, pady=20)
         if game.is_training_mode:
             popup.after(1000, popup.destroy)  # Destroy the popup after 1 second if in training mode
@@ -102,32 +102,36 @@ def fool_activation(player, game, *args):
             button.pack(pady=10)
     # Find the next available player in the game to give the fool to
     #TODO Pick a player for the fool instead of just the next player
-    #TODO Check if chosen player already has a fool
+    #TODO Check if there is a player who has enough room in their city before and doesn't already have a fool before activating the fool
     iterate_players = 0
     next_player_index = 0
     while True:
-        next_player_index = (game.agents.index(player) + 1 + iterate_players) % len(game.agents)
+        next_player_index = (game.agents.index(player) + 1 + iterate_players)
+        if next_player_index > len(game.agents) - 1:
+            next_player_index = 0
         next_player = game.agents[next_player_index]
-        if len(game.agents[next_player_index].played_cards) <= game.agents[next_player_index].city_limit:
+        if next_player_index == game.agents.index(player):
+            root = tk.Tk()
+            root.withdraw()  # Hide the root window
+            popup = tk.Toplevel(root)
+            popup.title("Fool Card Warning")
+            label = tk.Label(popup, text="No suitable cities found for the fool. The AI does not yet handle full cities or cities already containing fools. The card will be discarded.")
+            label.pack(padx=20, pady=20)
+            if game.is_training_mode:
+                popup.after(1000, popup.destroy)  # Destroy the popup after 1 second if in training mode
+            else:
+                button = tk.Button(popup, text="OK", command=popup.destroy)
+                button.pack(pady=10)
+            print(f"No suitable cities found for the fool. The AI does not yet handle full cities or cities already containing fools. The card will be discarded.")
             break
-    # Check if the next player already has a Fool card
-    if any(card.name == "Fool" for card in next_player.played_cards):
-        root = tk.Tk()
-        root.withdraw()  # Hide the root window
-        popup = tk.Toplevel(root)
-        popup.title("Fool Card Warning")
-        label = tk.Label(popup, text="The next player already has a Fool card. Checking for fools in other player's cities is not yet implemented.")
-        label.pack(padx=20, pady=20)
-        if game.is_training_mode:
-            popup.after(1000, popup.destroy)  # Destroy the popup after 1 second if in training mode
-        else:
-            button = tk.Button(popup, text="OK", command=popup.destroy)
-            button.pack(pady=10)
-    fool_card = next((card for card in player.played_cards if card.name == "Fool"), None)
-    if fool_card:
-        player.played_cards.remove(fool_card)
-        next_player.played_cards.append(fool_card)
-        print(f"Fool card played into opponent's played cards by AI {game.agents.index(player)}")
+        if len(game.agents[next_player_index].played_cards) <= game.agents[next_player_index].city_limit and not any(card.name == "Fool" for card in next_player.played_cards):
+            # Move the Fool card to the next player's played cards
+            fool_card = next((card for card in player.played_cards if card.name == "Fool"), None)
+            next_player.played_cards.append(fool_card)
+            print(f"Fool card played into AI {next_player_index} played cards by AI {game.agents.index(player)}")
+            break
+        iterate_players += 1
+    player.played_cards.remove(fool_card)
 def wanderer_activation(player, game, *args):
      # Draw cards for the Wanderer activation without adding it to played cards
      player.draw_to_hand(game.draw_cards(min(3, player.max_cards_in_hand - len(player.hand))), game)

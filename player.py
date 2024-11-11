@@ -95,7 +95,7 @@ class AIPlayer(ReinforcementLearningAgent):
         can_use_crane = crane_card and self.resources_less_than_cost(card) and self.resources_at_least_reduced_cost(card)
         judge_card = next((played_card for played_card in self.played_cards if played_card.name == "Judge"), None)
         can_use_judge = judge_card and self.determine_swapped_resources(card, check_only=True)
-        if (card.name == "Fool" and card.berries <= self.berries and any(len(agent.played_cards) < self.city_limit for agent in game.agents)):
+        if (card.name == "Fool" and card.berries <= self.berries and any(len(agent.played_cards) < self.city_limit and not any(card.name == "Fool" for card in agent.played_cards) for agent in game.agents)):
             return ('play_card', card)
         elif len(self.played_cards) > self.city_limit:
             return None
