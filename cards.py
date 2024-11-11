@@ -42,19 +42,7 @@ def twig_barge_activation(player, *args):
     player.wood += 2
 def undertaker_activation(player, game, *args):
     discarded_cards = game.meadow[:3] 
-    root.withdraw()  # Hide the root window
-    #TODO CHOOSE which cards the undertaker should discard instead of just the first three
-    root = tk.Tk()
-    popup = tk.Toplevel(root)
-    popup.title("Undertaker Warning")
-    label = tk.Label(popup, text="AI is playing an Undertaker card. It currently only chooses the first 3 cards from the meadow to discard.")
-    label.pack(padx=20, pady=20)
-    if game.is_training_mode:
-        popup.after(1000, popup.destroy)  # Destroy the popup after 1 second if in training mode
-    else:
-        button = tk.Button(popup, text="OK", command=popup.destroy)
-        button.pack(pady=10)
-    ###
+    #TODO CHOOSE which cards the undertaker should discard instead of just the first three: AI is playing an Undertaker card. It currently only chooses the first 3 cards from the meadow to discard.
     for card in discarded_cards:
         game.undertaker_discard_frequency[card.name] = game.undertaker_discard_frequency.get(card.name, 0) + 1
     game.discard.extend(discarded_cards)

@@ -22,12 +22,12 @@ python main.py
 
 Training the AI
 ---------------
-The AI agents can be trained by running the `train_model` function within `ui.py`. This function takes the number of episodes to train as an argument.
-
-```
-from ui import train_model
-train_model(root, num_agents_entry, num_episodes_entry, randomize_agents_var)
-```
+Once the app is started, it is recommended to train with at least 100 episodes.
+Enter the number of Episodes in the text box.
+At this stage it is recommended to train with only two players, but ideally we will finish the 4 player rules and you can then train with a randomized number of players which should result in a more capable AI against a variety of player counts.
+Once your settings are entered, click the "Train" button.
+Training 100 epiosdes takes about 1 minute on my old Gen 3 i7.
+When training is complete it will show some charts about the most commonly played cards that you can use to judge whether the training was effective and then use those same common strategies against your friends. 
 
 Game Functions
 ---------------
@@ -43,36 +43,34 @@ Below is a list of game functions that are handled:
 8. Basic locations
 9. Prosperity cards
 10. Card rules that affect other cards in play
+11. Shared and limited locations (including the rangers ability)
 
 Below is a list of game functions that are not yet handled:
 V1 Plan:
-- Card rules that add a worker location
-- Card rules that activate when a card is played
-- Both harvests
-- Basic Events
-- Shared and limited locations (including the rangers ability)
-- Forest locations
-- Special Events
-- King card rules
-- Haven
-- Journey
-- Occupation and bonus occupations (i.e. Ranger adding another dungeon spot)
-- Occupation lock
-- Open Destination cards
-- Add ID# and details of each card to game state (if needed?)
-- When testing, pause after each draw to select the correct cards into all positions and wait for a continue button
-- AI should choose which cards to discard for the undertaker rather than just picking the first 3 in the meadow
+#TODO V1 Card rules that add a worker location
+#TODO V1 Card rules that activate when a card is played
+#TODO V1 Both harvests
+#TODO V1 Basic Events
+#TODO V1 Forest locations
+#TODO V1 Special Events
+#TODO V1 King card rules
+#TODO V1 Haven
+#TODO V1 Journey
+#TODO V1 Occupation and bonus occupations (i.e. Ranger adding another dungeon spot)
+#TODO V1 Occupation lock
+#TODO V1 Open Destination cards
+#TODO V1 When testing, pause after each draw to select the correct cards into all positions and wait for a continue button
+#TODO V1 AI should choose which cards to discard for the undertaker rather than just picking the first 3 in the meadow
 V2 Plan:
-- 
-- Gatherers should only add points for pairs with Harvesters, not just any lone Harvester.
-- Similarly, harvesters should only grant resources when paired.
-- Extra locations when there are 4 players
-- Discarding cards that would be over the hand limit when donating cards to an opponent
-- Drawing all cards from the meadow before replenishing when multiple cards are drawn from the meadow
-- If a player has passed, they can not be given any resources or cards
-- In the case of ties, the player with more events wins, if there is still a tie, then count resources
-- Re-shuffling an empty deck in training mode
-- The Chapel and Shepherd are not implemented yet because they are annoying
+#TODO V2 Gatherers should only add points for pairs with Harvesters, not just any lone Harvester.
+#TODO V2 Harvesters should only grant resources when paired.
+#TODO V2 Extra forrest locations when there are 4 players
+#TODO V2 Discarding cards that would be over the hand limit when donating cards to an opponent
+#TODO V2 Drawing all cards from the meadow before replenishing when multiple cards are drawn from the meadow
+#TODO V2 If a player has passed, they can not be given any resources or cards
+#TODO V2 In the case of ties, the player with more events wins, if there is still a tie, then count resources
+#TODO V2 Re-shuffling an empty deck
+#TODO V2 The Chapel and Shepherd are not implemented yet because they are annoying
 
 AI Limitiations and Future Improvements
 ---------------
