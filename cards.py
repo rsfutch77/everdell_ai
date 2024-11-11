@@ -90,7 +90,12 @@ def fool_activation(player, game, *args):
         next_player = game.agents[next_player_index]
         if len(game.agents[next_player_index].played_cards) <= game.agents[next_player_index].city_limit:
             break
-    # Move the Fool card to the next player's played cards
+    # Check if the next player already has a Fool card
+    if any(card.name == "Fool" for card in next_player.played_cards):
+        root = tk.Tk()
+        root.withdraw()  # Hide the root window
+        messagebox.showwarning("Fool Card Warning", "The next player already has a Fool card.")
+        root.destroy()
     fool_card = next((card for card in player.played_cards if card.name == "Fool"), None)
     if fool_card:
         player.played_cards.remove(fool_card)
