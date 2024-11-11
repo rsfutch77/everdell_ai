@@ -102,7 +102,6 @@ def fool_activation(player, game, *args):
             button.pack(pady=10)
     # Find the next available player in the game to give the fool to
     #TODO Pick a player for the fool instead of just the next player
-    #TODO Check if there is a player who has enough room in their city before and doesn't already have a fool before activating the fool
     iterate_players = 0
     next_player_index = 0
     while True:
@@ -113,17 +112,9 @@ def fool_activation(player, game, *args):
         if next_player_index == game.agents.index(player):
             root = tk.Tk()
             root.withdraw()  # Hide the root window
-            popup = tk.Toplevel(root)
-            popup.title("Fool Card Warning")
-            label = tk.Label(popup, text="No suitable cities found for the fool. The AI does not yet handle full cities or cities already containing fools. The card will be discarded.")
-            label.pack(padx=20, pady=20)
-            if game.is_training_mode:
-                popup.after(1000, popup.destroy)  # Destroy the popup after 1 second if in training mode
-            else:
-                button = tk.Button(popup, text="OK", command=popup.destroy)
-                button.pack(pady=10)
-            print(f"No suitable cities found for the fool. The AI does not yet handle full cities or cities already containing fools. The card will be discarded.")
-            break
+            messagebox.showerror("Fool Error", f"No suitable cities found for the fool. The AI does not yet handle full cities or cities already containing fools.")
+            root.destroy()
+            raise Exception(f"No suitable cities found for the fool. The AI does not yet handle full cities or cities already containing fools.")
         if len(game.agents[next_player_index].played_cards) <= game.agents[next_player_index].city_limit and not any(card.name == "Fool" for card in next_player.played_cards):
             # Move the Fool card to the next player's played cards
             fool_card = next((card for card in player.played_cards if card.name == "Fool"), None)
