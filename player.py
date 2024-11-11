@@ -69,9 +69,16 @@ class AIPlayer(ReinforcementLearningAgent):
         # Method to increase the agent's tokens
         self.tokens += amount
 
-    def draw_to_hand(self, new_cards, *args):
-        if new_cards != None:
-            self.hand.extend(new_cards)
+    def draw_to_hand(self, new_cards, game, *args):
+        if new_cards is not None:
+            # Only add cards up to the maximum hand limit
+            cards_to_add = min(len(new_cards), self.max_cards_in_hand - len(self.hand))
+            self.hand.extend(new_cards[:cards_to_add])
+            # Discard any excess cards that couldn't be added to the hand
+            excess_cards = new_cards[cards_to_add:]
+            if excess_cards:
+                print(f"Discarding excess cards when the next AI made the following move: {[card.name for card in excess_cards]}")
+                game.discard_cards(excess_cards)
 
     def can_play_card(self, card, game):
         # Check if the card can be played based on available resources and return the action

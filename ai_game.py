@@ -421,7 +421,8 @@ class Game:
                 elif selected_action[0] == 'receive_resources' and agent.workers > 0:
                     received_resources, cards_to_draw = agent.receive_resources(agent.resource_pick)
                     new_cards = self.draw_cards(cards_to_draw)
-                    agent.draw_to_hand(new_cards)
+                    if cards_to_draw > 0:
+                        agent.draw_to_hand(new_cards, self)
                     print(f"AI {self.agents.index(agent)} receives {received_resources} resources.")
                 elif selected_action[0] == 'recall_workers':
                     self.recall_workers(agent, agent_play_turn_index)
@@ -458,7 +459,7 @@ class Game:
                 agent.workers += 4  # Get another worker
                 print(f"Summer.")
                 # Allow the player to draw up to the quantity of cards, without exceeding 8 cards in hand
-                agent.draw_to_hand(self.draw_cards(min(2, agent.max_cards_in_hand - len(agent.hand))))
+                agent.draw_to_hand(self.draw_cards(min(2, agent.max_cards_in_hand - len(agent.hand))), self)
             else:
                 agent.workers += 6  # Get another 2 workers
                 print(f"Bonus worker for Fall.")

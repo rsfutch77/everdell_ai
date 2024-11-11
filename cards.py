@@ -65,7 +65,7 @@ def undertaker_activation(player, game, *args):
 def resin_refinery_activation(player, *args):
     player.resin += 1
 def fairgrounds_activation(player, game, *args):
-    player.draw_to_hand(game.draw_cards(min(2, player.max_cards_in_hand - len(player.hand))))
+    player.draw_to_hand(game.draw_cards(min(2, player.max_cards_in_hand - len(player.hand))), game)
 def fool_activation(player, game, *args):
     # Find the next available player in the game to give the fool to
     iterate_players = 0
@@ -83,7 +83,7 @@ def fool_activation(player, game, *args):
         print(f"Fool card played into opponent's played cards by AI {game.agents.index(player)}")
 def wanderer_activation(player, game, *args):
      # Draw cards for the Wanderer activation without adding it to played cards
-     player.draw_to_hand(game.draw_cards(min(3, player.max_cards_in_hand - len(player.hand))))
+     player.draw_to_hand(game.draw_cards(min(3, player.max_cards_in_hand - len(player.hand))), game)
      # Remove the Wanderer card from the player's hand
      wanderer_card = next((card for card in player.played_cards if card.name == "Wanderer"), None)
      if wanderer_card:
@@ -157,7 +157,7 @@ def historian_activation(player, _, card, *args):
     player.on_trigger.append(card)
 def historian_trigger_effect(player, game, *args):
     # Historian's trigger effect is that the player draws a card
-    player.draw_to_hand(game.draw_cards(min(1, player.max_cards_in_hand - len(player.hand))))
+    player.draw_to_hand(game.draw_cards(min(1, player.max_cards_in_hand - len(player.hand))), game)
 def shopkeeper_activation(player, _, card, *args):
     player.on_trigger.append(card)
 def shopkeeper_trigger_effect(player, game, card_played):
@@ -274,7 +274,7 @@ def ranger_activation(player, game, *args):
 def teacher_activation(player, game, *args):
     # Draw 2 cards to the player's hand
     new_cards = game.draw_cards(min(2, player.max_cards_in_hand - len(player.hand)))
-    player.draw_to_hand(new_cards)
+    player.draw_to_hand(new_cards, game)
     # Update the teacher card draw frequency
     game.teacher_card_draw_frequency[len(new_cards)] += 1
     
