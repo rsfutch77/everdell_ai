@@ -315,10 +315,10 @@ class Game:
             # Reduce the berry cost by 3, but not below 0
             self.card_play_frequency_discounters['Innkeeper'] += 1  # Increment Innkeeper usage
             agent.berries -= max(card.berries - 3, 0)
-            print(f"Using Innkeeper")
+            print(f"Using Innkeeper, the following card is played...")
         elif action == 'play_card_with_pigeon':
             # Eliminate the cost altogether if played with the pigeon's effect
-            print(f"Using pigeon")
+            print(f"Using Pigeon, the following card is played...")
             pass
         elif action == 'play_card_with_judge':
             # Use the swapped resources instead of the card's original resources
@@ -328,7 +328,7 @@ class Game:
             agent.resin -= swapped_resources['resin']
             agent.stone -= swapped_resources['stone']
             agent.berries -= swapped_resources['berries']
-            print(f"Using Judge")
+            print(f"Using Judge, the following card is played...")
         else:
             # Deduct the cost from the AI player's resources
             agent.wood -= card.wood
@@ -405,7 +405,7 @@ class Game:
                     if innkeeper_card_to_discard in agent.played_cards:
                         agent.played_cards.remove(innkeeper_card_to_discard)       
                         self.discard_cards([innkeeper_card_to_discard])
-                        print(f"Innkeeper card discarded by AI {agent_play_turn_index}")
+                        print(f"Innkeeper card discarded by AI to pay for the following...{agent_play_turn_index}")
                     self.play_card(agent, card, agent_play_turn_index, self, action)
                 elif selected_action[0] == 'play_card_with_crane':
                     action, card, crane_card_to_discard = selected_action
@@ -413,7 +413,7 @@ class Game:
                     if crane_card_to_discard in agent.played_cards:
                         agent.played_cards.remove(crane_card_to_discard)       
                         self.discard_cards([crane_card_to_discard])
-                        print(f"Crane card discarded by AI {agent_play_turn_index}")
+                        print(f"Crane card discarded by AI to pay for the following...{agent_play_turn_index}")
                     self.play_card(agent, card, agent_play_turn_index, self, action)
                 elif selected_action[0] == 'play_card_with_judge':
                     action, card, judge = selected_action
