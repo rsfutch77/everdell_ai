@@ -38,7 +38,7 @@ def mine_activation(player, *args):
 def twig_barge_activation(player, *args):
     player.wood += 2
 def undertaker_activation(player, game, *args):
-    discarded_cards = game.meadow[:3]
+    discarded_cards = game.meadow[:3] #TODO Ideally the AI would pick which cards to discard instead
     game.discard.extend(discarded_cards)
     game.meadow = game.meadow[3:]
     # Replenish the meadow with new cards from the deck
