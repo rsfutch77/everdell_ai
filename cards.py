@@ -94,8 +94,8 @@ def fool_activation(player, game, *args):
     if any(card.name == "Fool" for card in next_player.played_cards):
         root = tk.Tk()
         root.withdraw()  # Hide the root window
-        messagebox.showwarning("Fool Card Warning", "The next player already has a Fool card.")
-        root.destroy()
+        messagebox.showwarning("Fool Card Warning", "The next player already has a Fool card. Checking for fools in other player's cities is not yet implemented.")
+        root.after(1000, root.destroy)  # Destroy the popup after 1 second
     fool_card = next((card for card in player.played_cards if card.name == "Fool"), None)
     if fool_card:
         player.played_cards.remove(fool_card)
