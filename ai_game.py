@@ -356,7 +356,9 @@ class Game:
 
     def play_turn(self):
 
-        if self.meadow is not None:
+        for agent in self.agents:
+            if len(agent.hand) > agent.max_cards_in_hand:
+                raise Exception(f"AI {self.agents.index(agent)} has exceeded the maximum hand size with {len(agent.hand)} cards.")
             self.meadow_update_callback(self.meadow)  # Update the meadow display
 
         if self.turn_update_callback:
