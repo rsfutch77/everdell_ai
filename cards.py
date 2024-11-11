@@ -142,7 +142,9 @@ def postal_pigeon_activation(player, game, *args):
         action = player.choose_action(available_actions)
         if action and action[0] == 'pick_card':
             # Discard any remaining revealed cards
-            print(f"Discarding remaining revealed cards: {[card.name for card in game.revealed_cards]}")
+            selected_card = action[1]
+            remaining_cards = [card for card in game.revealed_cards if card != selected_card]
+            print(f"Discarding remaining revealed cards: {[card.name for card in remaining_cards]}")
             game.discard_cards(game.revealed_cards)
             game.revealed_cards.clear()
             selected_card = action[1]
@@ -150,6 +152,7 @@ def postal_pigeon_activation(player, game, *args):
             print(f"AI {game.agents.index(player)} immediately plays {selected_card.name} from the revealed cards.")
     else:
         print(f"AI {game.agents.index(player)} could not play any cards from the pigeon's effect.")
+    print(f"Pigeon activation complete")
 def historian_activation(player, _, card, *args):
     player.on_trigger.append(card)
 def historian_trigger_effect(player, game, *args):
