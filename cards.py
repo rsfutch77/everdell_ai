@@ -291,7 +291,7 @@ def miner_mole_activation(player, game, *args):
             print(f"Miner Mole activation: Player copies {chosen_card.name} from an opponent.")
 def chip_sweep_activation(player, game, *args):
     # Filter the player's played cards to find those with a "green" card color
-    green_cards = [card for card in player.played_cards if card.card_color == "green" and card.name != "Chip Sweep"]
+    green_cards = [card for card in player.played_cards if card.card_color == "green" and card.name != "Chip Sweep" and card.name != "Miner Mole"]
     
     if green_cards:
         # Allow the player to choose one of the green cards to activate
