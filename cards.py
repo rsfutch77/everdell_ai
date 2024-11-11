@@ -41,7 +41,7 @@ def mine_activation(player, *args):
 def twig_barge_activation(player, *args):
     player.wood += 2
 def undertaker_activation(player, game, *args):
-    discarded_cards = game.meadow[:3] #TODO Ideally the AI would pick which cards to discard instead
+    discarded_cards = game.meadow[:3] #TODO Pick which cards the undertaker should discard instead of just the first three
     game.discard.extend(discarded_cards)
     game.meadow = game.meadow[3:]
     # Replenish the meadow with new cards from the deck
@@ -81,6 +81,8 @@ def fool_activation(player, game, *args):
         messagebox.showwarning("Fool Card Warning", "AI is playing a Fool card in a game with more than two players. It currently only picks the next player")
         root.destroy()
     # Find the next available player in the game to give the fool to
+    #TODO Pick a player for the fool instead of just the next player
+    #TODO Check if chosen player already has a fool
     iterate_players = 0
     next_player_index = 0
     while True:
