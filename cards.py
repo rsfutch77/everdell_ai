@@ -56,8 +56,12 @@ def undertaker_activation(player, game, *args):
             # Update the Undertaker card pick frequency
             game.undertaker_card_pick_frequency[chosen_card.name] = game.undertaker_card_pick_frequency.get(chosen_card.name, 0) + 1
             game.meadow.remove(chosen_card)
-            player.hand.append(chosen_card)
-            print(f"Undertaker effect: Player picked {chosen_card.name} from the meadow")
+            if len(player.hand) < player.max_cards_in_hand:
+                player.hand.append(chosen_card)
+                print(f"Undertaker effect: Player picked {chosen_card.name} from the meadow")
+            else:
+                game.discard_cards([chosen_card])
+                print(f"Undertaker effect: {chosen_card.name} discarded as player's hand is full.")
             game.meadow.extend(game.draw_to_meadow())
     # Update the meadow display if a callback is set
     if game.meadow_update_callback:
