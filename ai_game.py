@@ -3,6 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 from player import AIPlayer
+import tkinter as tk
+from tkinter import messagebox
 import random
 
 class Game:
@@ -57,6 +59,10 @@ class Game:
         return tie_calculator, winner
         self.reset_game()
         if len(self.meadow) != self.max_meadow_cards:
+            root = tk.Tk()
+            root.withdraw()  # Hide the root window
+            messagebox.showerror("Meadow Size Error", f"The meadow has {len(self.meadow)} cards, expected {self.max_meadow_cards}.")
+            root.destroy()
             raise Exception(f"The meadow has {len(self.meadow)} cards, expected {self.max_meadow_cards}.")
         
             agent.game = self
@@ -360,6 +366,10 @@ class Game:
 
         for agent in self.agents:
             if len(agent.hand) > agent.max_cards_in_hand:
+                root = tk.Tk()
+                root.withdraw()  # Hide the root window
+                messagebox.showerror("Hand Size Error", f"AI {self.agents.index(agent)} has exceeded the maximum hand size with {len(agent.hand)} cards.")
+                root.destroy()
                 raise Exception(f"AI {self.agents.index(agent)} has exceeded the maximum hand size with {len(agent.hand)} cards.")
             self.meadow_update_callback(self.meadow)  # Update the meadow display
 
@@ -476,4 +486,8 @@ class Game:
             agent.max_workers = agent.workers  # Set max_workers to the current number of workers
             print(f"AI {self.agents.index(agent)} is preparing for season: recalling workers and getting an additional worker.")
         else:
+            root = tk.Tk()
+            root.withdraw()  # Hide the root window
+            messagebox.showerror("Recall Workers Error", f"AI {self.agents.index(agent)} cannot recall workers at this time.")
+            root.destroy()
             raise Exception(f"AI {self.agents.index(agent)} cannot recall workers at this time.")
