@@ -156,8 +156,9 @@ class Game:
         plt.figure()
         card_names = ['Judge', 'Innkeeper', 'Crane']
         card_quantities = {card.name: card.quantity for card in self.initial_deck}
-        plt.bar(card_names, card_quantities)
-        plt.title('Card Play Frequency for Discounters')
+        frequencies = [self.card_play_frequency_discounters[card_name] / card_quantities[card_name] for card_name in card_names]
+        plt.bar(card_names, frequencies)
+        plt.title('Card Play Frequency for Discounters (Normalized)')
         plt.xlabel('Card Name')
         plt.ylabel('Frequency')
         # Plot the Undertaker card pick frequency (which cards does the undertaker draw from the meadow)
