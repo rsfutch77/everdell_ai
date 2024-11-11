@@ -19,6 +19,10 @@ class AIPlayer(ReinforcementLearningAgent):
         self.max_cards_in_hand = 8
         self.max_workers = 2  # Set the maximum number of workers
         self.city_limit = 15
+        self.worker_allocation = {  # Initialize the worker allocation for each resource
+            'wood3': 0, 'wood2_card': 0, 'resin2': 0, 'resin_card': 0,
+            'card2_token': 0, 'stone': 0, 'berry_card': 0, 'berry': 0
+        }
         self.prosperity_cards = []  # Initialize the list of prosperity cards for endgame scoring
         self.on_trigger = []  # Initialize the list of cards with effects that trigger when other cards are played
 
@@ -39,8 +43,9 @@ class AIPlayer(ReinforcementLearningAgent):
         self.prosperity_cards = []  # Reset the list of prosperity cards for the next game
         self.on_trigger = []  # Reset the list of on trigger cards for the next game
 
-    def receive_resources(self, resource_type):
+    def receive_resources(self, resource_type, game):
         # Method to increase the agent's resources and return the received resource
+        game.worker_slots_available[resource_type] -= 1
         cards_to_draw = 0
         if resource_type == 'wood3':
             self.wood += 3
@@ -63,6 +68,7 @@ class AIPlayer(ReinforcementLearningAgent):
         elif resource_type == 'berry':
             self.berries += 1
         self.workers -= 1  # Decrement a worker to receive resources
+        self.worker_allocation[resource_type] += 1  # Increment the worker count for the resource
         return resource_type, cards_to_draw
 
     def add_tokens(self, amount):
@@ -156,7 +162,8 @@ class AIPlayer(ReinforcementLearningAgent):
         # Add the 'receive_resources' action only if there are workers available
         if self.workers > 0:
             for resource_type in ['wood3', 'wood2_card', 'resin2', 'resin_card', 'card2_token', 'stone', 'berry_card', 'berry']:
-                available_actions.append(('receive_resources', resource_type))
+                if game.worker_slots_available[resource_type] > 0:
+                    available_actions.append(('receive_resources', resource_type))
         # Add the 'recall_workers' action only if the agent can recall workers
         if self.workers == 0 and self.recalls < self.max_recalls:
             available_actions.append(('recall_workers', None))

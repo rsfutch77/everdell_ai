@@ -36,8 +36,8 @@ def train_model(root, num_agents_entry, num_episodes_entry, randomize_agents_var
         # Read the value from the num_episodes_entry and convert it to an integer
         num_episodes = int(num_episodes_entry.get())
     except ValueError:
-        # If the value is not a valid integer, default to 100 episodes
-        num_episodes = 100
+        # If the value is not a valid integer, default
+        num_episodes = 20
     # Define the agents based on the number of agents entry or randomize if checked
     if randomize_agents_var.get():
         # Randomize the number of agents for each episode
@@ -126,8 +126,8 @@ def load_and_test_model(root):
         # Read the value from the num_episodes_entry and convert it to an integer
         num_episodes = int(num_episodes_entry.get())
     except ValueError:
-        # If the value is not a valid integer, default to 100 episodes
-        num_episodes = 100
+        # If the value is not a valid integer, default
+        num_episodes = 20
     ai_wins = 0
     for episode in range(num_episodes):
         game.reset_game()
@@ -204,7 +204,7 @@ def setup_ui():
     num_episodes_frame.pack(anchor='nw', padx=10, pady=10)
     num_episodes_label = tk.Label(num_episodes_frame, text="Number of Episodes:")
     num_episodes_label.pack(side=tk.LEFT)
-    num_episodes_entry = tk.Entry(num_episodes_frame, textvariable=tk.StringVar(value="100"))
+    num_episodes_entry = tk.Entry(num_episodes_frame, textvariable=tk.StringVar(value="20"))
     num_episodes_entry.pack(side=tk.LEFT)
 
     # Time to wait label and entry

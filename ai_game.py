@@ -18,6 +18,7 @@ class Game:
         self.discard = []  # List to hold discarded cards
         self.revealed_cards = []  # List to hold revealed cards
         self.card_play_frequency = {}  # Dictionary to track the frequency of card plays
+        self.worker_slots_available = {'wood3': 1, 'wood2_card': 4, 'resin2': 1, 'resin_card': 4, 'card2_token': 4, 'stone': 1, 'berry_card': 1, 'berry': 4}
         self.hand_update_callback = hand_update_callback
         self.meadow_update_callback = meadow_update_callback
         self.time_to_wait_entry = time_to_wait_entry
@@ -419,7 +420,7 @@ class Game:
                     action, card, _ = selected_action
                     self.play_card(agent, card, agent_play_turn_index, self, action)
                 elif selected_action[0] == 'receive_resources' and agent.workers > 0:
-                    received_resources, cards_to_draw = agent.receive_resources(agent.resource_pick)
+                    received_resources, cards_to_draw = agent.receive_resources(agent.resource_pick, self)
                     new_cards = self.draw_cards(cards_to_draw)
                     if cards_to_draw > 0:
                         agent.draw_to_hand(new_cards, self)
@@ -463,6 +464,10 @@ class Game:
             else:
                 agent.workers += 6  # Get another 2 workers
                 print(f"Bonus worker for Fall.")
+            # Reset worker allocation for the agent
+            for resource_type in agent.worker_allocation:
+                self.worker_slots_available[resource_type] += agent.worker_allocation[resource_type]
+                agent.worker_allocation[resource_type] = 0
             agent.recalls += 1  # Increment the recall count
             agent.max_workers = agent.workers  # Set max_workers to the current number of workers
             print(f"AI {self.agents.index(agent)} is preparing for season: recalling workers and getting an additional worker.")

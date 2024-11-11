@@ -266,7 +266,7 @@ def ranger_activation(player, game, *args):
         available_resources = ['wood3', 'wood2_card', 'resin2', 'resin_card', 'card2_token', 'stone', 'berry_card', 'berry']
         chosen_resource = player.choose_action(available_resources)
         if chosen_resource:
-            player.receive_resources(chosen_resource)
+            player.receive_resources(chosen_resource, game)
         print(f"Ranger activation: Player retrieves a worker and receives {chosen_resource}.")
     else:
         print("Ranger activation failed: No workers are deployed to retrieve.")
