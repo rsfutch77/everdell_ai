@@ -55,7 +55,10 @@ class Game:
 
         return tie_calculator, winner
         self.reset_game()
-        for agent in self.agents:
+        max_meadow_cards = 8  # Define the maximum number of cards in the meadow
+        if len(self.meadow) != max_meadow_cards:
+            raise Exception(f"The meadow has {len(self.meadow)} cards, expected {max_meadow_cards}.")
+        
             agent.game = self
 
     def train(self, num_episodes):
