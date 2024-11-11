@@ -1,3 +1,6 @@
+import tkinter as tk
+from tkinter import messagebox
+
 class Card:
     def __init__(self, name, card_type, rarity, points, wood, resin, stone, berries, quantity, card_color):
         self.name = name
@@ -72,6 +75,11 @@ def resin_refinery_activation(player, *args):
 def fairgrounds_activation(player, game, *args):
     player.draw_to_hand(game.draw_cards(min(2, player.max_cards_in_hand - len(player.hand))), game)
 def fool_activation(player, game, *args):
+    if len(game.agents) > 2:
+        root = tk.Tk()
+        root.withdraw()  # Hide the root window
+        messagebox.showwarning("Fool Card Warning", "AI is playing a Fool card in a game with more than two players. It currently only picks the next player")
+        root.destroy()
     # Find the next available player in the game to give the fool to
     iterate_players = 0
     next_player_index = 0
