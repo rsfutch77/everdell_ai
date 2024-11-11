@@ -17,6 +17,7 @@ class Game:
         self.teacher_card_draw_frequency = {0: 0, 1: 0, 2: 0}  # Track how often 0, 1, or 2 cards are drawn
         self.teacher_card_giveaway_frequency = {}  # Track how often each card is given away
         self.teacher_card_kept_frequency = {}  # Track how often each card is kept
+        self.undertaker_discard_frequency = {}  # Track frequency of cards discarded by the Undertaker
         self.courthouse_resource_choices = {'wood': 0, 'resin': 0, 'stone': 0}  # Track resource choices for Courthouse
         self.discard = []  # List to hold discarded cards
         self.revealed_cards = []  # List to hold revealed cards
@@ -182,7 +183,19 @@ class Game:
             plt.ylabel('Frequency')
             plt.xticks(rotation=90)
             plt.tight_layout()  # Adjust layout to prevent label cutoff
-        # Plot the Chip Sweep activation frequency
+        # Plot the Undertaker discard frequency
+        if self.undertaker_discard_frequency:
+            plt.figure()
+            card_names = list(self.undertaker_discard_frequency.keys())
+            # Normalize frequencies by the quantity of each card in the deck
+            card_quantities = {card.name: card.quantity for card in self.initial_deck}
+            frequencies = [self.undertaker_discard_frequency[card_name] / card_quantities[card_name] for card_name in card_names]
+            plt.bar(card_names, frequencies)
+            plt.title('Undertaker Discard Frequency (Normalized)')
+            plt.xlabel('Card Name')
+            plt.ylabel('Frequency')
+            plt.xticks(rotation=90)
+            plt.tight_layout()  # Adjust layout to prevent label cutoff
         if self.chip_sweep_activation_frequency:
             plt.figure()
             card_names = list(self.chip_sweep_activation_frequency.keys())

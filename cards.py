@@ -47,6 +47,8 @@ def undertaker_activation(player, game, *args):
     messagebox.showwarning("Undertaker Warning", "AI is playing a Undertaker card. It currently only chooses the first 3 cards from the meadow to discard.")
     if game.is_training_mode:
         root.after(1000, root.destroy)  # Destroy the popup after 1 second if in training mode
+    for card in discarded_cards:
+        game.undertaker_discard_frequency[card.name] = game.undertaker_discard_frequency.get(card.name, 0) + 1
     game.discard.extend(discarded_cards)
     game.meadow = game.meadow[3:]
     # Replenish the meadow with new cards from the deck
