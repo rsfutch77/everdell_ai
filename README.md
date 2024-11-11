@@ -46,6 +46,9 @@ Below is a list of game functions that are handled:
 
 Below is a list of game functions that are not yet handled:
 V1 Plan:
+- Exception for more than 8 cards in the meadow
+- Pop ups for the existing exceptions
+- Exceptions/warnings for AI limitations below
 - Card rules that add a worker location
 - Card rules that activate when a card is played
 - Both harvests
@@ -61,6 +64,7 @@ V1 Plan:
 - Open Destination cards
 - Add ID# and details of each card to game state (if needed?)
 - When testing, pause after each draw to select the correct cards into all positions and wait for a continue button
+- AI should choose which cards to discard for the undertaker rather than just picking the first 3 in the meadow
 V2 Plan:
 - play_card currently prioritizes taking cards from the meadow, but we need the ai to choose either the one from the hand or the meadow
 - Gatherers should only add points for pairs with Harvesters, not just any lone Harvester.

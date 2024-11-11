@@ -66,6 +66,7 @@ def undertaker_activation(player, game, *args):
     # Update the meadow display if a callback is set
     if game.meadow_update_callback:
         game.meadow_update_callback(game.meadow)
+    print(f"Undertaker activation complete")
 def resin_refinery_activation(player, *args):
     player.resin += 1
 def fairgrounds_activation(player, game, *args):

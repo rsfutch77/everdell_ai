@@ -30,6 +30,7 @@ class Game:
         self.randomize_agents = randomize_agents  # Store the randomize_agents variable
         self.episode_update_callback = episode_update_callback  # Store the episode_update_callback
 
+        self.max_meadow_cards = 8  # Define the maximum number of cards in the meadow
         self.reset_game
 
     def get_winner(self, game):
@@ -55,9 +56,8 @@ class Game:
 
         return tie_calculator, winner
         self.reset_game()
-        max_meadow_cards = 8  # Define the maximum number of cards in the meadow
-        if len(self.meadow) != max_meadow_cards:
-            raise Exception(f"The meadow has {len(self.meadow)} cards, expected {max_meadow_cards}.")
+        if len(self.meadow) != self.max_meadow_cards:
+            raise Exception(f"The meadow has {len(self.meadow)} cards, expected {self.max_meadow_cards}.")
         
             agent.game = self
 
@@ -262,7 +262,7 @@ class Game:
         self.deck = list(self.initial_deck)  # Copy the initial deck to reset it
         random.shuffle(self.deck)  # Shuffle the deck before each new game
         self.played_cards = []
-        self.meadow = self.draw_cards(8)  # Draw 8 cards into the meadow
+        self.meadow = self.draw_cards(self.max_meadow_cards)  # Draw cards into the meadow
         for stating_amount_index, agent in enumerate(self.agents):
             agent.reset_agent()  # Reset all agent attributes
             agent.hand = self.draw_cards(agent.hand_starting_amount + stating_amount_index)  # Deal cards to the agent's hand from the shuffled deck
