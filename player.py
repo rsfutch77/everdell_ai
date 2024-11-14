@@ -25,6 +25,7 @@ class AIPlayer(ReinforcementLearningAgent):
             'wood3': 0, 'wood2_card': 0, 'resin2': 0, 'resin_card': 0,
             'card2_token': 0, 'stone': 0, 'berry_card': 0, 'berry': 0
         }
+        self.berries_given_during_monk_activation = 0  # Track berries given during Monk's activation
         self.prosperity_cards = []  # Initialize the list of prosperity cards for endgame scoring
         self.on_trigger = []  # Initialize the list of cards with effects that trigger when other cards are played
 
@@ -225,17 +226,20 @@ class AIPlayer(ReinforcementLearningAgent):
             else:
                 reward = 0 # No additional reward or penalty if the AI loses
         elif action == 'receive_resources':
-            reward = 0  # No reward for not playing a card
+            # Reward for placing a worker on a token location
+            if agents[agent_index].resource_pick == 'card2_token':
+                reward = 0.01  # Small reward for choosing a token location
+            else:
+                reward = 0.005  # Small reward for gathering other resources
         elif action == 'play_card':
             card = game.agents[agent_index].card_to_play  # Assuming card_to_play is now an instance of Card
             if card:
-                if card.name == "Fool":
-                    reward = -card.points * 0.01  # Reverse reward for fool
-                else:
-                    reward = card.points * 0.01  # Small reward for the card's point value
                 # Add reward for tokens received during Monk's activation
                 if card.name == "Monk":
-                    reward += game.agents[agent_index].tokens * 0.01  # Reward for tokens
-
-            
+                    # Reward for tokens received during Monk's activation
+                    berries_given = game.agents[agent_index].berries_given_during_monk_activation
+                    reward += berries_given * 0.01
+                else:
+                    reward = card.points * 0.01  # Small reward for the card's point value (even when playing a fool into someone else's city)
+                
         return reward

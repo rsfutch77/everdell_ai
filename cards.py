@@ -370,6 +370,7 @@ def monk_activation(player, game, *args):
                 break
         # Give the decided number of berries to the next player and receive tokens
         player.berries -= berries_to_give
+        player.berries_given_during_monk_activation = berries_to_give
         next_player.berries += berries_to_give
         player.add_tokens(berries_to_give)
         print(f"Monk activation: Player gives {berries_to_give} berries to AI {next_player_index} and receives {berries_to_give} tokens.")
