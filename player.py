@@ -73,9 +73,19 @@ class AIPlayer(ReinforcementLearningAgent):
         self.worker_allocation[resource_type] += 1  # Increment the worker count for the resource
         return resource_type, cards_to_draw
 
+    def choose_berries_to_give(self, max_berries, game):
+        # AI logic to decide how many berries to give
+        # Use the AI's choose_action method to decide how many berries to give
+        available_actions = list(range(max_berries + 1))  # Options: 0 to max_berries
+        action = self.choose_action(available_actions)
+        chosen_berries = action if action is not None else 0  # Default to 0 if no action is chosen
+        game.berry_give_choices[chosen_berries] += 1  # Update the berry give choices frequency
+        return chosen_berries
+
     def add_tokens(self, amount):
         # Method to increase the agent's tokens
         self.tokens += amount
+        print(f"Player receives {amount} tokens.")
 
     def draw_to_hand(self, new_cards, game, *args):
         if new_cards is not None:
@@ -223,6 +233,9 @@ class AIPlayer(ReinforcementLearningAgent):
                     reward = -card.points * 0.01  # Reverse reward for fool
                 else:
                     reward = card.points * 0.01  # Small reward for the card's point value
+                # Add reward for tokens received during Monk's activation
+                if card.name == "Monk":
+                    reward += game.agents[agent_index].tokens * 0.01  # Reward for tokens
 
             
         return reward

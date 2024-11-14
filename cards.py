@@ -92,27 +92,26 @@ def fool_activation(player, game, *args):
             button = tk.Button(popup, text="OK", command=popup.destroy)
             button.pack(pady=10)
     ###
-    # Find the next available player in the game to give the fool to
-    iterate_players = 0
-    next_player_index = 0
+    # Find the next available player in the game to give the card to
+    next_player_index = game.agents.index(player)
     while True:
-        next_player_index = (game.agents.index(player) + 1 + iterate_players)
+        next_player_index += 1
         if next_player_index > len(game.agents) - 1:
             next_player_index = 0
         next_player = game.agents[next_player_index]
         if next_player_index == game.agents.index(player):
             root = tk.Tk()
             root.withdraw()  # Hide the root window
-            messagebox.showerror("Fool Error", f"No suitable cities found for the fool. The AI does not yet handle full cities or cities already containing fools.")
+            messagebox.showerror("Fool Error", f"No suitable cities found for the fool. The AI does not yet check for full cities or cities already containing fools before activation. For now the card will be discarded.")
             root.destroy()
-            raise Exception(f"No suitable cities found for the fool. The AI does not yet handle full cities or cities already containing fools.")
+            print(f"Fool card discarded due to error.")
+            break
         if len(game.agents[next_player_index].played_cards) <= game.agents[next_player_index].city_limit and not any(card.name == "Fool" for card in next_player.played_cards):
             # Move the Fool card to the next player's played cards
             fool_card = next((card for card in player.played_cards if card.name == "Fool"), None)
             next_player.played_cards.append(fool_card)
             print(f"Fool card played into AI {next_player_index} played cards by AI {game.agents.index(player)}")
             break
-        iterate_players += 1
     player.played_cards.remove(fool_card)
 def wanderer_activation(player, game, *args):
      # Draw cards for the Wanderer activation without adding it to played cards
@@ -316,22 +315,35 @@ def teacher_activation(player, game, *args):
         chosen_card = action[1] if action and action[0] == 'give_card' else None
 
         player.hand.remove(chosen_card)
+        #TODO CHOOSE a player for the teacher instead of just the next player
         # Find the next available player in the game to give the card to
-        iterate_players = 0
-        next_player_index = 0
+        next_player_index = game.agents.index(player)
         while True:
-            next_player_index = (game.agents.index(player) + 1 + iterate_players) % len(game.agents)
+            next_player_index += 1
+            if next_player_index > len(game.agents) - 1:
+                next_player_index = 0
             next_player = game.agents[next_player_index]
-            if len(next_player.played_cards) <= next_player.city_limit:
+            if next_player_index == game.agents.index(player):
+                root = tk.Tk()
+                root.withdraw()  # Hide the root window
+                popup = tk.Toplevel(root)
+                popup.title("Teacher Warning")
+                label = tk.Label(popup, text="Card was discarded since all opponent hands are full.")
+                label.pack(padx=20, pady=20)
+                if game.is_training_mode:
+                    popup.after(1000, popup.destroy)  # Destroy the popup after 1 second if in training mode
+                else:
+                    button = tk.Button(popup, text="OK", command=popup.destroy)
+                    button.pack(pady=10)
+                game.discard_cards([chosen_card])
+                print(f"Teacher activation: {chosen_card.name} discarded as all opponent AI hand's are full.")
                 break
-        if len(next_player.hand) < next_player.max_cards_in_hand:
-            next_player.hand.append(chosen_card)
-            # Update the teacher card giveaway frequency
-            print(f"Teacher activation: Player gives {chosen_card.name} to opponent AI {next_player_index}.")
-        else:
-            game.discard_cards([chosen_card])
-            print(f"Teacher activation: {chosen_card.name} discarded as opponent AI {next_player_index}'s hand is full.")
-        game.teacher_card_giveaway_frequency[chosen_card.name] = game.teacher_card_giveaway_frequency.get(chosen_card.name, 0) + 1
+            if len(next_player.hand) < next_player.max_cards_in_hand:
+                next_player.hand.append(chosen_card)
+                # Update the teacher card giveaway frequency
+                print(f"Teacher activation: Player gives {chosen_card.name} to opponent AI {next_player_index}.")
+                game.teacher_card_giveaway_frequency[chosen_card.name] = game.teacher_card_giveaway_frequency.get(chosen_card.name, 0) + 1
+                break
         for card in new_cards:
             if card != chosen_card:
                 # Update the teacher card kept frequency
@@ -341,8 +353,26 @@ def teacher_activation(player, game, *args):
     else:
         print("Teacher activation: No cards were drawn, so no card was given to an opponent.")
     print("Teacher activation complete.")
-def monk_activation(player):
-    pass  # Monk card may have a different effect or no effect
+def monk_activation(player, game, *args):
+    # AI decides how many berries to give, up to 2
+    berries_to_give = player.choose_berries_to_give(min(player.berries, 2), game)
+    if berries_to_give > 0:
+        # Find the next available player in the game to give the card to
+        next_player_index = game.agents.index(player)
+        while True:
+            next_player_index += 1
+            if next_player_index > len(game.agents) - 1:
+                next_player_index = 0
+            next_player = game.agents[next_player_index]
+            break
+            if next_player_index == game.agents.index(player):
+                print("No suitable player found to give berries.")
+                break
+        # Give the decided number of berries to the next player and receive tokens
+        player.berries -= berries_to_give
+        next_player.berries += berries_to_give
+        player.add_tokens(berries_to_give)
+        print(f"Monk activation: Player gives {berries_to_give} berries to AI {next_player_index} and receives {berries_to_give} tokens.")
 def clock_tower_activation(player):
     pass  # Clock Tower card may have a different effect or no effect
 def woodcarver_activation(player):
@@ -488,7 +518,7 @@ cards = [
     ("Ranger"        , "character",    "unique", 1, 0, 0, 0, 2, 2, "adventure"),
     #Gives to opponent
     ("Teacher"       , "character",    "common", 2, 0, 0, 0, 2, 3, "green"),
-    #("Monk", 5, 7, 2),
+    ("Monk"          , "character",    "unique", 0, 0, 0, 0, 1, 2, "green"),
     #Cards with pay requirements
     #("Clock Tower", 5, 7, 3),
     #("Woodcarver", 5, 7, 3),
@@ -501,7 +531,7 @@ cards = [
     #("Cemetery", 5, 7, 2),
     #("Lookout", 5, 7, 2),
     #("Storehouse", 5, 7, 3),
-    #("Chapel", 5, 7, 2),
+    #("Chapel"     , "x",    "x",      0, 0, 0, 0, 0, 0, "x"),
     #("Post Office", 5, 7, 3),
     #("Inn", 5, 7, 3),
     #Cards that discard

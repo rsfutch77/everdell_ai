@@ -13,12 +13,13 @@ class Game:
         self.is_training_mode = False  # Initialize training mode flag
         self.undertaker_card_pick_frequency = {}  # Track card pick frequency after Undertaker activation
         self.chip_sweep_activation_frequency = {}  # Track card activation frequency after Chip Sweep activation
-        self.card_play_frequency_discounters = {'Judge': 0, 'Innkeeper': 0, 'Crane': 0}  # Track specific card play frequency
+        self.card_play_frequency_discounters = {'Judge': 0, 'Innkeeper': 0, 'Crane': 0, 'Monk': 0}  # Track specific card play frequency
         self.teacher_card_draw_frequency = {0: 0, 1: 0, 2: 0}  # Track how often 0, 1, or 2 cards are drawn
         self.teacher_card_giveaway_frequency = {}  # Track how often each card is given away
         self.teacher_card_kept_frequency = {}  # Track how often each card is kept
         self.undertaker_discard_frequency = {}  # Track frequency of cards discarded by the Undertaker
         self.courthouse_resource_choices = {'wood': 0, 'resin': 0, 'stone': 0}  # Track resource choices for Courthouse
+        self.berry_give_choices = {0: 0, 1: 0, 2: 0}  # Track how often the AI chooses to give 0, 1, or 2 berries
         self.discard = []  # List to hold discarded cards
         self.revealed_cards = []  # List to hold revealed cards
         self.card_play_frequency = {}  # Dictionary to track the frequency of card plays
@@ -242,6 +243,14 @@ class Game:
             plt.ylabel('Frequency')
             plt.xticks(rotation=90)
             plt.tight_layout()  # Adjust layout to prevent label cutoff
+        # Plot the frequency of berry give choices
+        plt.figure()
+        berry_counts = list(self.berry_give_choices.keys())
+        frequencies = list(self.berry_give_choices.values())
+        plt.bar(berry_counts, frequencies)
+        plt.title('Berry Give Choices Frequency')
+        plt.xlabel('Number of Berries Given')
+        plt.ylabel('Frequency')
         plt.show()
 
         # Save the AI model after training
