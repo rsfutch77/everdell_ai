@@ -78,6 +78,7 @@ def resin_refinery_activation(player, *args):
 def fairgrounds_activation(player, game, *args):
     player.draw_to_hand(game.draw_cards(min(2, player.max_cards_in_hand - len(player.hand))), game)
 def fool_activation(player, game, *args):
+    fool_card = next((card for card in player.played_cards if card.name == "Fool"), None)
     #TODO CHOOSE a player for the fool instead of just the next player
     if len(game.agents) > 2:
         root = tk.Tk()
@@ -100,15 +101,21 @@ def fool_activation(player, game, *args):
             next_player_index = 0
         next_player = game.agents[next_player_index]
         if next_player_index == game.agents.index(player):
+            print(f"Fool card discarded due to error.")
             root = tk.Tk()
             root.withdraw()  # Hide the root window
-            messagebox.showerror("Fool Error", f"No suitable cities found for the fool. The AI does not yet check for full cities or cities already containing fools before activation. For now the card will be discarded.")
-            root.destroy()
-            print(f"Fool card discarded due to error.")
+            popup = tk.Toplevel(root)
+            popup.title("Fool Error")
+            label = tk.Label(popup, text="No suitable cities found for the fool. The AI does not yet check for full cities or cities already containing fools before activation. For now the card will be discarded.")
+            label.pack(padx=20, pady=20)
+            if game.is_training_mode:
+                popup.after(1000, popup.destroy)  # Destroy the popup after 1 second if in training mode
+            else:
+                button = tk.Button(popup, text="OK", command=popup.destroy)
+                button.pack(pady=10)
             break
         if len(game.agents[next_player_index].played_cards) <= game.agents[next_player_index].city_limit and not any(card.name == "Fool" for card in next_player.played_cards):
             # Move the Fool card to the next player's played cards
-            fool_card = next((card for card in player.played_cards if card.name == "Fool"), None)
             next_player.played_cards.append(fool_card)
             print(f"Fool card played into AI {next_player_index} played cards by AI {game.agents.index(player)}")
             break
