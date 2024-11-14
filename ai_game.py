@@ -77,6 +77,9 @@ class Game:
         all_episodes_td_errors = []
         # Reset the Courthouse resource choices tracking
         self.courthouse_resource_choices = {'wood': 0, 'resin': 0, 'stone': 0}
+        # Initialize a list to store scores for each agent over episodes
+        scores_over_episodes = [[] for _ in self.agents]
+
         for episode in range(num_episodes):
             # Randomize the number of agents for each episode if enabled
             if self.randomize_agents.get():
@@ -98,7 +101,9 @@ class Game:
                     reward = agent.get_reward(self, action, done, agent_index)
                     agent.learn(state, action, reward, next_state, done)
 
-            # Collect and average TD errors for the episode
+            # Collect scores for each agent
+            for agent_index, agent in enumerate(self.agents):
+                scores_over_episodes[agent_index].append(agent.score)
             if self.randomize_agents.get():
                 episode_td_errors = [agent.td_errors[-1] for agent in self.agents if agent.td_errors]
                 average_td_error = sum(episode_td_errors) / len(episode_td_errors) if episode_td_errors else 0
@@ -133,7 +138,20 @@ class Game:
             plt.title('TD Error Over Time')
             plt.xlabel('Learning Step')
             plt.ylabel('TD Error')
-        # Plot the frequency of each card being played
+        # Plot the scores over episodes
+        plt.figure()  # Create a new figure
+        for agent_index, scores in enumerate(scores_over_episodes):
+            plt.plot(scores, label=f'AI {agent_index}')
+        # Calculate the window size to show roughly 5 points on the chart
+        window_size = max(1, len(scores) // 5)
+        for agent_index, scores in enumerate(scores_over_episodes):
+            moving_avg = np.convolve(scores, np.ones(window_size)/window_size, mode='valid')
+            plt.plot(range(window_size - 1, len(scores)), moving_avg, linestyle='--', label=f'AI {agent_index} Moving Avg')
+        plt.title('AI Scores and Moving Averages Over Episodes')
+        plt.xlabel('Episode')
+        plt.ylabel('Score')
+        plt.legend()
+        plt.show()
         if self.card_play_frequency:
             plt.figure()
             card_names = list(self.card_play_frequency.keys())
