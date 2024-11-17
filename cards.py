@@ -457,6 +457,7 @@ def peddler_activation(player, *args):
                         chosen_resource = player.choose_action(available_resources)
                         if chosen_resource == 'wood':
                             player.wood -= 1
+                        game.peddler_pay_choices[chosen_resource] += 1
                         elif chosen_resource == 'resin':
                             player.resin -= 1
                         elif chosen_resource == 'stone':
@@ -476,6 +477,7 @@ def peddler_activation(player, *args):
                 for resource in resources_to_receive:
                     if resource == 'wood':
                         player.wood += 1
+                    game.peddler_receive_choices[resource] += 1
                     elif resource == 'resin':
                         player.resin += 1
                     elif resource == 'stone':
