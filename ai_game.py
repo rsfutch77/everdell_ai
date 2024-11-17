@@ -20,6 +20,8 @@ class Game:
         self.undertaker_discard_frequency = {}  # Track frequency of cards discarded by the Undertaker
         self.courthouse_resource_choices = {'wood': 0, 'resin': 0, 'stone': 0}  # Track resource choices for Courthouse
         self.berry_give_choices = {0: 0, 1: 0, 2: 0}  # Track how often the AI chooses to give 0, 1, or 2 berries
+        self.peddler_pay_choices = {'wood': 0, 'resin': 0, 'stone': 0, 'berries': 0}  # Track resource choices for Peddler payment
+        self.peddler_receive_choices = {'wood': 0, 'resin': 0, 'stone': 0, 'berries': 0}  # Track resource choices for Peddler receipt
         self.discard = []  # List to hold discarded cards
         self.revealed_cards = []  # List to hold revealed cards
         self.card_play_frequency = {}  # Dictionary to track the frequency of card plays
@@ -152,6 +154,24 @@ class Game:
         plt.xlabel('Episode')
         plt.ylabel('Score')
         plt.legend()
+        # Plot the Peddler pay choices
+        plt.figure()
+        resources = list(self.peddler_pay_choices.keys())
+        choices = list(self.peddler_pay_choices.values())
+        plt.bar(resources, choices)
+        plt.title('Peddler Pay Choices')
+        plt.xlabel('Resource')
+        plt.ylabel('Number of Times Chosen')
+
+        # Plot the Peddler receive choices
+        plt.figure()
+        resources = list(self.peddler_receive_choices.keys())
+        choices = list(self.peddler_receive_choices.values())
+        plt.bar(resources, choices)
+        plt.title('Peddler Receive Choices')
+        plt.xlabel('Resource')
+        plt.ylabel('Number of Times Chosen')
+
         plt.show()
         if self.card_play_frequency:
             plt.figure()

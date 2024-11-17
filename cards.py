@@ -422,8 +422,70 @@ def woodcarver_activation(player, *args):
             print(f"Woodcarver activation: Player exchanges {wood_to_exchange} wood for {wood_to_exchange} tokens.")
     else:
         print("Woodcarver activation: Not enough wood to exchange.")
-def peddler_activation(player):
-    pass  # Peddler card may have a different effect or no effect
+def peddler_activation(player, game, *args):
+    # Calculate the total number of resources the player has
+    total_resources = player.wood + player.resin + player.stone + player.berries
+
+    if total_resources == 0:
+        # Effect when the player has 0 resources
+        print("Peddler activation: Player has 0 resources.")
+        # Implement the effect for 0 resources here
+    elif total_resources > 0:
+        # Allow the player to choose how many resources to pay, up to 2
+        max_resources_to_pay = min(2, total_resources)
+        available_actions = list(range(max_resources_to_pay + 1))  # Options: 0 to max_resources_to_pay
+        resources_to_pay = player.choose_action(available_actions)
+        
+        if resources_to_pay is not None:
+            # Implement the effect based on the number of resources paid
+            if resources_to_pay == 0:
+                print("Peddler activation: Player chooses not to pay any resources.")
+                # Implement the effect for paying 0 resources here
+            elif resources_to_pay > 0:
+                # Allow the player to choose which resources to give
+                for _ in range(resources_to_pay):
+                    available_resources = []
+                    if player.wood > 0:
+                        available_resources.append('wood')
+                    if player.resin > 0:
+                        available_resources.append('resin')
+                    if player.stone > 0:
+                        available_resources.append('stone')
+                    if player.berries > 0:
+                        available_resources.append('berries')
+                    if available_resources:
+                        chosen_resource = player.choose_action(available_resources)
+                        if chosen_resource == 'wood':
+                            player.wood -= 1
+                        if chosen_resource == 'resin':
+                            player.resin -= 1
+                        elif chosen_resource == 'stone':
+                            player.stone -= 1
+                        elif chosen_resource == 'berries':
+                            player.berries -= 1
+                        game.peddler_pay_choices[chosen_resource] += 1
+                    print(f"Peddler activation: Player pays resource: {chosen_resource}.")
+                
+                # Allow the player to choose which resources to receive
+                resources_to_receive = []
+                for _ in range(resources_to_pay):
+                    chosen_resource = player.choose_action(['wood', 'resin', 'stone', 'berries'])
+                    if chosen_resource:
+                        resources_to_receive.append(chosen_resource)
+
+                # Add the chosen resources to the player's inventory
+                for resource in resources_to_receive:
+                    if resource == 'wood':
+                        player.wood += 1
+                    elif resource == 'resin':
+                        player.resin += 1
+                    elif resource == 'stone':
+                        player.stone += 1
+                    elif resource == 'berries':
+                        player.berries += 1
+                    game.peddler_receive_choices[resource] += 1
+
+                print(f"Peddler activation: Player receives {resources_to_receive}.")
 def doctor_activation(player):
     pass  # Doctor card may have a different effect or no effect
 def queen_activation(player):
@@ -563,8 +625,8 @@ cards = [
     ("Monk"          , "character",    "unique", 0, 0, 0, 0, 1, 2, "green"),
     #Cards with pay requirements
     ("Clock Tower"   , "construction", "unique", 0, 3, 0, 1, 0, 3, "blue"),
-    ("Woodcarver"    , "character",    "unique", 2, 0, 0, 0, 2, 3, "green"),
-    #("Peddler", 5, 7, 3),
+    ("Woodcarver"    , "character",    "common", 2, 0, 0, 0, 2, 3, "green"),
+    ("Peddler"       , "character",    "common", 1, 0, 0, 0, 2, 3, "green"),
     #("Doctor", 5, 7, 2),
     #Cards with locations
     #("Queen", 5, 7, 2),
