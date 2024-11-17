@@ -1,3 +1,4 @@
+import random
 from agent import ReinforcementLearningAgent
 import numpy as np
 import matplotlib.pyplot as plt
@@ -5,7 +6,7 @@ import time
 from player import AIPlayer
 import tkinter as tk
 from tkinter import messagebox
-import random
+from tkinter import Toplevel, Button, StringVar, OptionMenu
 
 class Game:
 
@@ -39,6 +40,7 @@ class Game:
         self.episode_update_callback = episode_update_callback  # Store the episode_update_callback
 
         self.max_meadow_cards = 8  # Define the maximum number of cards in the meadow
+        self.scores_over_episodes = [[] for _ in self.agents]  # Initialize scores over episodes
         self.reset_game
 
     def get_winner(self, game):
@@ -80,7 +82,7 @@ class Game:
         # Reset the Courthouse resource choices tracking
         self.courthouse_resource_choices = {'wood': 0, 'resin': 0, 'stone': 0}
         # Initialize a list to store scores for each agent over episodes
-        scores_over_episodes = [[] for _ in self.agents]
+        self.scores_over_episodes = [[] for _ in self.agents]
 
         for episode in range(num_episodes):
             # Randomize the number of agents for each episode if enabled
@@ -105,7 +107,7 @@ class Game:
 
             # Collect scores for each agent
             for agent_index, agent in enumerate(self.agents):
-                scores_over_episodes[agent_index].append(agent.score)
+                self.scores_over_episodes[agent_index].append(agent.score)
             if self.randomize_agents.get():
                 episode_td_errors = [agent.td_errors[-1] for agent in self.agents if agent.td_errors]
                 average_td_error = sum(episode_td_errors) / len(episode_td_errors) if episode_td_errors else 0
@@ -143,11 +145,11 @@ class Game:
 
         # Plot the scores over episodes
         plt.figure()  # Create a new figure
-        for agent_index, scores in enumerate(scores_over_episodes):
+        for agent_index, scores in enumerate(self.scores_over_episodes):
             plt.plot(scores, label=f'AI {agent_index}')
         # Calculate the window size to show roughly 5 points on the chart
         window_size = max(1, len(scores) // 5)
-        for agent_index, scores in enumerate(scores_over_episodes):
+        for agent_index, scores in enumerate(self.scores_over_episodes):
             moving_avg = np.convolve(scores, np.ones(window_size)/window_size, mode='valid')
             plt.plot(range(window_size - 1, len(scores)), moving_avg, linestyle='--', label=f'AI {agent_index} Moving Avg')
         plt.title('AI Scores and Moving Averages Over Episodes')
@@ -172,126 +174,180 @@ class Game:
         plt.xlabel('Resource')
         plt.ylabel('Number of Times Chosen')
 
-        plt.show()
-        if self.card_play_frequency:
+        self.show_chart_selection_window()
+
+    def show_chart_selection_window(self):
+        # Create a new window for chart selection
+        window = Toplevel()
+        window.title("Select Chart to Display")
+
+        # Define available charts
+        chart_options = [
+            "TD Error Over Time",
+            "AI Scores and Moving Averages Over Episodes",
+            "Peddler Pay Choices",
+            "Peddler Receive Choices",
+            "Card Play Frequency (Normalized)",
+            "AI Win Rate Over Time",
+            "Courthouse Resource Choices",
+            "Card Play Frequency for Discounters (Normalized)",
+            "Undertaker Card Pick Frequency (Normalized)",
+            "Undertaker Discard Frequency (Normalized)",
+            "Chip Sweep Activation Frequency",
+            "Teacher Card Draw Frequency",
+            "Teacher Card Giveaway Frequency (Normalized)",
+            "Teacher Card Kept Frequency (Normalized)",
+            "Berry Give Choices Frequency"
+        ]
+
+        # Create a StringVar to hold the selected chart
+        selected_chart = StringVar(window)
+        selected_chart.set(chart_options[0])  # Set default value
+
+        # Create an OptionMenu for chart selection
+        chart_menu = OptionMenu(window, selected_chart, *chart_options)
+        chart_menu.pack(pady=10)
+
+        # Create a button to display the selected chart
+        def display_chart():
+            chart = selected_chart.get()
             plt.figure()
-            card_names = list(self.card_play_frequency.keys())
-            # Normalize frequencies by the quantity of each card in the deck
-            card_quantities = {card.name: card.quantity for card in self.initial_deck}
-            frequencies = [self.card_play_frequency[card_name] / card_quantities[card_name] for card_name in card_names]
-            plt.bar(card_names, frequencies)
-            plt.title('Card Play Frequency (Normalized)')
-            plt.xlabel('Card Name')
-            plt.ylabel('Frequency')
-            plt.xticks(rotation=90)
-            plt.tight_layout()  # Adjust layout to prevent label cutoff
-        if not self.randomize_agents.get():
-            # Plot the win rates over episodes
-            plt.figure()  # Create a new figure
-            for agent in self.agents:
-                plt.plot(agent.win_rates)
-            plt.title('AI Win Rate Over Time')
-            plt.xlabel('Episode')
-            plt.ylabel('Win Rate')
-        # Plot the Courthouse resource choices
-        plt.figure()
-        resources = list(self.courthouse_resource_choices.keys())
-        choices = list(self.courthouse_resource_choices.values())
-        plt.bar(resources, choices)
-        plt.title('Courthouse Resource Choices')
-        plt.xlabel('Resource')
-        plt.ylabel('Number of Times Chosen')
-        plt.show()
-        # Plot the card play frequency for discounters (which of these cards is used most often to get a discount)
-        plt.figure()
-        card_names = ['Judge', 'Innkeeper', 'Crane']
-        card_quantities = {card.name: card.quantity for card in self.initial_deck}
-        frequencies = [self.card_play_frequency_discounters[card_name] / card_quantities[card_name] for card_name in card_names]
-        plt.bar(card_names, frequencies)
-        plt.title('Card Play Frequency for Discounters (Normalized)')
-        plt.xlabel('Card Name')
-        plt.ylabel('Frequency')
-        # Plot the Undertaker card pick frequency (which cards does the undertaker draw from the meadow)
-        if self.undertaker_card_pick_frequency:
-            plt.figure()
-            card_names = list(self.undertaker_card_pick_frequency.keys())
-            # Normalize frequencies by the quantity of each card in the deck
-            card_quantities = {card.name: card.quantity for card in self.initial_deck}
-            frequencies = [self.undertaker_card_pick_frequency[card_name] / card_quantities[card_name] for card_name in card_names]
-            plt.bar(card_names, frequencies)
-            plt.title('Undertaker Card Pick Frequency (Normalized)')
-            plt.xlabel('Card Name')
-            plt.ylabel('Frequency')
-            plt.xticks(rotation=90)
-            plt.tight_layout()  # Adjust layout to prevent label cutoff
-        # Plot the Undertaker discard frequency
-        if self.undertaker_discard_frequency:
-            plt.figure()
-            card_names = list(self.undertaker_discard_frequency.keys())
-            # Normalize frequencies by the quantity of each card in the deck
-            card_quantities = {card.name: card.quantity for card in self.initial_deck}
-            frequencies = [self.undertaker_discard_frequency[card_name] / card_quantities[card_name] for card_name in card_names]
-            plt.bar(card_names, frequencies)
-            plt.title('Undertaker Discard Frequency (Normalized)')
-            plt.xlabel('Card Name')
-            plt.ylabel('Frequency')
-            plt.xticks(rotation=90)
-            plt.tight_layout()  # Adjust layout to prevent label cutoff
-        if self.chip_sweep_activation_frequency:
-            plt.figure()
-            card_names = list(self.chip_sweep_activation_frequency.keys())
-            # Normalize frequencies by the quantity of each card in the deck
-            card_quantities = {card.name: card.quantity for card in self.initial_deck}
-            frequencies = [self.chip_sweep_activation_frequency[card_name] / card_quantities[card_name] for card_name in card_names]
-            plt.bar(card_names, frequencies)
-            plt.title('Chip Sweep Activation Frequency')
-            plt.xlabel('Card Name')
-            plt.ylabel('Frequency')
-            plt.xticks(rotation=90)
-            plt.tight_layout()  # Adjust layout to prevent label cutoff
-        # Plot the Teacher card draw frequency
-        plt.figure()
-        draw_counts = list(self.teacher_card_draw_frequency.keys())
-        frequencies = list(self.teacher_card_draw_frequency.values())
-        plt.bar(draw_counts, frequencies)
-        plt.title('Teacher Card Draw Frequency')
-        plt.xlabel('Number of Cards Drawn')
-        plt.ylabel('Frequency')
-        # Plot the Teacher card giveaway frequency
-        if self.teacher_card_giveaway_frequency:
-            plt.figure()
-            card_names = list(self.teacher_card_giveaway_frequency.keys())
-            # Normalize frequencies by the quantity of each card in the deck
-            card_quantities = {card.name: card.quantity for card in self.initial_deck}
-            frequencies = [self.teacher_card_giveaway_frequency[card_name] / card_quantities[card_name] for card_name in card_names]
-            plt.bar(card_names, frequencies)
-            plt.title('Teacher Card Giveaway Frequency (Normalized)')
-            plt.xlabel('Card Name')
-            plt.ylabel('Frequency')
-            plt.xticks(rotation=90)
-            plt.tight_layout()  # Adjust layout to prevent label cutoff
-        # Plot the Teacher card kept frequency
-        if self.teacher_card_kept_frequency:
-            plt.figure()
-            card_names = list(self.teacher_card_kept_frequency.keys())
-            # Normalize frequencies by the quantity of each card in the deck
-            card_quantities = {card.name: card.quantity for card in self.initial_deck}
-            frequencies = [self.teacher_card_kept_frequency[card_name] / card_quantities[card_name] for card_name in card_names]
-            plt.bar(card_names, frequencies)
-            plt.title('Teacher Card Kept Frequency (Normalized)')
-            plt.xlabel('Card Name')
-            plt.ylabel('Frequency')
-            plt.xticks(rotation=90)
-            plt.tight_layout()  # Adjust layout to prevent label cutoff
-        # Plot the frequency of berry give choices
-        plt.figure()
-        berry_counts = list(self.berry_give_choices.keys())
-        frequencies = list(self.berry_give_choices.values())
-        plt.bar(berry_counts, frequencies)
-        plt.title('Berry Give Choices Frequency')
-        plt.xlabel('Number of Berries Given')
-        plt.ylabel('Frequency')
-        plt.show()
+            if chart == "TD Error Over Time":
+                for agent in self.agents:
+                    plt.plot(agent.td_errors)
+                plt.title('TD Error Over Time')
+                plt.xlabel('Learning Step')
+                plt.ylabel('TD Error')
+            elif chart == "AI Scores and Moving Averages Over Episodes":
+                for agent_index, scores in enumerate(self.scores_over_episodes):
+                    plt.plot(scores, label=f'AI {agent_index}')
+                window_size = max(1, len(self.scores_over_episodes[0]) // 5)
+                for agent_index, scores in enumerate(self.scores_over_episodes):
+                    if scores:  # Check if scores list is not empty
+                        moving_avg = np.convolve(scores, np.ones(window_size)/window_size, mode='valid')
+                        plt.plot(range(window_size - 1, len(scores)), moving_avg, linestyle='--', label=f'AI {agent_index} Moving Avg')
+                plt.title('AI Scores and Moving Averages Over Episodes')
+                plt.xlabel('Episode')
+                plt.ylabel('Score')
+                plt.legend()
+            elif chart == "Peddler Pay Choices":
+                resources = list(self.peddler_pay_choices.keys())
+                choices = list(self.peddler_pay_choices.values())
+                plt.bar(resources, choices)
+                plt.title('Peddler Pay Choices')
+                plt.xlabel('Resource')
+                plt.ylabel('Number of Times Chosen')
+            elif chart == "Peddler Receive Choices":
+                resources = list(self.peddler_receive_choices.keys())
+                choices = list(self.peddler_receive_choices.values())
+                plt.bar(resources, choices)
+                plt.title('Peddler Receive Choices')
+                plt.xlabel('Resource')
+                plt.ylabel('Number of Times Chosen')
+            elif chart == "Card Play Frequency (Normalized)":
+                if self.card_play_frequency:
+                    card_names = list(self.card_play_frequency.keys())
+                    card_quantities = {card.name: card.quantity for card in self.initial_deck}
+                    frequencies = [self.card_play_frequency[card_name] / card_quantities[card_name] for card_name in card_names]
+                    plt.bar(card_names, frequencies)
+                    plt.title('Card Play Frequency (Normalized)')
+                    plt.xlabel('Card Name')
+                    plt.ylabel('Frequency')
+                    plt.xticks(rotation=90)
+                    plt.tight_layout()
+            elif chart == "AI Win Rate Over Time":
+                for agent in self.agents:
+                    plt.plot(agent.win_rates)
+                plt.title('AI Win Rate Over Time')
+                plt.xlabel('Episode')
+                plt.ylabel('Win Rate')
+            elif chart == "Courthouse Resource Choices":
+                resources = list(self.courthouse_resource_choices.keys())
+                choices = list(self.courthouse_resource_choices.values())
+                plt.bar(resources, choices)
+                plt.title('Courthouse Resource Choices')
+                plt.xlabel('Resource')
+                plt.ylabel('Number of Times Chosen')
+            elif chart == "Card Play Frequency for Discounters (Normalized)":
+                card_names = ['Judge', 'Innkeeper', 'Crane']
+                card_quantities = {card.name: card.quantity for card in self.initial_deck}
+                frequencies = [self.card_play_frequency_discounters[card_name] / card_quantities[card_name] for card_name in card_names]
+                plt.bar(card_names, frequencies)
+                plt.title('Card Play Frequency for Discounters (Normalized)')
+                plt.xlabel('Card Name')
+                plt.ylabel('Frequency')
+            elif chart == "Undertaker Card Pick Frequency (Normalized)":
+                if self.undertaker_card_pick_frequency:
+                    card_names = list(self.undertaker_card_pick_frequency.keys())
+                    card_quantities = {card.name: card.quantity for card in self.initial_deck}
+                    frequencies = [self.undertaker_card_pick_frequency[card_name] / card_quantities[card_name] for card_name in card_names]
+                    plt.bar(card_names, frequencies)
+                    plt.title('Undertaker Card Pick Frequency (Normalized)')
+                    plt.xlabel('Card Name')
+                    plt.ylabel('Frequency')
+                    plt.xticks(rotation=90)
+                    plt.tight_layout()
+            elif chart == "Undertaker Discard Frequency (Normalized)":
+                if self.undertaker_discard_frequency:
+                    card_names = list(self.undertaker_discard_frequency.keys())
+                    card_quantities = {card.name: card.quantity for card in self.initial_deck}
+                    frequencies = [self.undertaker_discard_frequency[card_name] / card_quantities[card_name] for card_name in card_names]
+                    plt.bar(card_names, frequencies)
+                    plt.title('Undertaker Discard Frequency (Normalized)')
+                    plt.xlabel('Card Name')
+                    plt.ylabel('Frequency')
+                    plt.xticks(rotation=90)
+                    plt.tight_layout()
+            elif chart == "Chip Sweep Activation Frequency":
+                if self.chip_sweep_activation_frequency:
+                    card_names = list(self.chip_sweep_activation_frequency.keys())
+                    card_quantities = {card.name: card.quantity for card in self.initial_deck}
+                    frequencies = [self.chip_sweep_activation_frequency[card_name] / card_quantities[card_name] for card_name in card_names]
+                    plt.bar(card_names, frequencies)
+                    plt.title('Chip Sweep Activation Frequency')
+                    plt.xlabel('Card Name')
+                    plt.ylabel('Frequency')
+                    plt.xticks(rotation=90)
+                    plt.tight_layout()
+            elif chart == "Teacher Card Draw Frequency":
+                draw_counts = list(self.teacher_card_draw_frequency.keys())
+                frequencies = list(self.teacher_card_draw_frequency.values())
+                plt.bar(draw_counts, frequencies)
+                plt.title('Teacher Card Draw Frequency')
+                plt.xlabel('Number of Cards Drawn')
+                plt.ylabel('Frequency')
+            elif chart == "Teacher Card Giveaway Frequency (Normalized)":
+                if self.teacher_card_giveaway_frequency:
+                    card_names = list(self.teacher_card_giveaway_frequency.keys())
+                    card_quantities = {card.name: card.quantity for card in self.initial_deck}
+                    frequencies = [self.teacher_card_giveaway_frequency[card_name] / card_quantities[card_name] for card_name in card_names]
+                    plt.bar(card_names, frequencies)
+                    plt.title('Teacher Card Giveaway Frequency (Normalized)')
+                    plt.xlabel('Card Name')
+                    plt.ylabel('Frequency')
+                    plt.xticks(rotation=90)
+                    plt.tight_layout()
+            elif chart == "Teacher Card Kept Frequency (Normalized)":
+                if self.teacher_card_kept_frequency:
+                    card_names = list(self.teacher_card_kept_frequency.keys())
+                    card_quantities = {card.name: card.quantity for card in self.initial_deck}
+                    frequencies = [self.teacher_card_kept_frequency[card_name] / card_quantities[card_name] for card_name in card_names]
+                    plt.bar(card_names, frequencies)
+                    plt.title('Teacher Card Kept Frequency (Normalized)')
+                    plt.xlabel('Card Name')
+                    plt.ylabel('Frequency')
+                    plt.xticks(rotation=90)
+                    plt.tight_layout()
+            elif chart == "Berry Give Choices Frequency":
+                berry_counts = list(self.berry_give_choices.keys())
+                frequencies = list(self.berry_give_choices.values())
+                plt.bar(berry_counts, frequencies)
+                plt.title('Berry Give Choices Frequency')
+                plt.xlabel('Number of Berries Given')
+                plt.ylabel('Frequency')
+
+        display_button = Button(window, text="Display Chart", command=lambda: [display_chart(), plt.show()])
+        display_button.pack(pady=10)
 
         # Save the AI model after training
         self.agents[0].save_model('ai_model.pkl')
