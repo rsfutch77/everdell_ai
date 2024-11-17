@@ -430,11 +430,7 @@ def peddler_activation(player, *args):
         # Effect when the player has 0 resources
         print("Peddler activation: Player has 0 resources.")
         # Implement the effect for 0 resources here
-    elif total_resources == 1:
-        # Effect when the player has 1 resource
-        print("Peddler activation: Player has 1 resource.")
-        # Implement the effect for 1 resource here
-    if total_resources > 0:
+    elif total_resources > 0:
         # Allow the player to choose how many resources to pay, up to 2
         max_resources_to_pay = min(2, total_resources)
         available_actions = list(range(max_resources_to_pay + 1))  # Options: 0 to max_resources_to_pay
