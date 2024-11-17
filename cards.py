@@ -563,8 +563,8 @@ cards = [
     ("Monk"          , "character",    "unique", 0, 0, 0, 0, 1, 2, "green"),
     #Cards with pay requirements
     ("Clock Tower"   , "construction", "unique", 0, 3, 0, 1, 0, 3, "blue"),
-    ("Woodcarver"    , "character",    "unique", 2, 0, 0, 0, 2, 3, "green"),
-    #("Peddler", 5, 7, 3),
+    ("Woodcarver"    , "character",    "common", 2, 0, 0, 0, 2, 3, "green"),
+    ("Peddler"       , "character",    "common", 1, 0, 0, 0, 2, 3, "green"),
     #("Doctor", 5, 7, 2),
     #Cards with locations
     #("Queen", 5, 7, 2),
