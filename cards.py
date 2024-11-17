@@ -422,7 +422,7 @@ def woodcarver_activation(player, *args):
             print(f"Woodcarver activation: Player exchanges {wood_to_exchange} wood for {wood_to_exchange} tokens.")
     else:
         print("Woodcarver activation: Not enough wood to exchange.")
-def peddler_activation(player, *args):
+def peddler_activation(player, game, *args):
     # Calculate the total number of resources the player has
     total_resources = player.wood + player.resin + player.stone + player.berries
 
