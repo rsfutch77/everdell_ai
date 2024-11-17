@@ -422,8 +422,22 @@ def woodcarver_activation(player, *args):
             print(f"Woodcarver activation: Player exchanges {wood_to_exchange} wood for {wood_to_exchange} tokens.")
     else:
         print("Woodcarver activation: Not enough wood to exchange.")
-def peddler_activation(player):
-    pass  # Peddler card may have a different effect or no effect
+def peddler_activation(player, *args):
+    # Calculate the total number of resources the player has
+    total_resources = player.wood + player.resin + player.stone + player.berries
+
+    if total_resources == 0:
+        # Effect when the player has 0 resources
+        print("Peddler activation: Player has 0 resources.")
+        # Implement the effect for 0 resources here
+    elif total_resources == 1:
+        # Effect when the player has 1 resource
+        print("Peddler activation: Player has 1 resource.")
+        # Implement the effect for 1 resource here
+    elif total_resources > 2:
+        # Effect when the player has more than 2 resources
+        print("Peddler activation: Player has more than 2 resources.")
+        # Implement the effect for more than 2 resources here
 def doctor_activation(player):
     pass  # Doctor card may have a different effect or no effect
 def queen_activation(player):
