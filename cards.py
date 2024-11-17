@@ -298,13 +298,23 @@ def chip_sweep_activation(player, game, *args):
 def ranger_activation(player, game, *args):
     # Retrieve a worker and allow the player to deploy it again
     if player.workers < player.max_workers:  # Check if any workers are deployed
+        # Choose a resource type where a worker is currently allocated
+        allocated_resources = [resource for resource, count in player.worker_allocation.items() if count > 0]
+        chosen_resource = player.choose_action(allocated_resources)
         player.workers += 1
-        # Choose a resource type to receive
-        available_resources = ['wood3', 'wood2_card', 'resin2', 'resin_card', 'card2_token', 'stone', 'berry_card', 'berry']
-        chosen_resource = player.choose_action(available_resources)
-        if chosen_resource:
-            player.receive_resources(chosen_resource, game)
-        print(f"Ranger activation: Player retrieves a worker and receives {chosen_resource}.")
+        player.worker_allocation[chosen_resource] -= 1
+        game.worker_slots_available[chosen_resource] += 1
+        # Choose another spot
+        available_resources = [resource for resource, slots in game.worker_slots_available.items() if slots > 0]
+        if not available_resources:
+            raise Exception("No available resources to choose from during Ranger activation.")
+        
+        new_chosen_resource = player.choose_action(available_resources)
+        if new_chosen_resource:
+            player.receive_resources(new_chosen_resource, game)
+            print(f"Ranger activation: Player retrieves a worker and receives {new_chosen_resource}.")
+        else:
+            raise Exception("No resource chosen during Ranger activation.")
     else:
         print("Ranger activation failed: No workers are deployed to retrieve.")
     print("Ranger activation complete.")
@@ -400,6 +410,7 @@ def clock_tower_trigger_effect(player, game, *args):
                 # Provide the resources associated with the chosen resource
                 player.workers += 1
                 player.worker_allocation[chosen_resource] -= 1
+                game.worker_slots_available[chosen_resource] += 1
                 resource_type, cards_to_draw = player.receive_resources(chosen_resource, game)
                 new_cards = game.draw_cards(cards_to_draw)
                 if cards_to_draw > 0:

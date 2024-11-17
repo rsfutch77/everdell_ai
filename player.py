@@ -73,6 +73,10 @@ class AIPlayer(ReinforcementLearningAgent):
             self.berries += 1
         self.workers -= 1  # Decrement a worker to receive resources
         self.worker_allocation[resource_type] += 1  # Increment the worker count for the resource
+        # Check if worker slots available went below zero
+        if game.worker_slots_available[resource_type] < 0:
+            raise Exception(f"Worker slots for {resource_type} went below zero.")
+        
         return resource_type, cards_to_draw
 
     def choose_berries_to_give(self, max_berries, game):
