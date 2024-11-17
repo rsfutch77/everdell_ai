@@ -434,10 +434,23 @@ def peddler_activation(player, *args):
         # Effect when the player has 1 resource
         print("Peddler activation: Player has 1 resource.")
         # Implement the effect for 1 resource here
-    elif total_resources > 2:
-        # Effect when the player has more than 2 resources
-        print("Peddler activation: Player has more than 2 resources.")
-        # Implement the effect for more than 2 resources here
+    if total_resources > 0:
+        # Allow the player to choose how many resources to pay, up to 2
+        max_resources_to_pay = min(2, total_resources)
+        available_actions = list(range(max_resources_to_pay + 1))  # Options: 0 to max_resources_to_pay
+        resources_to_pay = player.choose_action(available_actions)
+        
+        if resources_to_pay is not None:
+            # Implement the effect based on the number of resources paid
+            if resources_to_pay == 0:
+                print("Peddler activation: Player chooses not to pay any resources.")
+                # Implement the effect for paying 0 resources here
+            elif resources_to_pay == 1:
+                print("Peddler activation: Player pays 1 resource.")
+                # Implement the effect for paying 1 resource here
+            elif resources_to_pay == 2:
+                print("Peddler activation: Player pays 2 resources.")
+                # Implement the effect for paying 2 resources here
 def doctor_activation(player):
     pass  # Doctor card may have a different effect or no effect
 def queen_activation(player):
