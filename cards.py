@@ -473,7 +473,25 @@ def peddler_activation(player, *args):
                         player.berries -= 1
 
                 print(f"Peddler activation: Player pays {resources_to_pay} resources: {chosen_resources}.")
-                # Implement the effect for paying the chosen resources here
+                # Allow the player to choose which resources to receive
+                resources_to_receive = []
+                for _ in range(resources_to_pay):
+                    chosen_resource = player.choose_action(['wood', 'resin', 'stone', 'berries'])
+                    if chosen_resource:
+                        resources_to_receive.append(chosen_resource)
+
+                # Add the chosen resources to the player's inventory
+                for resource in resources_to_receive:
+                    if resource == 'wood':
+                        player.wood += 1
+                    elif resource == 'resin':
+                        player.resin += 1
+                    elif resource == 'stone':
+                        player.stone += 1
+                    elif resource == 'berries':
+                        player.berries += 1
+
+                print(f"Peddler activation: Player receives {resources_to_receive}.")
 def doctor_activation(player):
     pass  # Doctor card may have a different effect or no effect
 def queen_activation(player):
