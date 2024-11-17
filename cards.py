@@ -410,8 +410,18 @@ def clock_tower_trigger_effect(player, game, *args):
                 print(f"Clock Tower trigger: Player chooses to keep tokens.")
     else:
         print(f"Clock Tower trigger: Nothing to activate")
-def woodcarver_activation(player):
-    pass  # Woodcarver card may have a different effect or no effect
+def woodcarver_activation(player, *args):
+    # Check if the player has at least 3 wood
+    if player.wood >= 0:
+        # Allow the player to choose how much wood to exchange for tokens, up to 3
+        available_actions = list(range(min(4, player.wood + 1)))  # Options: 0 to min(3, player.wood)
+        wood_to_exchange = player.choose_action(available_actions)
+        if wood_to_exchange is not None:
+            player.wood -= wood_to_exchange
+            player.add_tokens(wood_to_exchange)
+            print(f"Woodcarver activation: Player exchanges {wood_to_exchange} wood for {wood_to_exchange} tokens.")
+    else:
+        print("Woodcarver activation: Not enough wood to exchange.")
 def peddler_activation(player):
     pass  # Peddler card may have a different effect or no effect
 def doctor_activation(player):
