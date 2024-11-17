@@ -441,12 +441,39 @@ def peddler_activation(player, *args):
             if resources_to_pay == 0:
                 print("Peddler activation: Player chooses not to pay any resources.")
                 # Implement the effect for paying 0 resources here
-            elif resources_to_pay == 1:
-                print("Peddler activation: Player pays 1 resource.")
-                # Implement the effect for paying 1 resource here
-            elif resources_to_pay == 2:
-                print("Peddler activation: Player pays 2 resources.")
-                # Implement the effect for paying 2 resources here
+            elif resources_to_pay > 0:
+                # Allow the player to choose which resources to give
+                available_resources = []
+                if player.wood > 0:
+                    available_resources.append('wood')
+                if player.resin > 0:
+                    available_resources.append('resin')
+                if player.stone > 0:
+                    available_resources.append('stone')
+                if player.berries > 0:
+                    available_resources.append('berries')
+
+                chosen_resources = []
+                for _ in range(resources_to_pay):
+                    if available_resources:
+                        chosen_resource = player.choose_action(available_resources)
+                        if chosen_resource:
+                            chosen_resources.append(chosen_resource)
+                            available_resources.remove(chosen_resource)
+
+                # Deduct the chosen resources from the player's inventory
+                for resource in chosen_resources:
+                    if resource == 'wood':
+                        player.wood -= 1
+                    elif resource == 'resin':
+                        player.resin -= 1
+                    elif resource == 'stone':
+                        player.stone -= 1
+                    elif resource == 'berries':
+                        player.berries -= 1
+
+                print(f"Peddler activation: Player pays {resources_to_pay} resources: {chosen_resources}.")
+                # Implement the effect for paying the chosen resources here
 def doctor_activation(player):
     pass  # Doctor card may have a different effect or no effect
 def queen_activation(player):
