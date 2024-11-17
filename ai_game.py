@@ -138,6 +138,7 @@ class Game:
             plt.title('TD Error Over Time')
             plt.xlabel('Learning Step')
             plt.ylabel('TD Error')
+
         # Plot the scores over episodes
         plt.figure()  # Create a new figure
         for agent_index, scores in enumerate(scores_over_episodes):
@@ -180,6 +181,7 @@ class Game:
         plt.title('Courthouse Resource Choices')
         plt.xlabel('Resource')
         plt.ylabel('Number of Times Chosen')
+        plt.show()
         # Plot the card play frequency for discounters (which of these cards is used most often to get a discount)
         plt.figure()
         card_names = ['Judge', 'Innkeeper', 'Crane']
