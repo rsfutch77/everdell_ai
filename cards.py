@@ -381,8 +381,35 @@ def monk_activation(player, game, *args):
         next_player.berries += berries_to_give
         player.add_tokens(berries_to_give)
         print(f"Monk activation: Player gives {berries_to_give} berries to AI {next_player_index} and receives {berries_to_give} tokens.")
-def clock_tower_activation(player):
-    pass  # Clock Tower card may have a different effect or no effect
+def clock_tower_activation(player, *args):
+    # When activated, the player receives 3 tokens
+    player.add_tokens(3)
+    print(f"Clock Tower activation: Player receives 3 tokens.")
+    #This card does not get added to the trigger list because it triggers on recall isntead of on a card play
+def clock_tower_trigger_effect(player, game, *args):
+    # AI chooses a resource to reactivate a worker from
+    available_resources = [resource for resource, count in player.worker_allocation.items() if count > 0]
+    if available_resources:
+        chosen_resource = player.choose_action(available_resources)
+        if chosen_resource:
+            # AI decides whether to lose a token
+            available_actions = ['lose_token', 'keep_token']
+            action = player.choose_action(available_actions)
+            if action == 'lose_token':
+                player.tokens = max(0, player.tokens - 1)
+                # Provide the resources associated with the chosen resource
+                player.workers += 1
+                player.worker_allocation[chosen_resource] -= 1
+                resource_type, cards_to_draw = player.receive_resources(chosen_resource, game)
+                new_cards = game.draw_cards(cards_to_draw)
+                if cards_to_draw > 0:
+                    player.draw_to_hand(new_cards, game)
+                print(f"Clock Tower trigger: Player chooses to lose 1 token and receives resources from {chosen_resource}.")
+                print(f"Clock Tower trigger: Player reactivates a worker from {chosen_resource}.")
+            else:
+                print(f"Clock Tower trigger: Player chooses to keep tokens.")
+    else:
+        print(f"Clock Tower trigger: Nothing to activate")
 def woodcarver_activation(player):
     pass  # Woodcarver card may have a different effect or no effect
 def peddler_activation(player):
@@ -434,10 +461,7 @@ activation_effects = {
     "King": king_activation,
     "Postal Pigeon": postal_pigeon_activation,
     "Historian": historian_activation,
-    "Historian": historian_activation,
     "Shopkeeper": shopkeeper_activation,
-    "Courthouse": courthouse_activation,
-    "Courthouse": courthouse_activation,
     "Courthouse": courthouse_activation,
     "Innkeeper": innkeeper_activation,
     "Crane": crane_activation,
@@ -477,7 +501,7 @@ trigger_effects = {
     "Historian": historian_trigger_effect,
     "Shopkeeper": shopkeeper_trigger_effect,
     "Courthouse": courthouse_trigger_effect,
-    # Add other card trigger functions here
+    "Clock Tower": clock_tower_trigger_effect,
 }
         
 
@@ -528,7 +552,7 @@ cards = [
     ("Teacher"       , "character",    "common", 2, 0, 0, 0, 2, 3, "green"),
     ("Monk"          , "character",    "unique", 0, 0, 0, 0, 1, 2, "green"),
     #Cards with pay requirements
-    #("Clock Tower", 5, 7, 3),
+    ("Clock Tower"   , "construction", "unique", 0, 3, 0, 1, 0, 3, "blue"),
     #("Woodcarver", 5, 7, 3),
     #("Peddler", 5, 7, 3),
     #("Doctor", 5, 7, 2),

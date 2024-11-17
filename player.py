@@ -46,6 +46,7 @@ class AIPlayer(ReinforcementLearningAgent):
         self.prosperity_cards = []  # Reset the list of prosperity cards for the next game
         self.on_trigger = []  # Reset the list of on trigger cards for the next game
 
+
     def receive_resources(self, resource_type, game):
         # Method to increase the agent's resources and return the received resource
         game.worker_slots_available[resource_type] -= 1
@@ -178,7 +179,7 @@ class AIPlayer(ReinforcementLearningAgent):
                 if game.worker_slots_available[resource_type] > 0:
                     available_actions.append(('receive_resources', resource_type))
         # Add the 'recall_workers' action only if the agent can recall workers
-        if self.workers == 0 and self.recalls < self.max_recalls:
+        if (self.workers == 0 or all(game.worker_slots_available[resource_type] == 0 for resource_type in ['wood3', 'wood2_card', 'resin2', 'resin_card', 'card2_token', 'stone', 'berry_card', 'berry'])) and self.recalls < self.max_recalls:
             available_actions.append(('recall_workers', None))
         action = self.choose_action(available_actions)
         #TODO CHOOSE whether to use Innkeeper or Judge or...: The AI currently prioritizes using innkeepers, then cranes, then judges, but ideally it should be able to choose between these. This also skews the stats towards innkeepers and away from judges.
@@ -208,8 +209,6 @@ class AIPlayer(ReinforcementLearningAgent):
         self.resource_pick = action[1] if action and action[0] == 'receive_resources' else None
         return action
 
-
-    
     def get_reward(self, game, action, done, agent_index):
         # Reward function that gives a small reward for playing a high point value card,
         # a penalty for not playing a card, and a larger reward for winning the game.

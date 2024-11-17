@@ -316,7 +316,7 @@ class Game:
 
     def has_no_moves(self, agent):
         # Check if all agents are out of moves
-        agent_out_of_moves = (agent.workers == 0 and agent.recalls == agent.max_recalls and not any(agent.can_play_card(card, self) for card in agent.hand + self.meadow))
+        agent_out_of_moves = ((agent.workers == 0 or all(self.worker_slots_available[resource_type] == 0 for resource_type in ['wood3', 'wood2_card', 'resin2', 'resin_card', 'card2_token', 'stone', 'berry_card', 'berry'])) and agent.recalls == agent.max_recalls and not any(agent.can_play_card(card, self) for card in agent.hand + self.meadow))
         if agent_out_of_moves:
             print("Agent is out of moves")
             return True
@@ -511,7 +511,11 @@ class Game:
         """
         Handle the recall workers action for the agent.
         """
-        if agent.workers == 0 and agent.recalls < agent.max_recalls:
+        # Trigger effects for cards like Clock Tower
+        for card in agent.played_cards:
+            if card.name == "Clock Tower" and card.get_trigger_effect():
+                card.trigger(agent, self, None)
+        if (agent.workers == 0 or all(self.worker_slots_available[resource_type] == 0 for resource_type in ['wood3', 'wood2_card', 'resin2', 'resin_card', 'card2_token', 'stone', 'berry_card', 'berry'])) and agent.recalls < agent.max_recalls:
             if agent.recalls == 0:
                 agent.workers += 3  # Get another worker
                 print(f"Spring.")
