@@ -486,8 +486,18 @@ def peddler_activation(player, game, *args):
                     game.peddler_receive_choices[resource] += 1
 
                 print(f"Peddler activation: Player receives {resources_to_receive}.")
-def doctor_activation(player):
-    pass  # Doctor card may have a different effect or no effect
+def doctor_activation(player, *args):
+    # Check if the player has at least 3 berries
+    if player.berries >= 0:
+        # Allow the player to choose how many berries to exchange for tokens, up to 3
+        available_actions = list(range(min(4, player.berries + 1)))  # Options: 0 to min(3, player.berries)
+        berries_to_exchange = player.choose_action(available_actions)
+        if berries_to_exchange is not None:
+            player.berries -= berries_to_exchange
+            player.add_tokens(berries_to_exchange)
+            print(f"Doctor activation: Player exchanges {berries_to_exchange} berries for {berries_to_exchange} tokens.")
+    else:
+        print("Doctor activation: Not enough berries to exchange.")
 def queen_activation(player):
     pass  # Queen card may have a different effect or no effect
 def university_activation(player):
@@ -627,7 +637,7 @@ cards = [
     ("Clock Tower"   , "construction", "unique", 0, 3, 0, 1, 0, 3, "blue"),
     ("Woodcarver"    , "character",    "common", 2, 0, 0, 0, 2, 3, "green"),
     ("Peddler"       , "character",    "common", 1, 0, 0, 0, 2, 3, "green"),
-    #("Doctor", 5, 7, 2),
+    ("Doctor"       , "character",    "unique", 4, 0, 0, 0, 4, 2, "green"),
     #Cards with locations
     #("Queen", 5, 7, 2),
     #("University", 5, 7, 2),
