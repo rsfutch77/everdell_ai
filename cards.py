@@ -298,13 +298,23 @@ def chip_sweep_activation(player, game, *args):
 def ranger_activation(player, game, *args):
     # Retrieve a worker and allow the player to deploy it again
     if player.workers < player.max_workers:  # Check if any workers are deployed
+        # Choose a resource type where a worker is currently allocated
+        allocated_resources = [resource for resource, count in player.worker_allocation.items() if count > 0]
+        chosen_resource = player.choose_action(allocated_resources)
         player.workers += 1
-        # Choose a resource type to receive
-        available_resources = ['wood3', 'wood2_card', 'resin2', 'resin_card', 'card2_token', 'stone', 'berry_card', 'berry']
-        chosen_resource = player.choose_action(available_resources)
-        if chosen_resource:
-            player.receive_resources(chosen_resource, game)
-        print(f"Ranger activation: Player retrieves a worker and receives {chosen_resource}.")
+        player.worker_allocation[chosen_resource] -= 1
+        game.worker_slots_available[chosen_resource] += 1
+        # Choose another spot
+        available_resources = [resource for resource, slots in game.worker_slots_available.items() if slots > 0]
+        if not available_resources:
+            raise Exception("No available resources to choose from during Ranger activation.")
+        
+        new_chosen_resource = player.choose_action(available_resources)
+        if new_chosen_resource:
+            player.receive_resources(new_chosen_resource, game)
+            print(f"Ranger activation: Player retrieves a worker and receives {new_chosen_resource}.")
+        else:
+            raise Exception("No resource chosen during Ranger activation.")
     else:
         print("Ranger activation failed: No workers are deployed to retrieve.")
     print("Ranger activation complete.")
@@ -400,6 +410,7 @@ def clock_tower_trigger_effect(player, game, *args):
                 # Provide the resources associated with the chosen resource
                 player.workers += 1
                 player.worker_allocation[chosen_resource] -= 1
+                game.worker_slots_available[chosen_resource] += 1
                 resource_type, cards_to_draw = player.receive_resources(chosen_resource, game)
                 new_cards = game.draw_cards(cards_to_draw)
                 if cards_to_draw > 0:
@@ -486,8 +497,18 @@ def peddler_activation(player, game, *args):
                     game.peddler_receive_choices[resource] += 1
 
                 print(f"Peddler activation: Player receives {resources_to_receive}.")
-def doctor_activation(player):
-    pass  # Doctor card may have a different effect or no effect
+def doctor_activation(player, *args):
+    # Check if the player has at least 3 berries
+    if player.berries >= 0:
+        # Allow the player to choose how many berries to exchange for tokens, up to 3
+        available_actions = list(range(min(4, player.berries + 1)))  # Options: 0 to min(3, player.berries)
+        berries_to_exchange = player.choose_action(available_actions)
+        if berries_to_exchange is not None:
+            player.berries -= berries_to_exchange
+            player.add_tokens(berries_to_exchange)
+            print(f"Doctor activation: Player exchanges {berries_to_exchange} berries for {berries_to_exchange} tokens.")
+    else:
+        print("Doctor activation: Not enough berries to exchange.")
 def queen_activation(player):
     pass  # Queen card may have a different effect or no effect
 def university_activation(player):
@@ -627,7 +648,7 @@ cards = [
     ("Clock Tower"   , "construction", "unique", 0, 3, 0, 1, 0, 3, "blue"),
     ("Woodcarver"    , "character",    "common", 2, 0, 0, 0, 2, 3, "green"),
     ("Peddler"       , "character",    "common", 1, 0, 0, 0, 2, 3, "green"),
-    #("Doctor", 5, 7, 2),
+    ("Doctor"       , "character",    "unique", 4, 0, 0, 0, 4, 2, "green"),
     #Cards with locations
     #("Queen", 5, 7, 2),
     #("University", 5, 7, 2),
