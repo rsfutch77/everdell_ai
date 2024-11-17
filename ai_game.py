@@ -154,6 +154,24 @@ class Game:
         plt.xlabel('Episode')
         plt.ylabel('Score')
         plt.legend()
+        # Plot the Peddler pay choices
+        plt.figure()
+        resources = list(self.peddler_pay_choices.keys())
+        choices = list(self.peddler_pay_choices.values())
+        plt.bar(resources, choices)
+        plt.title('Peddler Pay Choices')
+        plt.xlabel('Resource')
+        plt.ylabel('Number of Times Chosen')
+
+        # Plot the Peddler receive choices
+        plt.figure()
+        resources = list(self.peddler_receive_choices.keys())
+        choices = list(self.peddler_receive_choices.values())
+        plt.bar(resources, choices)
+        plt.title('Peddler Receive Choices')
+        plt.xlabel('Resource')
+        plt.ylabel('Number of Times Chosen')
+
         plt.show()
         if self.card_play_frequency:
             plt.figure()
