@@ -595,15 +595,15 @@ class Game:
                 card.trigger(agent, self, None)
         if (agent.workers == 0 or all(self.worker_slots_available[resource_type] == 0 for resource_type in ['wood3', 'wood2_card', 'resin2', 'resin_card', 'card2_token', 'stone', 'berry_card', 'berry'])) and agent.recalls < agent.max_recalls:
             if agent.recalls == 0:
-                agent.workers += 3  # Get another worker
+                agent.workers = 3  # Get another worker
                 print(f"Spring.")
             elif agent.recalls == 1:
-                agent.workers += 4  # Get another worker
+                agent.workers = 4  # Get another worker
                 print(f"Summer.")
                 # Allow the player to draw up to the quantity of cards, without exceeding 8 cards in hand
                 agent.draw_to_hand(self.draw_cards(min(2, agent.max_cards_in_hand - len(agent.hand))), self)
             else:
-                agent.workers += 6  # Get another 2 workers
+                agent.workers = 6  # Get another 2 workers
                 print(f"Bonus worker for Fall.")
             # Reset worker allocation for the agent
             for resource_type in agent.worker_allocation:
