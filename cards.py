@@ -676,5 +676,6 @@ cards = [
     #Cards that discard
     #("Ruins", 5, 7, 3),
     #("Dungeon", 5, 7, 3),
-    #("Bard", 5, 7, 3),
+    ("Bard"         , "character",    "unique", 0, 0, 0, 0, 3, 2, "tan"),
+    
 ]
