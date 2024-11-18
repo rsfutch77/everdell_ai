@@ -174,6 +174,30 @@ class Game:
         plt.xlabel('Resource')
         plt.ylabel('Number of Times Chosen')
 
+        # Plot the AI Win Rate Over Time
+        plt.figure()
+        for agent in self.agents:
+            plt.plot(agent.win_rates)
+        plt.title('AI Win Rate Over Time')
+        plt.xlabel('Episode')
+        plt.ylabel('Win Rate')
+        plt.show()
+
+        # Plot the AI Scores and Moving Averages Over Episodes
+        plt.figure()
+        for agent_index, scores in enumerate(self.scores_over_episodes):
+            plt.plot(scores, label=f'AI {agent_index}')
+        window_size = max(1, len(self.scores_over_episodes[0]) // 5)
+        for agent_index, scores in enumerate(self.scores_over_episodes):
+            if scores:  # Check if scores list is not empty
+                moving_avg = np.convolve(scores, np.ones(window_size)/window_size, mode='valid')
+                plt.plot(range(window_size - 1, len(scores)), moving_avg, linestyle='--', label=f'AI {agent_index} Moving Avg')
+        plt.title('AI Scores and Moving Averages Over Episodes')
+        plt.xlabel('Episode')
+        plt.ylabel('Score')
+        plt.legend()
+        plt.show()
+
         self.show_chart_selection_window()
 
     def show_chart_selection_window(self):
