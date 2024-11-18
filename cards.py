@@ -541,11 +541,32 @@ def post_office_activation(player):
     pass  # Post Office card may have a different effect or no effect
 def inn_activation(player):
     pass  # Inn card may have a different effect or no effect
-def ruins_activation(player):
-    pass  # Ruins card may have a different effect or no effect
+def ruins_activation(player, game, *args):
+    # Filter the player's played cards to find constructions
+    constructions = [card for card in player.played_cards if card.card_type == "construction"]
+    
+    if constructions:
+        # Allow the player to choose one of the constructions to discard
+        available_actions = [('discard_card', card) for card in constructions]
+        action = player.choose_action(available_actions)
+        chosen_card = action[1] if action and action[0] == 'discard_card' else None
+        
+        if chosen_card:
+            # Discard the chosen construction card
+            player.played_cards.remove(chosen_card)
+            game.discard_cards([chosen_card])
+            # Add the cost of the discarded card back to the player's resources
+            player.wood += chosen_card.wood
+            player.resin += chosen_card.resin
+            player.stone += chosen_card.stone
+            player.berries += chosen_card.berries
+            print(f"Ruins activation: Player discards {chosen_card.name} and receives its cost back.")
+    else:
+        print("Dungeon activation: No constructions available to discard.")
 def dungeon_activation(player):
     pass  # Dungeon card may have a different effect or no effect
 def bard_activation(player, game, *args):
+    
     # Allow the player to choose how many cards to discard, up to 5
     max_discard = min(5, len(player.hand))
     available_actions = list(range(max_discard + 1))  # Options: 0 to max_discard
@@ -685,8 +706,8 @@ cards = [
     #("Post Office", 5, 7, 3),
     #("Inn", 5, 7, 3),
     #Cards that discard
-    #("Ruins", 5, 7, 3),
+    ("Ruins"        , "construction", "common", 0, 0, 0, 0, 0, 3, "tan"),
     #("Dungeon", 5, 7, 3),
-    ("Bard"         , "character",    "unique", 0, 0, 0, 0, 3, 2, "tan"),
+    ("Bard"         , "character",    "unique", 0, 0, 0, 0, 3, 2, "tan")
     
 ]
