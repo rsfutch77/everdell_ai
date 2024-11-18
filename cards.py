@@ -555,7 +555,12 @@ def ruins_activation(player, game, *args):
             # Discard the chosen construction card
             player.played_cards.remove(chosen_card)
             game.discard_cards([chosen_card])
-            print(f"Dungeon activation: Player discards {chosen_card.name} from their city.")
+            # Add the cost of the discarded card back to the player's resources
+            player.wood += chosen_card.wood
+            player.resin += chosen_card.resin
+            player.stone += chosen_card.stone
+            player.berries += chosen_card.berries
+            print(f"Ruins activation: Player discards {chosen_card.name} and receives its cost back.")
     else:
         print("Dungeon activation: No constructions available to discard.")
 def dungeon_activation(player):
