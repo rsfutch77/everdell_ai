@@ -579,6 +579,9 @@ class Game:
                 # On the first recall, list all green cards in the player's city
                 green_cards = [card for card in agent.played_cards if card.card_color == "green"]
                 print(f"Spring. Green cards in city: {[card.name for card in green_cards]}")
+                # Activate each green card
+                for card in green_cards:
+                    card.activate(agent, self)
             elif agent.recalls == 1:
                 agent.workers = 4  # Get another worker
                 print(f"Summer.")
