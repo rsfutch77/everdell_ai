@@ -541,7 +541,7 @@ def post_office_activation(player):
     pass  # Post Office card may have a different effect or no effect
 def inn_activation(player):
     pass  # Inn card may have a different effect or no effect
-def ruins_activation(player):
+def ruins_activation(player, game, *args):
     # Filter the player's played cards to find constructions
     constructions = [card for card in player.played_cards if card.card_type == "construction"]
     
