@@ -565,7 +565,14 @@ class Game:
             scores.append(total_score)
         return scores
 
-    def recall_workers(self, agent, player_index):
+    def harvest(self, agent):
+        """
+        Activate all green cards in the player's city.
+        """
+        green_cards = [card for card in agent.played_cards if card.card_color == "green"]
+        print(f"Spring. Green cards in city: {[card.name for card in green_cards]}")
+        for card in green_cards:
+            card.activate(agent, self)
         """
         Handle the recall workers action for the agent.
         """
@@ -576,12 +583,8 @@ class Game:
         if (agent.workers == 0 or all(self.worker_slots_available[resource_type] == 0 for resource_type in ['wood3', 'wood2_card', 'resin2', 'resin_card', 'card2_token', 'stone', 'berry_card', 'berry'])) and agent.recalls < agent.max_recalls:
             if agent.recalls == 0:
                 agent.workers = 3  # Get another worker
-                # On the first recall, list all green cards in the player's city
-                green_cards = [card for card in agent.played_cards if card.card_color == "green"]
-                print(f"Spring. Green cards in city: {[card.name for card in green_cards]}")
-                # Activate each green card
-                for card in green_cards:
-                    card.activate(agent, self)
+                # On the first recall, perform the harvest
+                self.harvest(agent)
             elif agent.recalls == 1:
                 agent.workers = 4  # Get another worker
                 print(f"Summer.")
