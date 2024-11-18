@@ -30,7 +30,7 @@ class Game:
         self.discard = []  # List to hold discarded cards
         self.revealed_cards = []  # List to hold revealed cards
         self.card_play_frequency = {}  # Dictionary to track the frequency of card plays
-        self.worker_slots_available = {'wood3': 1, 'wood2_card': 4, 'resin2': 1, 'resin_card': 4, 'card2_token': 4, 'stone': 1, 'berry_card': 1, 'berry': 4}
+        self.worker_slots_available = {'wood3': 1, 'wood2_card': 4, 'resin2': 1, 'resin_card': 4, 'card2_token': 4, 'stone': 1, 'berry_card': 1, 'berry': 4, 'lookout': 0}
         self.hand_update_callback = hand_update_callback
         self.meadow_update_callback = meadow_update_callback
         self.time_to_wait_entry = time_to_wait_entry
@@ -364,6 +364,7 @@ class Game:
         self.current_turn = 0
         self.deck = list(self.initial_deck)  # Copy the initial deck to reset it
         random.shuffle(self.deck)  # Shuffle the deck before each new game
+        self.worker_slots_available = {'wood3': 1, 'wood2_card': 4, 'resin2': 1, 'resin_card': 4, 'card2_token': 4, 'stone': 1, 'berry_card': 1, 'berry': 4, 'lookout': 0}
         self.played_cards = []
         self.meadow = self.draw_cards(self.max_meadow_cards)  # Draw cards into the meadow
         for stating_amount_index, agent in enumerate(self.agents):

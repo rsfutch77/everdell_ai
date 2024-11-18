@@ -58,7 +58,7 @@ V1 Plan:
 #TODO V1 Journey
 #TODO V1 Occupation and bonus occupations (i.e. Ranger adding another dungeon spot)
 #TODO V1 Occupation lock
-#TODO V1 Open Destination cards
+#TODO V1 Open Destination cards (currently the available action is only added for cards in the player's own city)
 #TODO V1 When testing, pause after each draw to select the correct cards into all positions and wait for a continue button
 #TODO V1 AI should choose which cards to discard for the undertaker rather than just picking the first 3 in the meadow
 V2 Plan:

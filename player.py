@@ -2,6 +2,7 @@ import sys
 import os
 import tkinter as tk
 from tkinter import messagebox
+from cards import lookout_trigger_effect
 # Add the parent directory to sys.path to allow for everdell_ai imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -23,7 +24,7 @@ class AIPlayer(ReinforcementLearningAgent):
         self.city_limit = 15
         self.worker_allocation = {  # Initialize the worker allocation for each resource
             'wood3': 0, 'wood2_card': 0, 'resin2': 0, 'resin_card': 0,
-            'card2_token': 0, 'stone': 0, 'berry_card': 0, 'berry': 0
+            'card2_token': 0, 'stone': 0, 'berry_card': 0, 'berry': 0, 'lookout': 0
         }
         self.berries_given_during_monk_activation = 0  # Track berries given during Monk's activation
         self.prosperity_cards = []  # Initialize the list of prosperity cards for endgame scoring
@@ -53,7 +54,6 @@ class AIPlayer(ReinforcementLearningAgent):
 
     def receive_resources(self, resource_type, game):
         # Method to increase the agent's resources and return the received resource
-        game.worker_slots_available[resource_type] -= 1
         cards_to_draw = 0
         if resource_type == 'wood3':
             self.wood += 3
@@ -75,8 +75,11 @@ class AIPlayer(ReinforcementLearningAgent):
             cards_to_draw = 1
         elif resource_type == 'berry':
             self.berries += 1
+        if resource_type == 'lookout':
+            lookout_trigger_effect(self, game, None)
         self.workers -= 1  # Decrement a worker to receive resources
         self.worker_allocation[resource_type] += 1  # Increment the worker count for the resource
+        game.worker_slots_available[resource_type] -= 1
         # Check if worker slots available went below zero
         if game.worker_slots_available[resource_type] < 0:
             raise Exception(f"Worker slots for {resource_type} went below zero.")
@@ -183,6 +186,9 @@ class AIPlayer(ReinforcementLearningAgent):
                 available_actions.append(can_play)
         # Add the 'receive_resources' action only if there are workers available
         if self.workers > 0:
+            if any(card.name == "Lookout" for card in self.played_cards):
+                if game.worker_slots_available['lookout'] > 0:
+                    available_actions.append(('receive_resources', 'lookout'))
             for resource_type in ['wood3', 'wood2_card', 'resin2', 'resin_card', 'card2_token', 'stone', 'berry_card', 'berry']:
                 if game.worker_slots_available[resource_type] > 0:
                     available_actions.append(('receive_resources', resource_type))

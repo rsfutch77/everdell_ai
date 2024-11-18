@@ -5,7 +5,6 @@ class Card:
     def __init__(self, name, card_type, rarity, points, wood, resin, stone, berries, quantity, card_color):
         self.name = name
         self.card_type = card_type  # 'character', 'construction', etc.
-        self.card_type = card_type  # 'character', 'construction', or 'prosperity'
         self.rarity = rarity  # 'unique' or 'common'
         self.points = points
         self.wood = wood
@@ -13,7 +12,7 @@ class Card:
         self.stone = stone
         self.berries = berries
         self.quantity = quantity
-        self.card_color = card_color
+        self.card_color = card_color # e.g. 'prosperity'
         self.activation_effect = self.get_activation_effect()
         self.trigger_effect = self.get_trigger_effect()
 
@@ -219,6 +218,7 @@ def courthouse_trigger_effect(player, game, card_played):
         elif action and action == 'stone':
             player.stone += 1
             game.courthouse_resource_choices['stone'] += 1
+        #TODO this is not printing the whole word
         print(f"Courthouse gains {action[0]}")
 def innkeeper_activation(player, *args):
     pass  # Innkeeper card may have a different effect or no effect
@@ -497,7 +497,7 @@ def peddler_activation(player, game, *args):
                     game.peddler_receive_choices[resource] += 1
 
                 print(f"Peddler activation: Player receives {resources_to_receive}.")
-def doctor_activation(player, *args):
+def doctor_activation(player, game, *args):
     # Check if the player has at least 3 berries
     if player.berries >= 0:
         # Allow the player to choose how many berries to exchange for tokens, up to 3
@@ -517,8 +517,22 @@ def monastery_activation(player):
     pass  # Monastery card may have a different effect or no effect
 def cemetery_activation(player):
     pass  # Cemetery card may have a different effect or no effect
-def lookout_activation(player):
-    pass  # Lookout card may have a different effect or no effect
+def lookout_activation(player, game, *args):
+    game.worker_slots_available['lookout'] += 1
+def lookout_trigger_effect(player, game, card_played):
+    # Example trigger effect for the Lookout card
+    # Allow the player to choose a resource to gain
+    available_resources = ['wood', 'resin', 'stone', 'berries']
+    chosen_resource = player.choose_action(available_resources)
+    if chosen_resource == 'wood':
+        player.wood += 1
+    elif chosen_resource == 'resin':
+        player.resin += 1
+    elif chosen_resource == 'stone':
+        player.stone += 1
+    elif chosen_resource == 'berries':
+        player.berries += 1
+    print(f"Lookout trigger: Player gains 1 {chosen_resource}.")
 def storehouse_activation(player):
     pass  # Storehouse card may have a different effect or no effect
 def chapel_activation(player):
@@ -607,9 +621,9 @@ cards = [
     ("Resin Refinery", "construction", "common",  1, 0, 1, 1, 0, 3, "green"),
     ("Fairgrounds"   , "construction", "unique",  3, 1, 2, 1, 0, 3, "green"),
     #Takes up space in opponent's city
-    ("Fool"          , "character",    "unique", -2, 0, 0, 0, 3, 2, "adventure"),
+    ("Fool"          , "character",    "unique", -2, 0, 0, 0, 3, 2, "tan"),
     #Does not take up space
-    ("Wanderer"      , "character",    "common",  1, 0, 0, 0, 2, 3, "adventure"),
+    ("Wanderer"      , "character",    "common",  1, 0, 0, 0, 2, 3, "tan"),
     #Prosperity cards
     ("Theater"       , "construction", "unique",  3, 3, 1, 1, 0, 2, "prosperity"),
     ("Architect"     , "character",    "unique",  2, 0, 0, 0, 4, 2, "prosperity"),
@@ -620,7 +634,7 @@ cards = [
     ("Ever Tree"     , "construction", "unique",  5, 3, 3, 3, 0, 2, "prosperity"),
     ("King"          , "character",    "unique",  4, 0, 0, 0, 6, 2, "prosperity"),
     #Cards that reveal
-    ("Postal Pigeon" , "character",    "common",  0, 0, 0, 0, 2, 3, "adventure"),
+    ("Postal Pigeon" , "character",    "common",  0, 0, 0, 0, 2, 3, "tan"),
     #Cards that activate on playing a card
     ("Historian"     , "character",    "unique",  1, 0, 0, 0, 2, 3, "blue"),
     ("Shopkeeper"    , "character",    "unique",  1, 0, 0, 0, 2, 3, "blue"),
@@ -630,7 +644,7 @@ cards = [
     ("Judge"         , "character",    "unique",  2, 0, 0, 0, 3, 2, "blue"),
     ("Crane"         , "construction", "unique",  1, 0, 0, 1, 0, 2, "blue"),
     #Discards from Meadow
-    ("Undertaker"    , "character",    "unique",  1, 0, 0, 0, 2, 2, "adventure"),
+    ("Undertaker"    , "character",    "unique",  1, 0, 0, 0, 2, 2, "tan"),
     #If/then cards
     ("Harvester"     , "character",    "common", 2, 0, 0, 0, 3, 4, "green"),
     #("Shepherd"     , "character",    "x",      0, 0, 0, 0, 0, 0, "x"),
@@ -640,7 +654,7 @@ cards = [
     ("Miner Mole"    , "character",    "common", 1, 0, 0, 0, 3, 3, "green"),
     ("Chip Sweep"    , "character",    "common", 2, 0, 0, 0, 3, 3, "green"),
     #Moves worker
-    ("Ranger"        , "character",    "unique", 1, 0, 0, 0, 2, 2, "adventure"),
+    ("Ranger"        , "character",    "unique", 1, 0, 0, 0, 2, 2, "tan"),
     #Gives to opponent
     ("Teacher"       , "character",    "common", 2, 0, 0, 0, 2, 3, "green"),
     ("Monk"          , "character",    "unique", 0, 0, 0, 0, 1, 2, "green"),
@@ -648,13 +662,13 @@ cards = [
     ("Clock Tower"   , "construction", "unique", 0, 3, 0, 1, 0, 3, "blue"),
     ("Woodcarver"    , "character",    "common", 2, 0, 0, 0, 2, 3, "green"),
     ("Peddler"       , "character",    "common", 1, 0, 0, 0, 2, 3, "green"),
-    ("Doctor"       , "character",    "unique", 4, 0, 0, 0, 4, 2, "green"),
+    ("Doctor"        , "character",    "unique", 4, 0, 0, 0, 4, 2, "green"),
     #Cards with locations
     #("Queen", 5, 7, 2),
     #("University", 5, 7, 2),
     #("Monastery", 5, 7, 2),
     #("Cemetery", 5, 7, 2),
-    #("Lookout", 5, 7, 2),
+    ("Lookout"       , "construction", "unique", 2, 1, 1, 1, 0, 2, "red"),
     #("Storehouse", 5, 7, 3),
     #("Chapel"     , "x",    "x",      0, 0, 0, 0, 0, 0, "x"),
     #("Post Office", 5, 7, 3),
