@@ -279,5 +279,9 @@ class AIPlayer(ReinforcementLearningAgent):
                     reward += berries_given * 0.1
                 else:
                     reward = card.points * 1  # Small reward for the card's point value (even when playing a fool into someone else's city)
-                
+                # Add a small reward for adding a card of the same color, unless there are already 3 of the same card
+                if card.card_type != 'prosperity':
+                    same_color_cards = [played_card for played_card in agents[agent_index].played_cards if played_card.card_color == card.card_color]
+                    if len(same_color_cards) < 3:
+                        reward += 0.5  # Small reward for adding a card of the same color
         return reward
