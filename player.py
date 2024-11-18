@@ -9,7 +9,7 @@ from everdell_ai.agent import ReinforcementLearningAgent
 
 class AIPlayer(ReinforcementLearningAgent):      
 
-    def __init__(self, alpha=0.1, gamma=0.9, epsilon=0.1, wins=0):
+    def __init__(self, alpha=0.05, gamma=0.9, epsilon=0.1, wins=0):
         self.reset_agent()  # Reset all agent attributes to their initial values
         super().__init__(alpha, gamma, epsilon)
         self.wins = wins  # Initialize the number of wins for the AIPlayer
