@@ -144,7 +144,7 @@ def update_episode_counter(episode):
 def setup_ui():
     global turn_counter_label, time_to_wait_entry, num_agents_entry, num_episodes_entry
     global turn_counter_label, time_to_wait_entry, num_agents_entry, num_episodes_entry, randomize_agents_var
-    global episode_counter_label
+    global episode_counter_label, live_view_var
     global meadow_card_comboboxes
     global hand_combo_boxes
     root = tk.Tk()
@@ -199,7 +199,10 @@ def setup_ui():
     randomize_agents_checkbox = tk.Checkbutton(num_agents_frame, text="Randomize Agents", variable=randomize_agents_var, command=toggle_num_agents_entry)
     randomize_agents_checkbox.pack(side=tk.LEFT)
 
-    # Number of episodes label and entry
+    # Checkbox to enable live view
+    live_view_var = tk.BooleanVar(value=False)
+    live_view_checkbox = tk.Checkbutton(root, text="Enable Live View", variable=live_view_var)
+    live_view_checkbox.pack(anchor='nw', padx=10, pady=5)
     num_episodes_frame = tk.Frame(root)
     num_episodes_frame.pack(anchor='nw', padx=10, pady=10)
     num_episodes_label = tk.Label(num_episodes_frame, text="Number of Episodes:")
