@@ -576,7 +576,9 @@ class Game:
         if (agent.workers == 0 or all(self.worker_slots_available[resource_type] == 0 for resource_type in ['wood3', 'wood2_card', 'resin2', 'resin_card', 'card2_token', 'stone', 'berry_card', 'berry'])) and agent.recalls < agent.max_recalls:
             if agent.recalls == 0:
                 agent.workers = 3  # Get another worker
-                print(f"Spring.")
+                # On the first recall, list all green cards in the player's city
+                green_cards = [card for card in agent.played_cards if card.card_color == "green"]
+                print(f"Spring. Green cards in city: {[card.name for card in green_cards]}")
             elif agent.recalls == 1:
                 agent.workers = 4  # Get another worker
                 print(f"Summer.")
