@@ -89,8 +89,10 @@ class Game:
         self.scores_over_episodes = [[] for _ in self.agents]
 
         data_file = 'plot_data.json'
-        plot_process = Process(target=plot_live, args=(data_file,))
-        plot_process.start()
+        plot_process = None
+        if self.ui_root.live_view_var.get():
+            plot_process = Process(target=plot_live, args=(data_file,))
+            plot_process.start()
 
         for episode in range(num_episodes):
             data = {
