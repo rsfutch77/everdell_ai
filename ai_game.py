@@ -91,6 +91,7 @@ class Game:
                 self.agents = [AIPlayer(alpha=0.1, gamma=0.9, epsilon=0.1) for _ in range(number_of_agents)]
             for agent in self.agents:
                 agent.update_epsilon(episode, num_episodes)
+                agent.update_learning_rate(episode, num_episodes)
             else:
                 number_of_agents = len(self.agents)  # Use the predefined number of agents
             self.reset_game()

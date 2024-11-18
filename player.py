@@ -29,6 +29,10 @@ class AIPlayer(ReinforcementLearningAgent):
         self.prosperity_cards = []  # Initialize the list of prosperity cards for endgame scoring
         self.on_trigger = []  # Initialize the list of cards with effects that trigger when other cards are played
 
+    def update_learning_rate(self, episode, total_episodes):
+        # Implement a learning rate schedule that decreases over time
+        self.alpha = self.alpha * (1 - episode / total_episodes)
+
     def reset_agent(self):
         # Reset all agent attributes to zero, then set specific values
         self.tokens = 0
