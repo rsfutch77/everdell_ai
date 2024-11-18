@@ -555,6 +555,7 @@ def bard_activation(player, *args):
         # Discard the chosen number of cards from the player's hand
         discarded_cards = player.hand[:cards_to_discard]
         player.hand = player.hand[cards_to_discard:]
+        game.discard_cards(discarded_cards)
         player.add_tokens(cards_to_discard)
         print(f"Bard activation: Player discards {cards_to_discard} cards and receives {cards_to_discard} tokens.")
 
