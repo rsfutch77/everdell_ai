@@ -32,6 +32,7 @@ class Game:
         self.revealed_cards = []  # List to hold revealed cards
         self.card_play_frequency = {}  # Dictionary to track the frequency of card plays
         self.claimed_events = set()  # Track claimed events
+        self.event_selection_frequency = {'monument': 0, 'tour': 0, 'festival': 0, 'expedition': 0}  # Track event selection frequency
         self.worker_slots_available = {'wood3': 1, 'wood2_card': 4, 'resin2': 1, 'resin_card': 4, 'card2_token': 4, 'stone': 1, 'berry_card': 1, 'berry': 4, 'lookout': 0}
         self.hand_update_callback = hand_update_callback
         self.meadow_update_callback = meadow_update_callback
@@ -104,7 +105,11 @@ class Game:
                 'window_size': 10
             }
             with open(data_file, 'w') as f:
-                json.dump(data, f)
+                try:
+                    json.dump(data, f)
+                except (TypeError, OverflowError) as e:
+                    print(f"Error writing JSON data: {e}")
+                    continue
             # Randomize the number of agents for each episode if enabled
             if self.randomize_agents.get():
                 number_of_agents = random.randint(2, 4)  # Randomly choose between 2, 3, or 4 agents
@@ -167,6 +172,7 @@ class Game:
         chart_options = [
             "TD Error Over Time",
             "AI Scores and Moving Averages Over Episodes",
+            "TD Error Over Second Half of Episodes",
             "Peddler Pay Choices",
             "Peddler Receive Choices",
             "Card Play Frequency (Normalized)",
@@ -179,7 +185,8 @@ class Game:
             "Teacher Card Draw Frequency",
             "Teacher Card Giveaway Frequency (Normalized)",
             "Teacher Card Kept Frequency (Normalized)",
-            "Berry Give Choices Frequency"
+            "Berry Give Choices Frequency",
+            "Event Selection Frequency"
         ]
 
         # Create a StringVar to hold the selected chart
@@ -200,6 +207,14 @@ class Game:
                 plt.title('TD Error Over Time')
                 plt.xlabel('Learning Step')
                 plt.ylabel('TD Error')
+            elif chart == "TD Error Over Second Half of Episodes":
+                for agent in self.agents:
+                    half_index = len(agent.td_errors) // 2
+                    plt.plot(agent.td_errors[half_index:], label=f'AI {self.agents.index(agent)}')
+                plt.title('TD Error Over Second Half of Episodes')
+                plt.xlabel('Learning Step (Second Half)')
+                plt.ylabel('TD Error')
+                plt.legend()
             elif chart == "AI Scores and Moving Averages Over Episodes":
                 for agent_index, scores in enumerate(self.scores_over_episodes):
                     plt.plot(scores, label=f'AI {agent_index}')
@@ -327,12 +342,18 @@ class Game:
                 plt.title('Berry Give Choices Frequency')
                 plt.xlabel('Number of Berries Given')
                 plt.ylabel('Frequency')
+            elif chart == "Event Selection Frequency":
+                events = list(self.event_selection_frequency.keys())
+                frequencies = list(self.event_selection_frequency.values())
+                plt.bar(events, frequencies)
+                plt.title('Event Selection Frequency')
+                plt.xlabel('Event')
+                plt.ylabel('Number of Times Selected')
 
         display_button = Button(window, text="Display Chart", command=lambda: [display_chart(), plt.show()])
         display_button.pack(pady=10)
 
         # Save the AI model after training
-        self.show_chart_selection_window()
         self.agents[0].save_model('ai_model.pkl')
 
     def draw_cards(self, number):
@@ -546,19 +567,14 @@ class Game:
                     if cards_to_draw > 0:
                         agent.draw_to_hand(new_cards, self)
                     print(f"AI {self.agents.index(agent)} receives {received_resources} resources.")
+                elif selected_action[0] == 'recall_workers':
+                    self.recall_workers(agent, agent_play_turn_index)
                 elif selected_action[0] == 'basic_event':
                     action, event, _ = selected_action
                     print(f"AI {self.agents.index(agent)} chooses basic event: {event}.")
                     agent.event_tickets += 1  # Increment event tickets for any basic event
                     self.claimed_events.add(event)  # Mark the event as claimed
-                    if event == 'monument':
-                        pass
-                    elif event == 'tour':
-                        pass
-                    elif event == 'festival':
-                        pass
-                    elif event == 'expedition':
-                        pass
+                    self.event_selection_frequency[event] += 1  # Increment the event selection frequency
 
         print(f"Deck size after turn: {len(self.deck)}")
         self.current_turn += 1

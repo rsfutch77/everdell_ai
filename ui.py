@@ -54,6 +54,7 @@ def train_model(root, num_agents_entry, num_episodes_entry, randomize_agents_var
     game = ai_game.Game(card_dict, agents, randomize_agents_var, turn_update_callback=update_turn_counter, episode_update_callback=update_episode_counter, ui_root=root, time_to_wait_entry=time_to_wait_entry, meadow_update_callback=update_meadow_display, hand_update_callback=update_hand_display, live_view_var=live_view_var)
     game.train(num_episodes)
     messagebox.showinfo("Training", "Model training complete!")
+    game.show_chart_selection_window()  # Show the chart selection window after training
 
 def toggle_num_agents_entry():
     # Function to enable or disable the num_agents_entry based on the checkbox state

@@ -269,7 +269,7 @@ class AIPlayer(ReinforcementLearningAgent):
                 reward = 0.1  # Small reward for gathering other resources
         elif action is not None and isinstance(action, tuple) and action[0] == 'basic_event':
             reward = 3  # Small reward for claiming an event
-        elif action is not None and isinstance(action, tuple) and action[0].startswith('play_card'):
+        elif action is not None and isinstance(action, tuple) and action[0] is not None and action[0].startswith('play_card'):
             card = game.agents[agent_index].card_to_play  # Assuming card_to_play is now an instance of Card
             if card:
                 # Add reward for tokens received during Monk's activation

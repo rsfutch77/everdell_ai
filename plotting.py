@@ -9,6 +9,7 @@ def plot_live(data_file, interval=1):
     axs[0].set_title('TD Error Over Time')
     axs[0].set_xlabel('Episode')
     axs[0].set_ylabel('TD Error')
+    axs[0].set_yscale('log')  # Set y-axis to log scale for TD Error
     axs[1].set_title('AI Scores Over Episodes')
     axs[1].set_xlabel('Episode')
     axs[1].set_ylabel('Score')
@@ -25,6 +26,7 @@ def plot_live(data_file, interval=1):
                     time.sleep(interval)
                     continue
                 try:
+                    # Attempt to parse the JSON data
                     data = json.loads(content)
                 except json.JSONDecodeError as e:
                     print(f"JSON decode error: {e}")
@@ -36,7 +38,9 @@ def plot_live(data_file, interval=1):
             axs[1].set_title('AI Scores Over Episodes')
             axs[2].set_title('AI Win Rate Over Time')
 
+            offset = 1e-9  # Small offset to avoid log(0) issues
             for agent_index, td_errors in enumerate(data['td_errors']):
+                td_errors = [error + offset for error in td_errors]  # Add offset to each TD error
                 long_window_size = 200  # Increase the window size for a longer moving average
                 if len(td_errors) >= long_window_size:
                     moving_avg = np.convolve(td_errors, np.ones(long_window_size)/long_window_size, mode='valid')
@@ -58,7 +62,9 @@ def plot_live(data_file, interval=1):
 
             plt.pause(interval)
         except Exception as e:
-            print(f"Plotting error: {e}")
+            print(f"Plotting error: {e}. Skipping this attempt and trying again later.")
+            time.sleep(interval)
+            continue
         time.sleep(interval)
 
     plt.ioff()  # Turn off interactive mode
