@@ -545,7 +545,7 @@ def ruins_activation(player):
     pass  # Ruins card may have a different effect or no effect
 def dungeon_activation(player):
     pass  # Dungeon card may have a different effect or no effect
-def bard_activation(player, *args):
+def bard_activation(player, game, *args):
     # Allow the player to choose how many cards to discard, up to 5
     max_discard = min(5, len(player.hand))
     available_actions = list(range(max_discard + 1))  # Options: 0 to max_discard
