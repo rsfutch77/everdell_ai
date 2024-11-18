@@ -328,6 +328,7 @@ class Game:
         display_button.pack(pady=10)
 
         # Save the AI model after training
+        self.show_chart_selection_window()
         self.agents[0].save_model('ai_model.pkl')
 
     def draw_cards(self, number):
