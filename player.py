@@ -256,19 +256,19 @@ class AIPlayer(ReinforcementLearningAgent):
         if done:
             tie_calculator, winner = game.get_winner(game)
             if tie_calculator > 1 and agents[agent_index].score == agents[winner].score:
-                reward += 0.5  # Smaller reward for a tie
+                reward += 5  # Smaller reward for a tie
             elif agent_index == winner:
-                reward += 1.0  # Large reward for winning
+                reward += 10  # Large reward for winning
             else:
                 reward = 0 # No additional reward or penalty if the AI loses
         elif action == 'receive_resources':
             # Reward for placing a worker on a token location
             if agents[agent_index].resource_pick == 'card2_token':
-                reward = 0.01  # Small reward for choosing a token location
+                reward = 1  # Small reward for choosing a token location
             else:
-                reward = 0.005  # Small reward for gathering other resources
+                reward = 0.1  # Small reward for gathering other resources
         elif action is not None and isinstance(action, tuple) and action[0] == 'basic_event':
-            reward = 0.1  # Small reward for claiming an event
+            reward = 3  # Small reward for claiming an event
         elif action is not None and isinstance(action, tuple) and action[0].startswith('play_card'):
             card = game.agents[agent_index].card_to_play  # Assuming card_to_play is now an instance of Card
             if card:
@@ -276,8 +276,8 @@ class AIPlayer(ReinforcementLearningAgent):
                 if card.name == "Monk":
                     # Reward for tokens received during Monk's activation
                     berries_given = game.agents[agent_index].berries_given_during_monk_activation
-                    reward += berries_given * 0.01
+                    reward += berries_given * 0.1
                 else:
-                    reward = card.points * 0.01  # Small reward for the card's point value (even when playing a fool into someone else's city)
+                    reward = card.points * 1  # Small reward for the card's point value (even when playing a fool into someone else's city)
                 
         return reward
