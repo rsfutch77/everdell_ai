@@ -685,7 +685,7 @@ cards = [
     #("Post Office", 5, 7, 3),
     #("Inn", 5, 7, 3),
     #Cards that discard
-    #("Ruins", 5, 7, 3),
+    ("Ruins"        , "construction", "common", 0, 0, 0, 0, 0, 3, "green"),
     #("Dungeon", 5, 7, 3),
     ("Bard"         , "character",    "unique", 0, 0, 0, 0, 3, 2, "tan"),
     
