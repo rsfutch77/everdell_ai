@@ -7,6 +7,10 @@ from player import AIPlayer
 import tkinter as tk
 from tkinter import messagebox
 from tkinter import Toplevel, Button, StringVar, OptionMenu
+from multiprocessing import Process
+import json
+import os
+from plotting import plot_live
 
 class Game:
 
@@ -84,7 +88,19 @@ class Game:
         # Initialize a list to store scores for each agent over episodes
         self.scores_over_episodes = [[] for _ in self.agents]
 
+        data_file = 'plot_data.json'
+        plot_process = Process(target=plot_live, args=(data_file,))
+        plot_process.start()
+
         for episode in range(num_episodes):
+            data = {
+                'td_errors': [agent.td_errors for agent in self.agents],
+                'scores': self.scores_over_episodes,
+                'win_rates': [agent.win_rates for agent in self.agents],
+                'window_size': 10
+            }
+            with open(data_file, 'w') as f:
+                json.dump(data, f)
             # Randomize the number of agents for each episode if enabled
             if self.randomize_agents.get():
                 number_of_agents = random.randint(2, 4)  # Randomly choose between 2, 3, or 4 agents
@@ -127,6 +143,7 @@ class Game:
             if self.episode_update_callback:
                 self.episode_update_callback(episode + 1)
 
+
             print(f"Episode {episode + 1}:")
             for agent in self.agents:
                 win_rate = agent.wins / (episode + 1)
@@ -136,53 +153,6 @@ class Game:
                     print(f"AI {self.agents.index(agent)} Win Rate: {agent.wins / (episode + 1):.2%}")
             print(f"Ties: {self.ties / (episode + 1):.2%}")
 
-        if not self.randomize_agents.get():
-            plt.figure()  # Create a new figure
-            for agent in self.agents:
-                plt.plot(agent.td_errors)
-            plt.title('TD Error Over Time')
-            plt.xlabel('Learning Step')
-            plt.ylabel('TD Error')
-
-        # Plot the scores over episodes
-        plt.figure()  # Create a new figure
-        for agent_index, scores in enumerate(self.scores_over_episodes):
-            plt.plot(scores, label=f'AI {agent_index}')
-        # Calculate the window size to show roughly 5 points on the chart
-        window_size = max(1, len(scores) // 5)
-        for agent_index, scores in enumerate(self.scores_over_episodes):
-            moving_avg = np.convolve(scores, np.ones(window_size)/window_size, mode='valid')
-            plt.plot(range(window_size - 1, len(scores)), moving_avg, linestyle='--', label=f'AI {agent_index} Moving Avg')
-        plt.title('AI Scores and Moving Averages Over Episodes')
-        plt.xlabel('Episode')
-        plt.ylabel('Score')
-        plt.legend()
-
-        # Plot the AI Win Rate Over Time
-        plt.figure()
-        for agent in self.agents:
-            plt.plot(agent.win_rates)
-        plt.title('AI Win Rate Over Time')
-        plt.xlabel('Episode')
-        plt.ylabel('Win Rate')
-        plt.show()
-
-        # Plot the AI Scores and Moving Averages Over Episodes
-        plt.figure()
-        for agent_index, scores in enumerate(self.scores_over_episodes):
-            plt.plot(scores, label=f'AI {agent_index}')
-        window_size = max(1, len(self.scores_over_episodes[0]) // 5)
-        for agent_index, scores in enumerate(self.scores_over_episodes):
-            if scores:  # Check if scores list is not empty
-                moving_avg = np.convolve(scores, np.ones(window_size)/window_size, mode='valid')
-                plt.plot(range(window_size - 1, len(scores)), moving_avg, linestyle='--', label=f'AI {agent_index} Moving Avg')
-        plt.title('AI Scores and Moving Averages Over Episodes')
-        plt.xlabel('Episode')
-        plt.ylabel('Score')
-        plt.legend()
-        plt.show()
-
-        self.show_chart_selection_window()
 
     def show_chart_selection_window(self):
         # Create a new window for chart selection
