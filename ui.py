@@ -51,7 +51,7 @@ def train_model(root, num_agents_entry, num_episodes_entry, randomize_agents_var
             number_of_agents = 2
     agents = [AIPlayer(alpha=0.1, gamma=0.9, epsilon=0.1) for _ in range(number_of_agents)]
     card_dict = setup_cards()
-    game = ai_game.Game(card_dict, agents, randomize_agents_var, turn_update_callback=update_turn_counter, episode_update_callback=update_episode_counter, ui_root=root, time_to_wait_entry=time_to_wait_entry, meadow_update_callback=update_meadow_display, hand_update_callback=update_hand_display)
+    game = ai_game.Game(card_dict, agents, randomize_agents_var, turn_update_callback=update_turn_counter, episode_update_callback=update_episode_counter, ui_root=root, time_to_wait_entry=time_to_wait_entry, meadow_update_callback=update_meadow_display, hand_update_callback=update_hand_display, live_view_var=live_view_var)
     game.train(num_episodes)
     messagebox.showinfo("Training", "Model training complete!")
 

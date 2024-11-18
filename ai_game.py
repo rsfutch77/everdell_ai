@@ -14,7 +14,8 @@ from plotting import plot_live
 
 class Game:
 
-    def __init__(self, deck, agents, randomize_agents, turn_update_callback=None, episode_update_callback=None, ui_root=None, time_to_wait_entry=None, meadow_update_callback=None, hand_update_callback=None):
+    def __init__(self, deck, agents, randomize_agents, turn_update_callback=None, episode_update_callback=None, ui_root=None, time_to_wait_entry=None, meadow_update_callback=None, hand_update_callback=None, live_view_var=None):
+        self.live_view_var = live_view_var
         self.is_training_mode = False  # Initialize training mode flag
         self.undertaker_card_pick_frequency = {}  # Track card pick frequency after Undertaker activation
         self.chip_sweep_activation_frequency = {}  # Track card activation frequency after Chip Sweep activation
@@ -90,7 +91,7 @@ class Game:
 
         data_file = 'plot_data.json'
         plot_process = None
-        if self.ui_root.live_view_var.get():
+        if self.live_view_var.get():
             plot_process = Process(target=plot_live, args=(data_file,))
             plot_process.start()
 
@@ -572,9 +573,11 @@ class Game:
         Activate all green cards in the player's city.
         """
         green_cards = [card for card in agent.played_cards if card.card_color == "green"]
-        print(f"Spring. Green cards in city: {[card.name for card in green_cards]}")
+        print(f"Harvest. Green cards in city: {[card.name for card in green_cards]}")
         for card in green_cards:
             card.activate(agent, self)
+
+    def recall_workers(self, agent, player_index):
         """
         Handle the recall workers action for the agent.
         """
