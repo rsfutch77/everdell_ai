@@ -14,7 +14,8 @@ from plotting import plot_live
 
 class Game:
 
-    def __init__(self, deck, agents, randomize_agents, turn_update_callback=None, episode_update_callback=None, ui_root=None, time_to_wait_entry=None, meadow_update_callback=None, hand_update_callback=None):
+    def __init__(self, deck, agents, randomize_agents, turn_update_callback=None, episode_update_callback=None, ui_root=None, time_to_wait_entry=None, meadow_update_callback=None, hand_update_callback=None, live_view_var=None):
+        self.live_view_var = live_view_var
         self.is_training_mode = False  # Initialize training mode flag
         self.undertaker_card_pick_frequency = {}  # Track card pick frequency after Undertaker activation
         self.chip_sweep_activation_frequency = {}  # Track card activation frequency after Chip Sweep activation
@@ -89,8 +90,10 @@ class Game:
         self.scores_over_episodes = [[] for _ in self.agents]
 
         data_file = 'plot_data.json'
-        plot_process = Process(target=plot_live, args=(data_file,))
-        plot_process.start()
+        plot_process = None
+        if self.live_view_var.get():
+            plot_process = Process(target=plot_live, args=(data_file,))
+            plot_process.start()
 
         for episode in range(num_episodes):
             data = {
@@ -565,6 +568,15 @@ class Game:
             scores.append(total_score)
         return scores
 
+    def harvest(self, agent):
+        """
+        Activate all green cards in the player's city.
+        """
+        green_cards = [card for card in agent.played_cards if card.card_color == "green"]
+        print(f"Harvest. Green cards in city: {[card.name for card in green_cards]}")
+        for card in green_cards:
+            card.activate(agent, self)
+
     def recall_workers(self, agent, player_index):
         """
         Handle the recall workers action for the agent.
@@ -576,7 +588,8 @@ class Game:
         if (agent.workers == 0 or all(self.worker_slots_available[resource_type] == 0 for resource_type in ['wood3', 'wood2_card', 'resin2', 'resin_card', 'card2_token', 'stone', 'berry_card', 'berry'])) and agent.recalls < agent.max_recalls:
             if agent.recalls == 0:
                 agent.workers = 3  # Get another worker
-                print(f"Spring.")
+                # On the first recall, perform the harvest
+                self.harvest(agent)
             elif agent.recalls == 1:
                 agent.workers = 4  # Get another worker
                 print(f"Summer.")
@@ -585,6 +598,8 @@ class Game:
             else:
                 agent.workers = 6  # Get another 2 workers
                 print(f"Bonus worker for Fall.")
+                # On the last recall, perform the harvest
+                self.harvest(agent)
             # Reset worker allocation for the agent
             for resource_type in agent.worker_allocation:
                 self.worker_slots_available[resource_type] += agent.worker_allocation[resource_type]
