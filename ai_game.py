@@ -31,6 +31,7 @@ class Game:
         self.discard = []  # List to hold discarded cards
         self.revealed_cards = []  # List to hold revealed cards
         self.card_play_frequency = {}  # Dictionary to track the frequency of card plays
+        self.claimed_events = set()  # Track claimed events
         self.worker_slots_available = {'wood3': 1, 'wood2_card': 4, 'resin2': 1, 'resin_card': 4, 'card2_token': 4, 'stone': 1, 'berry_card': 1, 'berry': 4, 'lookout': 0}
         self.hand_update_callback = hand_update_callback
         self.meadow_update_callback = meadow_update_callback
@@ -545,8 +546,19 @@ class Game:
                     if cards_to_draw > 0:
                         agent.draw_to_hand(new_cards, self)
                     print(f"AI {self.agents.index(agent)} receives {received_resources} resources.")
-                elif selected_action[0] == 'recall_workers':
-                    self.recall_workers(agent, agent_play_turn_index)
+                elif selected_action[0] == 'basic_event':
+                    action, event, _ = selected_action
+                    print(f"AI {self.agents.index(agent)} chooses basic event: {event}.")
+                    agent.event_tickets += 1  # Increment event tickets for any basic event
+                    self.claimed_events.add(event)  # Mark the event as claimed
+                    if event == 'monument':
+                        pass
+                    elif event == 'tour':
+                        pass
+                    elif event == 'festival':
+                        pass
+                    elif event == 'expedition':
+                        pass
 
         print(f"Deck size after turn: {len(self.deck)}")
         self.current_turn += 1
@@ -564,7 +576,8 @@ class Game:
             prosperity_score = 0
             for card in agent.prosperity_cards:
                 prosperity_score = card.activate(agent, self)  # Activate endgame scoring for prosperity cards
-            total_score = base_score + agent.tokens + prosperity_score
+            event_score = len(self.claimed_events) * 3  # Each event is worth 3 points
+            total_score = base_score + agent.tokens + prosperity_score + event_score
             scores.append(total_score)
         return scores
 

@@ -27,6 +27,7 @@ class AIPlayer(ReinforcementLearningAgent):
             'card2_token': 0, 'stone': 0, 'berry_card': 0, 'berry': 0, 'lookout': 0
         }
         self.berries_given_during_monk_activation = 0  # Track berries given during Monk's activation
+        self.event_tickets = 0  # Initialize the event tickets count
         self.prosperity_cards = []  # Initialize the list of prosperity cards for endgame scoring
         self.on_trigger = []  # Initialize the list of cards with effects that trigger when other cards are played
 
@@ -48,6 +49,7 @@ class AIPlayer(ReinforcementLearningAgent):
         self.recalls = 0
         self.card_to_play = None
         self.resource_pick = None
+        self.event_tickets = 0  # Reset the event tickets count for the next game
         self.prosperity_cards = []  # Reset the list of prosperity cards for the next game
         self.on_trigger = []  # Reset the list of on trigger cards for the next game
 
@@ -192,7 +194,28 @@ class AIPlayer(ReinforcementLearningAgent):
             for resource_type in ['wood3', 'wood2_card', 'resin2', 'resin_card', 'card2_token', 'stone', 'berry_card', 'berry']:
                 if game.worker_slots_available[resource_type] > 0:
                     available_actions.append(('receive_resources', resource_type))
-        # Add the 'recall_workers' action only if the agent can recall workers
+            # Add basic events actions
+            basic_events = []
+            # Check for the monument action
+            blue_cards_count = sum(1 for card in self.played_cards if card.card_type == 'construction' and card.rarity == 'unique')
+            if blue_cards_count >= 3 and 'monument' not in game.claimed_events:
+                basic_events.append('monument')
+            # Check for the red card event
+            red_cards_count = sum(1 for card in self.played_cards if card.card_color == 'red')
+            if red_cards_count >= 3 and 'tour' not in game.claimed_events:
+                basic_events.append('tour')
+            # Check for the green card event
+            green_cards_count = sum(1 for card in self.played_cards if card.card_color == 'green')
+            if green_cards_count >= 3 and 'festival' not in game.claimed_events:
+                basic_events.append('festival')
+            # Check for the tan card event
+            tan_cards_count = sum(1 for card in self.played_cards if card.card_color == 'tan')
+            if tan_cards_count >= 3 and 'expedition' not in game.claimed_events:
+                basic_events.append('expedition')
+            # Add basic events to available actions
+            for event in basic_events:
+                available_actions.append(('basic_event', event))
+
         if (self.workers == 0 or all(game.worker_slots_available[resource_type] == 0 for resource_type in ['wood3', 'wood2_card', 'resin2', 'resin_card', 'card2_token', 'stone', 'berry_card', 'berry'])) and self.recalls < self.max_recalls:
             available_actions.append(('recall_workers', None))
         action = self.choose_action(available_actions)
@@ -244,7 +267,9 @@ class AIPlayer(ReinforcementLearningAgent):
                 reward = 0.01  # Small reward for choosing a token location
             else:
                 reward = 0.005  # Small reward for gathering other resources
-        elif action is not None and isinstance(action, tuple) and action[0] and action[0].startswith('play_card'):
+        elif action is not None and isinstance(action, tuple) and action[0] == 'basic_event':
+            reward = 0.1  # Small reward for claiming an event
+        elif action is not None and isinstance(action, tuple) and action[0].startswith('play_card'):
             card = game.agents[agent_index].card_to_play  # Assuming card_to_play is now an instance of Card
             if card:
                 # Add reward for tokens received during Monk's activation
