@@ -593,6 +593,8 @@ class Game:
             else:
                 agent.workers = 6  # Get another 2 workers
                 print(f"Bonus worker for Fall.")
+                # On the last recall, perform the harvest
+                self.harvest(agent)
             # Reset worker allocation for the agent
             for resource_type in agent.worker_allocation:
                 self.worker_slots_available[resource_type] += agent.worker_allocation[resource_type]
