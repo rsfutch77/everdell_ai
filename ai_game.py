@@ -36,13 +36,14 @@ class Game:
         self.event_selection_frequency = {'monument': 0, 'tour': 0, 'festival': 0, 'expedition': 0}  # Track event selection frequency
         self.worker_slots_available = {
             'wood3': 1,
-            'wood2_card': 1,
+            'wood2_card': 4,
             'resin2': 1,
-            'resin_card': 1,
-            'card2_token': 1,
+            'resin_card': 4,
+            'card2_token': 4,
             'stone': 1,
             'berry_card': 1,
-            'berry': 1,
+            'berry': 4,
+            'lookout': 0,
             'forest_1': 1,
             'forest_2': 1,
             'forest_3': 1,
