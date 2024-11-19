@@ -373,6 +373,8 @@ class Game:
             if self.forest_deck:
                 drawn_cards.append(self.forest_deck.pop(0))
         return drawn_cards
+    
+    def draw_to_meadow(self):
     # Replenish the meadow immediately after a card is taken
         new_cards = self.draw_cards(1)
         if new_cards:
