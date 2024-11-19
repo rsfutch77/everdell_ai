@@ -24,7 +24,8 @@ class AIPlayer(ReinforcementLearningAgent):
         self.city_limit = 15
         self.worker_allocation = {  # Initialize the worker allocation for each resource
             'wood3': 0, 'wood2_card': 0, 'resin2': 0, 'resin_card': 0,
-            'card2_token': 0, 'stone': 0, 'berry_card': 0, 'berry': 0, 'lookout': 0
+            'card2_token': 0, 'stone': 0, 'berry_card': 0, 'berry': 0, 'lookout': 0,
+            'forest_1': 0, 'forest_2': 0, 'forest_3': 0, 'forest_4': 0
         }
         self.berries_given_during_monk_activation = 0  # Track berries given during Monk's activation
         self.event_tickets = 0  # Initialize the event tickets count
