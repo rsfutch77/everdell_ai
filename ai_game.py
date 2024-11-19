@@ -475,16 +475,16 @@ class Game:
             state_representation.extend([card.points, card.wood, card.resin, card.stone, card.berries])
         # Include the forest card IDs and attributes as features
         for card in self.forest:
-            state_representation.append(card.name)
-            state_representation.extend([card.points, card.wood, card.resin, card.stone, card.berries])
+            state_representation.append(card[0])  # card[0] is the name
+            state_representation.extend(card[3:8])  # card[3:8] are points, wood, resin, stone, berries
         for resource_type, slots in self.worker_slots_available.items():
             state_representation.append(slots)
         # Include the claimed events as features
         for event in self.claimed_events:
             state_representation.append(event)
         for card in self.revealed_cards:
-            state_representation.append(card.name)
-            state_representation.extend([card.points, card.wood, card.resin, card.stone, card.berries])
+            state_representation.append(card[0])  # card[0] is the name
+            state_representation.extend(card[3:8])  # card[3:8] are points, wood, resin, stone, berries
         return state_representation
 
     def play_card(self, agent, card, agent_index, game, action):
