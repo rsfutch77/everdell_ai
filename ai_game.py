@@ -457,7 +457,9 @@ class Game:
                 state_representation.extend([card.points, card.wood, card.resin, card.stone, card.berries])
         for card in self.meadow:
             state_representation.extend([card.points, card.wood, card.resin, card.stone, card.berries])
-        # Normalize or scale the features if necessary
+        # Include the worker slots available as features
+        for resource_type, slots in self.worker_slots_available.items():
+            state_representation.append(slots)
         # ...
         return state_representation
 
