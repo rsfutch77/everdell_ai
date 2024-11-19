@@ -449,7 +449,8 @@ class Game:
         state_representation = []
         # Include the current turn as a feature
         state_representation.append(self.current_turn)
-        # Include the points of played cards for each agent as features
+        # Include the total number of agents as a feature
+        state_representation.append(len(self.agents))
         for agent in self.agents:
             played_points = [card.points for card in agent.played_cards]
             state_representation.extend(played_points)
