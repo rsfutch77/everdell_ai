@@ -34,6 +34,7 @@ class Game:
         self.card_play_frequency = {}  # Dictionary to track the frequency of card plays
         self.claimed_events = set()  # Track claimed events
         self.event_selection_frequency = {'monument': 0, 'tour': 0, 'festival': 0, 'expedition': 0}  # Track event selection frequency
+        self.forest_deck = list(forest_deck)  # Initialize the forest deck
         random.shuffle(self.forest_deck)  # Shuffle the forest deck before each new game
         self.worker_slots_available = {'wood3': 1, 'wood2_card': 4, 'resin2': 1, 'resin_card': 4, 'card2_token': 4, 'stone': 1, 'berry_card': 1, 'berry': 4, 'lookout': 0}
         self.hand_update_callback = hand_update_callback
