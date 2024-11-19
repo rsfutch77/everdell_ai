@@ -453,14 +453,19 @@ class Game:
         for agent in self.agents:
             played_points = [card.points for card in agent.played_cards]
             state_representation.extend(played_points)
-            # Include the hand card IDs as features for each agent
-            hand_card_ids = [card.name for card in agent.hand]
-            state_representation.extend(hand_card_ids)
-        # Include the meadow card IDs as features
-        meadow_card_ids = [card.name for card in self.meadow]
-        state_representation.extend(meadow_card_ids)
-        forest_card_ids = [card.name for card in self.forest]
-        state_representation.extend(forest_card_ids)
+            # Include the hand card IDs and attributes as features for each agent
+            for card in agent.hand:
+                state_representation.append(card.name)
+                state_representation.extend([card.points, card.wood, card.resin, card.stone, card.berries])
+        # Include the meadow card IDs and attributes as features
+        for card in self.meadow:
+            state_representation.append(card.name)
+            state_representation.extend([card.points, card.wood, card.resin, card.stone, card.berries])
+        
+        # Include the forest card IDs and attributes as features
+        for card in self.forest:
+            state_representation.append(card.name)
+            state_representation.extend([card.points, card.wood, card.resin, card.stone, card.berries])
         for resource_type, slots in self.worker_slots_available.items():
             state_representation.append(slots)
         # ...
