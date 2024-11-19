@@ -622,8 +622,6 @@ activation_effects = {
     "Innkeeper": innkeeper_activation,
     "Crane": crane_activation,
     "Judge": judge_activation,
-    "Crane": crane_activation,
-    "Undertaker": undertaker_activation,
     "Harvester": harvester_activation,
     "Shepherd": shepherd_activation,
     "Barge Toad": barge_toad_activation,
