@@ -198,7 +198,7 @@ class AIPlayer(ReinforcementLearningAgent):
             if any(card.name == "Lookout" for card in self.played_cards):
                 if game.worker_slots_available['lookout'] > 0:
                     available_actions.append(('receive_resources', 'lookout'))
-            for resource_type in ['wood3', 'wood2_card', 'resin2', 'resin_card', 'card2_token', 'stone', 'berry_card', 'berry']:
+            for resource_type in ['wood3', 'wood2_card', 'resin2', 'resin_card', 'card2_token', 'stone', 'berry_card', 'berry', 'forest_1', 'forest_2', 'forest_3', 'forest_4']:
                 if game.worker_slots_available[resource_type] > 0:
                     available_actions.append(('receive_resources', resource_type))
             # Add basic events actions
