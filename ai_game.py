@@ -452,9 +452,20 @@ class Game:
         # Include the total number of agents as a feature
         state_representation.append(len(self.agents))
         for agent in self.agents:
+            # Include each agent's resources
+            state_representation.extend([agent.wood, agent.resin, agent.stone, agent.berries])
+            # Include each agent's tokens
+            state_representation.append(agent.tokens)
+            # Include each agent's workers
+            state_representation.append(agent.workers)
+            # Include each agent's recalls
+            state_representation.append(agent.recalls)
+            # Include each agent's hand size
+            state_representation.append(len(agent.hand))
             played_points = [card.points for card in agent.played_cards]
             state_representation.extend(played_points)
             # Include the hand card IDs and attributes as features for each agent
+            #TODO AI should only be able to use it's own hand in the game state representation. This allows it to cheat by seeing the opposing hand.
             for card in agent.hand:
                 state_representation.append(card.name)
                 state_representation.extend([card.points, card.wood, card.resin, card.stone, card.berries])
@@ -462,7 +473,6 @@ class Game:
         for card in self.meadow:
             state_representation.append(card.name)
             state_representation.extend([card.points, card.wood, card.resin, card.stone, card.berries])
-        
         # Include the forest card IDs and attributes as features
         for card in self.forest:
             state_representation.append(card.name)
@@ -472,12 +482,9 @@ class Game:
         # Include the claimed events as features
         for event in self.claimed_events:
             state_representation.append(event)
-            
         for card in self.revealed_cards:
             state_representation.append(card.name)
             state_representation.extend([card.points, card.wood, card.resin, card.stone, card.berries])
-            
-        # ...
         return state_representation
 
     def play_card(self, agent, card, agent_index, game, action):
