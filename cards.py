@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import messagebox
 
 class Card:
-    def __init__(self, name, card_type, rarity, points, wood, resin, stone, berries, quantity, card_color):
+    def __init__(self, name, card_type, rarity, points, wood=0, resin=0, stone=0, berries=0, quantity=1, card_color="green"):
         self.name = name
         self.card_type = card_type  # 'character', 'construction', etc.
         self.rarity = rarity  # 'unique' or 'common'
@@ -13,7 +13,7 @@ class Card:
         self.berries = berries
         self.quantity = quantity
         self.card_color = card_color # e.g. 'prosperity'
-        self.activation_effect = self.get_activation_effect()
+        self.activation_effect = None if card_type == "forest" else self.get_activation_effect()
         self.trigger_effect = self.get_trigger_effect()
 
     def trigger(self, player, game, card_played):
@@ -21,7 +21,7 @@ class Card:
             self.trigger_effect(player, game, card_played)
 
     def activate(self, player, game):
-        if self.activation_effect:
+        if self.activation_effect and self.card_type != "forest":
             self.activation_effect(player, game, self)
         if self.card_type == 'prosperity':
             player.prosperity_cards.append(self)  # Add prosperity card to player's list for endgame scoring
@@ -633,9 +633,25 @@ activation_effects = {
     "Dungeon": dungeon_activation,
     "Bard": bard_activation,
     # Add other card activation functions here
+    "Forest Card 1": forest_card_1_trigger,
+    "Forest Card 2": forest_card_2_trigger,
+    "Forest Card 3": forest_card_3_trigger,
 }
 
-# Map card names to their trigger functions
+def forest_card_1_trigger(player, game, *args):
+    # Example effect: Gain 1 wood
+    player.wood += 1
+    print(f"Forest Card 1 effect: Player gains 1 wood.")
+
+def forest_card_2_trigger(player, game, *args):
+    # Example effect: Gain 1 resin
+    player.resin += 1
+    print(f"Forest Card 2 effect: Player gains 1 resin.")
+
+def forest_card_3_trigger(player, game, *args):
+    # Example effect: Gain 1 stone
+    player.stone += 1
+    print(f"Forest Card 3 effect: Player gains 1 stone.")
 trigger_effects = {
     "Historian": historian_trigger_effect,
     "Shopkeeper": shopkeeper_trigger_effect,
