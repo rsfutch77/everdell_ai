@@ -580,21 +580,23 @@ def bard_activation(player, game, *args):
         player.add_tokens(cards_to_discard)
         print(f"Bard activation: Player discards {cards_to_discard} cards and receives {cards_to_discard} tokens.")
 
-# Map card names to their activation functions
+#Forest trigger functions
 def forest_card_1_trigger(player, game, *args):
     # Example effect: Gain 1 wood
     player.wood += 1
     print(f"Forest Card 1 effect: Player gains 1 wood.")
-
 def forest_card_2_trigger(player, game, *args):
     # Example effect: Gain 1 resin
     player.resin += 1
     print(f"Forest Card 2 effect: Player gains 1 resin.")
-
 def forest_card_3_trigger(player, game, *args):
     # Example effect: Gain 1 stone
     player.stone += 1
     print(f"Forest Card 3 effect: Player gains 1 stone.")
+def forest_card_4_trigger(player, game, *args):
+    # Example effect: Gain 1 stone
+    player.stone += 1
+    print(f"Forest Card 4 effect: Player gains 1 stone.")
 
 activation_effects = {
     "Farm": farm_activation,
@@ -647,32 +649,18 @@ activation_effects = {
     "Ruins": ruins_activation,
     "Dungeon": dungeon_activation,
     "Bard": bard_activation,
-    # Add other card activation functions here
-    "Forest Card 1": forest_card_1_trigger,
-    "Forest Card 2": forest_card_2_trigger,
-    "Forest Card 3": forest_card_3_trigger,
 }
-
-def forest_card_1_trigger(player, game, *args):
-    # Example effect: Gain 1 wood
-    player.wood += 1
-    print(f"Forest Card 1 effect: Player gains 1 wood.")
-
-def forest_card_2_trigger(player, game, *args):
-    # Example effect: Gain 1 resin
-    player.resin += 1
-    print(f"Forest Card 2 effect: Player gains 1 resin.")
-
-def forest_card_3_trigger(player, game, *args):
-    # Example effect: Gain 1 stone
-    player.stone += 1
-    print(f"Forest Card 3 effect: Player gains 1 stone.")
 
 trigger_effects = {
     "Historian": historian_trigger_effect,
     "Shopkeeper": shopkeeper_trigger_effect,
     "Courthouse": courthouse_trigger_effect,
     "Clock Tower": clock_tower_trigger_effect,
+    #Forest triggers
+    "Forest Card 1": forest_card_1_trigger,
+    "Forest Card 2": forest_card_2_trigger,
+    "Forest Card 3": forest_card_3_trigger,
+    "Forest Card 4": forest_card_4_trigger,
 }
         
 # Define the forest deck
@@ -680,7 +668,7 @@ forest_deck = [
     ("Forest Card 1"),
     ("Forest Card 2"),
     ("Forest Card 3"),
-    # Add more forest cards as needed
+    ("Forest Card 4"),
 ]
 
 # Card Name, Points, Cost (Wood, Resin, Stone, Berries), Quantity in Deck
