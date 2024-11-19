@@ -49,6 +49,7 @@ class Game:
             'forest_3': 1,
             'forest_4': 1
         }
+        self.forest_deck = list(forest_deck)  # Initialize the forest deck
         self.forest = []  # Initialize the forest list
         random.shuffle(self.forest_deck)  # Shuffle the forest deck before each new game
         self.forest = self.draw_from_forest(4)  # Draw initial cards into the forest
