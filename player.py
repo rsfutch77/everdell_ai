@@ -22,6 +22,7 @@ class AIPlayer(ReinforcementLearningAgent):
         self.max_cards_in_hand = 8
         self.max_workers = 2  # Set the maximum number of workers
         self.city_limit = 15
+        self.lookout_slots_available = 0
         self.worker_allocation = {  # Initialize the worker allocation for each resource
             'wood3': 0, 'wood2_card': 0, 'resin2': 0, 'resin_card': 0,
             'card2_token': 0, 'stone': 0, 'berry_card': 0, 'berry': 0, 'lookout': 0,
@@ -86,11 +87,15 @@ class AIPlayer(ReinforcementLearningAgent):
             self.berries += 1
         if resource_type == 'lookout':
             lookout_trigger_effect(self, game, None)
-        self.workers -= 1  # Decrement a worker to receive resources
+            self.lookout_slots_available -= 1
+        else:
+            game.worker_slots_available[resource_type] -= 1
         self.worker_allocation[resource_type] += 1  # Increment the worker count for the resource
-        game.worker_slots_available[resource_type] -= 1
+        
+        self.workers -= 1  # Decrement a worker to receive resources
+        
         # Check if worker slots available went below zero
-        if game.worker_slots_available[resource_type] < 0:
+        if game.worker_slots_available[resource_type] < 0 or self.lookout_slots_available <0:
             raise Exception(f"Worker slots for {resource_type} went below zero.")
         
         return resource_type, cards_to_draw
@@ -196,9 +201,9 @@ class AIPlayer(ReinforcementLearningAgent):
         # Add the 'receive_resources' action only if there are workers available
         if self.workers > 0:
             if any(card.name == "Lookout" for card in self.played_cards):
-                if game.worker_slots_available['lookout'] > 0:
+                if self.lookout_slots_available > 0:
                     available_actions.append(('receive_resources', 'lookout'))
-            for resource_type in ['wood3', 'wood2_card', 'resin2', 'resin_card', 'card2_token', 'stone', 'berry_card', 'berry', 'forest_1', 'forest_2', 'forest_3', 'forest_4']:
+            for resource_type in game.locations:
                 if game.worker_slots_available[resource_type] > 0:
                     available_actions.append(('receive_resources', resource_type))
             # Add basic events actions
@@ -223,7 +228,7 @@ class AIPlayer(ReinforcementLearningAgent):
             for event in basic_events:
                 available_actions.append(('basic_event', event))
 
-        if (self.workers == 0 or all(game.worker_slots_available[resource_type] == 0 for resource_type in ['wood3', 'wood2_card', 'resin2', 'resin_card', 'card2_token', 'stone', 'berry_card', 'berry'])) and self.recalls < self.max_recalls:
+        if (self.workers == 0 or self.are_worker_slots_empty()) and self.recalls < self.max_recalls:
             available_actions.append(('recall_workers', None))
         action = self.choose_action(available_actions)
         #TODO CHOOSE whether to use Innkeeper or Judge or...: The AI currently prioritizes using innkeepers, then cranes, then judges, but ideally it should be able to choose between these. This also skews the stats towards innkeepers and away from judges.
