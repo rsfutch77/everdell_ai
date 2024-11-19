@@ -37,7 +37,7 @@ class Game:
         self.forest_deck = list(forest_deck)  # Initialize the forest deck
         self.forest = []  # Initialize the forest list
         random.shuffle(self.forest_deck)  # Shuffle the forest deck before each new game
-        self.forest = self.draw_from_forest(3)  # Draw initial cards into the forest
+        self.forest = self.draw_from_forest(4)  # Draw initial cards into the forest
         self.hand_update_callback = hand_update_callback
         self.meadow_update_callback = meadow_update_callback
         self.time_to_wait_entry = time_to_wait_entry
@@ -404,7 +404,7 @@ class Game:
         self.deck = list(self.initial_deck)  # Copy the initial deck to reset it
         self.forest_deck = list(forest_deck)  # Reset the forest deck
         random.shuffle(self.deck)  # Shuffle the deck before each new game
-        self.forest = self.draw_from_forest(3)  # Reset the forest
+        self.forest = self.draw_from_forest(4)  # Reset the forest
         self.played_cards = []
         self.meadow = self.draw_cards(self.max_meadow_cards)  # Draw cards into the meadow
         for stating_amount_index, agent in enumerate(self.agents):
