@@ -651,9 +651,6 @@ activation_effects = {
     "Forest Card 1": forest_card_1_trigger,
     "Forest Card 2": forest_card_2_trigger,
     "Forest Card 3": forest_card_3_trigger,
-    "Forest Card 1": forest_card_1_trigger,
-    "Forest Card 2": forest_card_2_trigger,
-    "Forest Card 3": forest_card_3_trigger,
 }
 
 def forest_card_1_trigger(player, game, *args):
