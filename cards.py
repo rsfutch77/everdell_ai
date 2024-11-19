@@ -581,6 +581,21 @@ def bard_activation(player, game, *args):
         print(f"Bard activation: Player discards {cards_to_discard} cards and receives {cards_to_discard} tokens.")
 
 # Map card names to their activation functions
+def forest_card_1_trigger(player, game, *args):
+    # Example effect: Gain 1 wood
+    player.wood += 1
+    print(f"Forest Card 1 effect: Player gains 1 wood.")
+
+def forest_card_2_trigger(player, game, *args):
+    # Example effect: Gain 1 resin
+    player.resin += 1
+    print(f"Forest Card 2 effect: Player gains 1 resin.")
+
+def forest_card_3_trigger(player, game, *args):
+    # Example effect: Gain 1 stone
+    player.stone += 1
+    print(f"Forest Card 3 effect: Player gains 1 stone.")
+
 activation_effects = {
     "Farm": farm_activation,
     "Undertaker": undertaker_activation,
