@@ -55,6 +55,10 @@ class AIPlayer(ReinforcementLearningAgent):
 
 
     def receive_resources(self, resource_type, game):
+        if resource_type in game.forest:
+            resource_type.trigger(self, game, None)  # Trigger the forest card effect
+            self.workers -= 1  # Deduct a worker
+            print(f"AI {game.agents.index(self)} places a worker on {resource_type.name} and receives its benefit.")
         # Method to increase the agent's resources and return the received resource
         cards_to_draw = 0
         if resource_type == 'wood3':

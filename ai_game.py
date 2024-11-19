@@ -592,11 +592,6 @@ class Game:
                 elif selected_action[0] == 'play_card':
                     action, card, _ = selected_action
                     self.play_card(agent, card, agent_play_turn_index, self, action)
-                elif selected_action[0] == 'receive_resources' and agent.workers > 0 and selected_action[1] in self.forest:
-                    card = selected_action[1]
-                    card.trigger(agent, self, None)  # Trigger the forest card effect
-                    agent.workers -= 1  # Deduct a worker
-                    print(f"AI {self.agents.index(agent)} places a worker on {card.name} and receives its benefit.")
                 elif selected_action[0] == 'receive_resources' and agent.workers > 0:
                     received_resources, cards_to_draw = agent.receive_resources(agent.resource_pick, self)
                     new_cards = self.draw_cards(cards_to_draw)
