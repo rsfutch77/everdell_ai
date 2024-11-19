@@ -468,6 +468,11 @@ class Game:
             state_representation.extend([card.points, card.wood, card.resin, card.stone, card.berries])
         for resource_type, slots in self.worker_slots_available.items():
             state_representation.append(slots)
+        # Include the revealed card IDs and attributes as features
+        for card in self.revealed_cards:
+            state_representation.append(card.name)
+            state_representation.extend([card.points, card.wood, card.resin, card.stone, card.berries])
+            
         # ...
         return state_representation
 
