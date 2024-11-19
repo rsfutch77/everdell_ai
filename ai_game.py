@@ -691,6 +691,11 @@ class Game:
             for resource_type in agent.worker_allocation:
                 self.worker_slots_available[resource_type] += agent.worker_allocation[resource_type]
                 agent.worker_allocation[resource_type] = 0
+            # Reset lookout slots if the player has any Lookout cards
+            if any(card.name == "Lookout" for card in agent.played_cards):
+                agent.lookout_slots_available = 1
+            else:
+                agent.lookout_slots_available = 0
             agent.recalls += 1  # Increment the recall count
             agent.max_workers = agent.workers  # Set max_workers to the current number of workers
             print(f"AI {self.agents.index(agent)} is preparing for season: recalling workers and getting an additional worker.")
