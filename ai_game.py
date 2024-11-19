@@ -411,9 +411,10 @@ class Game:
             agent.reset_agent()  # Reset all agent attributes
             agent.hand = self.draw_cards(agent.hand_starting_amount + stating_amount_index)  # Deal cards to the agent's hand from the shuffled deck
 
-    def has_no_moves(self, agent):
+    def are_worker_slots_empty(self):
+        return all(self.worker_slots_available[resource_type] == 0 for resource_type in ['wood3', 'wood2_card', 'resin2', 'resin_card', 'card2_token', 'stone', 'berry_card', 'berry'])
         # Check if all agents are out of moves
-        agent_out_of_moves = ((agent.workers == 0 or all(self.worker_slots_available[resource_type] == 0 for resource_type in ['wood3', 'wood2_card', 'resin2', 'resin_card', 'card2_token', 'stone', 'berry_card', 'berry']) and not self.forest) and agent.recalls == agent.max_recalls and not any(agent.can_play_card(card, self) for card in agent.hand + self.meadow))
+        agent_out_of_moves = ((agent.workers == 0 or self.are_worker_slots_empty() and not self.forest) and agent.recalls == agent.max_recalls and not any(agent.can_play_card(card, self) for card in agent.hand + self.meadow))
         if agent_out_of_moves:
             print("Agent is out of moves")
             return True
