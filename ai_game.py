@@ -34,6 +34,7 @@ class Game:
         self.card_play_frequency = {}  # Dictionary to track the frequency of card plays
         self.claimed_events = set()  # Track claimed events
         self.event_selection_frequency = {'monument': 0, 'tour': 0, 'festival': 0, 'expedition': 0}  # Track event selection frequency
+        self.locations = ['wood3', 'wood2_card', 'resin2', 'resin_card', 'card2_token', 'stone', 'berry_card', 'berry', 'forest_1', 'forest_2', 'forest_3', 'forest_4']
         self.worker_slots_available = {
             'wood3': 1,
             'wood2_card': 4,
@@ -43,7 +44,6 @@ class Game:
             'stone': 1,
             'berry_card': 1,
             'berry': 4,
-            'lookout': 0,
             'forest_1': 1,
             'forest_2': 1,
             'forest_3': 1,
@@ -427,10 +427,10 @@ class Game:
             agent.hand = self.draw_cards(agent.hand_starting_amount + stating_amount_index)  # Deal cards to the agent's hand from the shuffled deck
 
     def are_worker_slots_empty(self):
-        return all(self.worker_slots_available[resource_type] == 0 for resource_type in ['wood3', 'wood2_card', 'resin2', 'resin_card', 'card2_token', 'stone', 'berry_card', 'berry'])
+        return all(self.worker_slots_available[resource_type] == 0 for resource_type in self.locations)
 
     def has_no_moves(self, agent):
-        agent_out_of_moves = ((agent.workers == 0 or self.are_worker_slots_empty()) and agent.recalls == agent.max_recalls and not any(agent.can_play_card(card, self) for card in agent.hand + self.meadow))
+        agent_out_of_moves = ((agent.workers == 0 or agent.are_worker_slots_empty()) and agent.recalls == agent.max_recalls and not any(agent.can_play_card(card, self) for card in agent.hand + self.meadow))
         if agent_out_of_moves:
             print("Agent is out of moves")
             return True
@@ -452,6 +452,8 @@ class Game:
         # Include the total number of agents as a feature
         state_representation.append(len(self.agents))
         for agent in self.agents:
+            # Doesn't hurt for the AI to know if the other player has not used their lookout slot
+            state_representation.append(agent.lookout_slots_available)
             # Include each agent's resources
             state_representation.extend([agent.wood, agent.resin, agent.stone, agent.berries])
             # Include each agent's tokens
@@ -476,7 +478,6 @@ class Game:
         # Include the forest card IDs and attributes as features
         for card in self.forest:
             state_representation.append(card[0])  # card[0] is the name
-            state_representation.extend(card[3:8])  # card[3:8] are points, wood, resin, stone, berries
         for resource_type, slots in self.worker_slots_available.items():
             state_representation.append(slots)
         # Include the claimed events as features
@@ -671,7 +672,7 @@ class Game:
         for card in agent.played_cards:
             if card.name == "Clock Tower" and card.get_trigger_effect():
                 card.trigger(agent, self, None)
-        if (agent.workers == 0 or self.are_worker_slots_empty()) and agent.recalls < agent.max_recalls:
+        if (agent.workers == 0 or agent.are_worker_slots_empty()) and agent.recalls < agent.max_recalls:
             if agent.recalls == 0:
                 agent.workers = 3  # Get another worker
                 # On the first recall, perform the harvest
