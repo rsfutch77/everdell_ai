@@ -661,12 +661,12 @@ trigger_effects = {
     "Forest Card 4": forest_card_4_trigger,
 }
         
-# Define the forest deck
+# Define the forest deck with attributes similar to the cards list
 forest_deck = [
-    ("Forest Card 1"),
-    ("Forest Card 2"),
-    ("Forest Card 3"),
-    ("Forest Card 4"),
+    ("Forest Card 1", "forest", "common", 0, 0, 0, 0, 0, 1, "green"),
+    ("Forest Card 2", "forest", "common", 0, 0, 0, 0, 0, 1, "green"),
+    ("Forest Card 3", "forest", "common", 0, 0, 0, 0, 0, 1, "green"),
+    ("Forest Card 4", "forest", "common", 0, 0, 0, 0, 0, 1, "green"),
 ]
 
 # Card Name, Points, Cost (Wood, Resin, Stone, Berries), Quantity in Deck
