@@ -427,7 +427,7 @@ class Game:
             agent.hand = self.draw_cards(agent.hand_starting_amount + stating_amount_index)  # Deal cards to the agent's hand from the shuffled deck
 
     def are_worker_slots_empty(self):
-        return all(self.worker_slots_available[resource_type] == 0 for resource_type in self.locations)
+        return all(self.worker_slots_available[resource_type] == 0 for resource_type in self.locations) and agent.lookout_slots_available <= 0
 
     def has_no_moves(self, agent):
         agent_out_of_moves = ((agent.workers == 0 or agent.are_worker_slots_empty()) and agent.recalls == agent.max_recalls and not any(agent.can_play_card(card, self) for card in agent.hand + self.meadow))
