@@ -426,7 +426,7 @@ class Game:
             agent.reset_agent()  # Reset all agent attributes
             agent.hand = self.draw_cards(agent.hand_starting_amount + stating_amount_index)  # Deal cards to the agent's hand from the shuffled deck
 
-    def are_worker_slots_empty(self):
+    def are_worker_slots_empty(self, agent):
         return all(self.worker_slots_available[resource_type] == 0 for resource_type in self.locations) and agent.lookout_slots_available <= 0
 
     def has_no_moves(self, agent):
