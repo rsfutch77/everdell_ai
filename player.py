@@ -95,8 +95,12 @@ class AIPlayer(ReinforcementLearningAgent):
         self.workers -= 1  # Decrement a worker to receive resources
         
         # Check if worker slots available went below zero
-        if game.worker_slots_available[resource_type] < 0 or self.lookout_slots_available <0:
-            raise Exception(f"Worker slots for {resource_type} went below zero.")
+        if resource_type == 'lookout':
+            if self.lookout_slots_available <0:
+                raise Exception(f"Worker slots for {resource_type} went below zero.")
+        else:
+            if game.worker_slots_available[resource_type] < 0:
+                raise Exception(f"Worker slots for {resource_type} went below zero.")
         
         return resource_type, cards_to_draw
 
@@ -228,7 +232,7 @@ class AIPlayer(ReinforcementLearningAgent):
             for event in basic_events:
                 available_actions.append(('basic_event', event))
 
-        if (self.workers == 0 or self.are_worker_slots_empty()) and self.recalls < self.max_recalls:
+        if (self.workers == 0 or game.are_worker_slots_empty(self)) and self.recalls < self.max_recalls:
             available_actions.append(('recall_workers', None))
         action = self.choose_action(available_actions)
         #TODO CHOOSE whether to use Innkeeper or Judge or...: The AI currently prioritizes using innkeepers, then cranes, then judges, but ideally it should be able to choose between these. This also skews the stats towards innkeepers and away from judges.

@@ -301,6 +301,9 @@ def ranger_activation(player, game, *args):
         # Choose a resource type where a worker is currently allocated
         allocated_resources = [resource for resource, count in player.worker_allocation.items() if count > 0]
         chosen_resource = player.choose_action(allocated_resources)
+        #TODO Handle when a ranger chooses a lookout, for now we skip it
+        if chosen_resource == 'lookout':
+                return
         player.workers += 1
         player.worker_allocation[chosen_resource] -= 1
         game.worker_slots_available[chosen_resource] += 1
@@ -401,6 +404,9 @@ def clock_tower_trigger_effect(player, game, *args):
     available_resources = [resource for resource, count in player.worker_allocation.items() if count > 0]
     if available_resources:
         chosen_resource = player.choose_action(available_resources)
+        #TODO Handle when a clocktower chooses a lookout, for now we skip it
+        if chosen_resource == 'lookout':
+                return
         if chosen_resource:
             # AI decides whether to lose a token
             available_actions = ['lose_token', 'keep_token']
@@ -518,7 +524,7 @@ def monastery_activation(player):
 def cemetery_activation(player):
     pass  # Cemetery card may have a different effect or no effect
 def lookout_activation(player, game, *args):
-    game.worker_slots_available['lookout'] += 1
+    player.lookout_slots_available += 1
 def lookout_trigger_effect(player, game, card_played):
     # Example trigger effect for the Lookout card
     # Allow the player to choose a resource to gain

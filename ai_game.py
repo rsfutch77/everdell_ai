@@ -430,7 +430,7 @@ class Game:
         return all(self.worker_slots_available[resource_type] == 0 for resource_type in self.locations) and agent.lookout_slots_available <= 0
 
     def has_no_moves(self, agent):
-        agent_out_of_moves = ((agent.workers == 0 or agent.are_worker_slots_empty()) and agent.recalls == agent.max_recalls and not any(agent.can_play_card(card, self) for card in agent.hand + self.meadow))
+        agent_out_of_moves = ((agent.workers == 0 or self.are_worker_slots_empty(agent)) and agent.recalls == agent.max_recalls and not any(agent.can_play_card(card, self) for card in agent.hand + self.meadow))
         if agent_out_of_moves:
             print("Agent is out of moves")
             return True
@@ -688,14 +688,13 @@ class Game:
                 # On the last recall, perform the harvest
                 self.harvest(agent)
             # Reset worker allocation for the agent
-            for resource_type in agent.worker_allocation:
+            for resource_type in self.locations:
                 self.worker_slots_available[resource_type] += agent.worker_allocation[resource_type]
                 agent.worker_allocation[resource_type] = 0
             # Reset lookout slots if the player has any Lookout cards
             if any(card.name == "Lookout" for card in agent.played_cards):
                 agent.lookout_slots_available = 1
-            else:
-                agent.lookout_slots_available = 0
+                agent.worker_allocation['lookout'] = 0
             agent.recalls += 1  # Increment the recall count
             agent.max_workers = agent.workers  # Set max_workers to the current number of workers
             print(f"AI {self.agents.index(agent)} is preparing for season: recalling workers and getting an additional worker.")

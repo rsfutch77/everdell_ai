@@ -60,6 +60,7 @@ V1 Plan:
 #TODO V1 When testing, pause after each draw to select the correct cards into all positions and wait for a continue button
 #TODO V1 AI should choose which cards to discard for the undertaker rather than just picking the first 3 in the meadow
 V2 Plan:
+#TODO V2 address the CHOOSE TODOs throughout the code
 #TODO V2 Gatherers should only add points for pairs with Harvesters, not just any lone Harvester.
 #TODO V2 Harvesters should only grant resources when paired.
 #TODO V2 Extra forrest locations when there are 4 players
@@ -68,6 +69,7 @@ V2 Plan:
 #TODO V2 If a player has passed, they can not be given any resources or cards
 #TODO V2 In the case of ties, the player with more events wins, if there is still a tie, then count resources
 #TODO V2 Re-shuffling an empty deck
+#TODO V2 A very smart AI would count cards and change what to play based on the likelihood of the remaining cards in the deck being drawn. This is not currently in the state representation.
 #TODO V2 The Chapel and Shepherd are not implemented yet because they are annoying
 
 AI Limitiations and Future Improvements
