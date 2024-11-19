@@ -413,7 +413,7 @@ class Game:
 
     def has_no_moves(self, agent):
         # Check if all agents are out of moves
-        agent_out_of_moves = ((agent.workers == 0 or all(self.worker_slots_available[resource_type] == 0 for resource_type in ['wood3', 'wood2_card', 'resin2', 'resin_card', 'card2_token', 'stone', 'berry_card', 'berry'])) and agent.recalls == agent.max_recalls and not any(agent.can_play_card(card, self) for card in agent.hand + self.meadow))
+        agent_out_of_moves = ((agent.workers == 0 or all(self.worker_slots_available[resource_type] == 0 for resource_type in ['wood3', 'wood2_card', 'resin2', 'resin_card', 'card2_token', 'stone', 'berry_card', 'berry']) and not self.forest) and agent.recalls == agent.max_recalls and not any(agent.can_play_card(card, self) for card in agent.hand + self.meadow))
         if agent_out_of_moves:
             print("Agent is out of moves")
             return True
@@ -575,6 +575,11 @@ class Game:
                 elif selected_action[0] == 'play_card':
                     action, card, _ = selected_action
                     self.play_card(agent, card, agent_play_turn_index, self, action)
+                elif selected_action[0] == 'receive_resources' and agent.workers > 0 and selected_action[1] in self.forest:
+                    card = selected_action[1]
+                    card.trigger(agent, self, None)  # Trigger the forest card effect
+                    agent.workers -= 1  # Deduct a worker
+                    print(f"AI {self.agents.index(agent)} places a worker on {card.name} and receives its benefit.")
                 elif selected_action[0] == 'receive_resources' and agent.workers > 0:
                     received_resources, cards_to_draw = agent.receive_resources(agent.resource_pick, self)
                     new_cards = self.draw_cards(cards_to_draw)
