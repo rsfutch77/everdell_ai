@@ -667,6 +667,7 @@ def forest_card_3_trigger(player, game, *args):
     # Example effect: Gain 1 stone
     player.stone += 1
     print(f"Forest Card 3 effect: Player gains 1 stone.")
+
 trigger_effects = {
     "Historian": historian_trigger_effect,
     "Shopkeeper": shopkeeper_trigger_effect,
@@ -674,12 +675,11 @@ trigger_effects = {
     "Clock Tower": clock_tower_trigger_effect,
 }
         
-
 # Define the forest deck
 forest_deck = [
-    ("Forest Card 1", "forest", "common", 1, 1, 0, 0, 0, 3, "green"),
-    ("Forest Card 2", "forest", "common", 2, 0, 1, 0, 0, 3, "green"),
-    ("Forest Card 3", "forest", "common", 3, 0, 0, 1, 0, 3, "green"),
+    ("Forest Card 1"),
+    ("Forest Card 2"),
+    ("Forest Card 3"),
     # Add more forest cards as needed
 ]
 
