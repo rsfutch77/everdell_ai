@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 from player import AIPlayer
+from cards import forest_deck
 import tkinter as tk
 from tkinter import messagebox
 from tkinter import Toplevel, Button, StringVar, OptionMenu
@@ -41,6 +42,7 @@ class Game:
         self.ui_root = ui_root
         self.initial_deck = list(deck)  # Store the initial state of the deck
         self.agents = agents
+        self.forest_deck = list(forest_deck)  # Initialize the forest deck
         self.ties = 0
         self.is_training_mode = True  # Set training mode to True when training starts
         self.randomize_agents = randomize_agents  # Store the randomize_agents variable
@@ -363,7 +365,13 @@ class Game:
                 drawn_cards.append(self.deck.pop(0))
         return drawn_cards
 
-    def draw_to_meadow(self):
+    def draw_from_forest(self, number):
+        """Draw cards from the forest deck."""
+        drawn_cards = []
+        for _ in range(number):
+            if self.forest_deck:
+                drawn_cards.append(self.forest_deck.pop(0))
+        return drawn_cards
     # Replenish the meadow immediately after a card is taken
         new_cards = self.draw_cards(1)
         if new_cards:
@@ -389,6 +397,7 @@ class Game:
     def reset_game(self):
         self.current_turn = 0
         self.deck = list(self.initial_deck)  # Copy the initial deck to reset it
+        self.forest_deck = list(forest_deck)  # Reset the forest deck
         random.shuffle(self.deck)  # Shuffle the deck before each new game
         self.worker_slots_available = {'wood3': 1, 'wood2_card': 4, 'resin2': 1, 'resin_card': 4, 'card2_token': 4, 'stone': 1, 'berry_card': 1, 'berry': 4, 'lookout': 0}
         self.played_cards = []

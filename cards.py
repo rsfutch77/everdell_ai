@@ -644,7 +644,15 @@ trigger_effects = {
 }
         
 
-#Card Name, Points, Cost (Wood, Resin, Stone, Berries), Quantity in Deck
+# Define the forest deck
+forest_deck = [
+    ("Forest Card 1", "forest", "common", 1, 1, 0, 0, 0, 3, "green"),
+    ("Forest Card 2", "forest", "common", 2, 0, 1, 0, 0, 3, "green"),
+    ("Forest Card 3", "forest", "common", 3, 0, 0, 1, 0, 3, "green"),
+    # Add more forest cards as needed
+]
+
+# Card Name, Points, Cost (Wood, Resin, Stone, Berries), Quantity in Deck
 cards = [
     #Basic cards that just provide a bonus on activation/harvest
     ("Farm"          , "construction", "common",  1, 2, 1, 0, 0, 8, "green"),
