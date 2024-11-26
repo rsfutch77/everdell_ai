@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 from player import AIPlayer
-from cards import forest_deck
+from cards import forest_deck, trigger_effects
 import tkinter as tk
 from tkinter import messagebox
 from tkinter import Toplevel, Button, StringVar, OptionMenu
@@ -420,7 +420,25 @@ class Game:
         self.forest_deck = list(forest_deck)  # Reset the forest deck
         random.shuffle(self.deck)  # Shuffle the deck before each new game
         self.forest = self.draw_from_forest(4)  # Reset the forest
-        self.played_cards = []
+        # Rename forest locations to match the names of the forest cards
+        self.locations = ['wood3', 'wood2_card', 'resin2', 'resin_card', 'card2_token', 'stone', 'berry_card', 'berry']
+        for i, card in enumerate(self.forest):
+            location_name = f"forest_{i+1}"
+            if location_name in self.worker_slots_available:
+                del self.worker_slots_available[location_name]
+            self.worker_slots_available[card[0]] = 1
+            self.locations.append(card[0])
+        # Update worker_allocation to match the names of the forest cards
+        for i, card in enumerate(self.forest):
+            location_name = f"forest_{i+1}"
+            if location_name in self.worker_slots_available:
+                del self.worker_slots_available[location_name]
+            self.worker_slots_available[card[0]] = 1
+            self.locations.append(card[0])
+            for agent in self.agents:
+                if location_name in agent.worker_allocation:
+                    del agent.worker_allocation[location_name]
+                agent.worker_allocation[card[0]] = 0
         self.meadow = self.draw_cards(self.max_meadow_cards)  # Draw cards into the meadow
         for stating_amount_index, agent in enumerate(self.agents):
             agent.reset_agent()  # Reset all agent attributes
@@ -627,6 +645,12 @@ class Game:
                     print(f"AI {self.agents.index(agent)} receives {received_resources} resources.")
                 elif selected_action[0] == 'recall_workers':
                     self.recall_workers(agent, agent_play_turn_index)
+                elif selected_action[0] == 'trigger_forest_card':
+                    action, forest_card, _ = selected_action
+                    print(f"AI {self.agents.index(agent)} triggers forest card: {forest_card[0]}.")
+                    trigger_function = trigger_effects.get(forest_card[0])
+                    if trigger_function:
+                        trigger_function(agent, self, None)
                 elif selected_action[0] == 'basic_event':
                     action, event, _ = selected_action
                     print(f"AI {self.agents.index(agent)} chooses basic event: {event}.")

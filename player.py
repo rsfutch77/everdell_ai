@@ -2,7 +2,7 @@ import sys
 import os
 import tkinter as tk
 from tkinter import messagebox
-from cards import lookout_trigger_effect
+from cards import lookout_trigger_effect, trigger_effects
 # Add the parent directory to sys.path to allow for everdell_ai imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -59,10 +59,11 @@ class AIPlayer(ReinforcementLearningAgent):
     def receive_resources(self, resource_type, game):
         if resource_type in [card[0] for card in game.forest]:
             card = next((card for card in game.forest if card[0] == resource_type), None)
-            if card:
-                card.trigger(self, game, None)  # Trigger the forest card effect
-                self.workers -= 1  # Deduct a worker
-                print(f"AI {game.agents.index(self)} places a worker on {resource_type} and receives its benefit.")
+            # Check if the resource is a forest card and trigger its effect
+            print(f"AI {game.agents.index(self)} triggers forest card: {resource_type}.")
+            trigger_function = trigger_effects.get(resource_type)
+            if trigger_function:
+                trigger_function(self, game, None)
         # Method to increase the agent's resources and return the received resource
         cards_to_draw = 0
         if resource_type == 'wood3':
@@ -202,7 +203,7 @@ class AIPlayer(ReinforcementLearningAgent):
             can_play = self.can_play_card(card, game)
             if can_play:
                 available_actions.append(can_play)
-        # Add the 'receive_resources' action only if there are workers available
+
         if self.workers > 0:
             if any(card.name == "Lookout" for card in self.played_cards):
                 if self.lookout_slots_available > 0:

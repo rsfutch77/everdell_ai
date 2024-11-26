@@ -49,7 +49,7 @@ Below is a list of game functions that are not yet handled:
 V1 Plan:
 #TODO V1 Card rules that add a worker location
 #TODO V1 Card rules that activate when a card is played
-#TODO V1 Forest locations
+#TODO V1 Forest locations (ai needs state updated with which forrest cards are in which location)
 #TODO V1 Special Events
 #TODO V1 King card rules
 #TODO V1 Haven
