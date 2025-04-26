@@ -52,7 +52,9 @@ class Game:
         self.forest_deck = list(forest_deck)  # Initialize the forest deck
         self.forest = []  # Initialize the forest list
         random.shuffle(self.forest_deck)  # Shuffle the forest deck before each new game
-        self.forest = self.draw_from_forest(4)  # Draw initial cards into the forest
+        # Draw initial cards into the forest based on player count
+        forest_card_count = 4 if len(self.agents) >= 3 else 3
+        self.forest = self.draw_from_forest(forest_card_count)  # Draw initial cards into the forest
         self.hand_update_callback = hand_update_callback
         self.meadow_update_callback = meadow_update_callback
         self.time_to_wait_entry = time_to_wait_entry
@@ -419,7 +421,9 @@ class Game:
         self.deck = list(self.initial_deck)  # Copy the initial deck to reset it
         self.forest_deck = list(forest_deck)  # Reset the forest deck
         random.shuffle(self.deck)  # Shuffle the deck before each new game
-        self.forest = self.draw_from_forest(4)  # Reset the forest
+        # Draw forest cards based on player count
+        forest_card_count = 4 if len(self.agents) >= 3 else 3
+        self.forest = self.draw_from_forest(forest_card_count)  # Reset the forest
         # Rename forest locations to match the names of the forest cards
         self.locations = ['wood3', 'wood2_card', 'resin2', 'resin_card', 'card2_token', 'stone', 'berry_card', 'berry']
         for i, card in enumerate(self.forest):
