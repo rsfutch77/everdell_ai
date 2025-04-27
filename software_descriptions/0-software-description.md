@@ -15,6 +15,9 @@ graph TD
     C --> F[cards.py]
     C --> G[plotting.py]
     E --> D
+    F --> C
+    F --> E
+    G --> C
 ```
 
 ### Key Files and Their Purposes
@@ -56,7 +59,7 @@ The game engine (ai_game.py) manages the game state, enforces rules, and facilit
 - **Testing Mode**: Allows for model evaluation and user interaction
 
 Key features:
-- Complete implementation of core Everdell game mechanics
+- Implementation of core Everdell game mechanics
 - Support for 1-4 players
 - Customizable training parameters
 - Detailed performance tracking
@@ -124,12 +127,18 @@ For detailed information, see [Data Visualization Description](data-visualizatio
 - Basic locations
 - Prosperity cards
 - Card effects for cards in play
+- Forest locations (basic implementation with placeholder effects)
+
+### Partially Implemented Features
+
+- Forest locations (locations exist but AI state representation needs updating)
+- Card effects (many effects implemented but with limitations)
+- Card interactions (basic interactions implemented but with simplifications)
 
 ### Planned Features (V1)
 
 - Card rules that add worker locations
 - Card rules that activate when a card is played
-- Forest locations (AI needs state updated with which forest cards are in which location)
 - Special Events
 - King card rules
 - Haven and Journey mechanics
@@ -137,11 +146,11 @@ For detailed information, see [Data Visualization Description](data-visualizatio
 - Occupation lock
 - Open Destination cards
 - Testing pause functionality
-- Undertaker card selection logic
+- Improved Undertaker card selection logic (currently uses first 3 cards from meadow)
 
 ### Future Improvements (V2)
 
-- AI choice improvements
+- AI choice improvements for cards like Judge, Innkeeper, and Crane
 - Gatherer-Harvester pair mechanics
 - Extra forest locations for 4 players
 - Hand limit management when donating cards
@@ -155,9 +164,11 @@ For detailed information, see [Data Visualization Description](data-visualizatio
 ## Limitations and Constraints
 
 - The AI currently makes some heuristic assumptions in complex decision scenarios
-- Some card interactions are simplified
+- The AI uses fixed strategies for cards like Undertaker, Judge, and Crane rather than making optimal choices
 - The AI can "cheat" by seeing opponent hands in the state representation
 - Limited support for expansions (base game only)
 - Some edge cases in card interactions are not fully implemented
+- Forest card effects are implemented as placeholders
+- The AI currently prioritizes using Innkeepers over Judges or Cranes without strategic consideration
 
 For a detailed list of requirements and implementation status, see [Requirements](1-requirements.md).

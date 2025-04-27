@@ -399,24 +399,36 @@ def user_selects_hand_card(hand_combo_boxes, root, player_index, hand_size):
 
 ## Planned Improvements
 
-Based on the TODOs in the code, several improvements are planned for the UI:
+Based on the code review, several improvements are planned for the UI:
 
 1. **Testing Pause Functionality**: Add the ability to pause after each draw to select the correct cards into all positions and wait for a continue button
-   ```
-   #TODO V1 When testing, pause after each draw to select the correct cards into all positions and wait for a continue button
-   ```
 
-2. **Better Card Selection for Undertaker**: Improve the AI's ability to choose which cards to discard for the undertaker rather than just picking the first 3 in the meadow
-   ```
-   #TODO V1 AI should choose which cards to discard for the undertaker rather than just picking the first 3 in the meadow
-   ```
+2. **Better Card Selection for Undertaker**: Currently, the Undertaker card automatically discards the first 3 cards from the meadow. The AI should be improved to make strategic choices about which cards to discard.
+
+3. **Forest Card Visualization**: Improve the UI to better display forest cards and their associated locations
+
+4. **Resource Display**: Add visualization of each player's resources (wood, resin, stone, berries)
+
+5. **Played Cards Display**: Add visualization of each player's played cards
+
+6. **Card Effect Visualization**: Add visual indicators for card effects and interactions
 
 ## Limitations
 
 The current UI implementation has several limitations:
 
 1. **Limited Visualization of Game State**: The UI does not show all aspects of the game state, such as resources, tokens, and played cards
+
 2. **Manual Card Selection During Testing**: Users must manually select cards during testing, which can be time-consuming
+
 3. **No Support for Expansions**: The UI is designed for the base game only and does not support expansions
+
 4. **Limited Error Handling**: Some edge cases in user interaction are not fully handled
+
 5. **No Undo Functionality**: Users cannot undo actions during testing
+
+6. **Fixed Card Selection Logic**: For cards like Undertaker, the AI uses fixed strategies rather than making optimal choices
+
+7. **Limited Forest Card Support**: The UI doesn't provide clear visualization of forest cards and their effects
+
+8. **No Pause Functionality During Testing**: There's no way to pause the testing process to examine the game state or make adjustments

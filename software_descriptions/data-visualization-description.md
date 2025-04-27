@@ -401,6 +401,7 @@ The visualization tools provide several benefits:
 2. **Strategy Analysis**: The card play frequency and resource choice charts help understand the AI's strategic preferences
 3. **Decision-Making Insights**: The card interaction charts provide insights into how the AI makes decisions with specific cards
 4. **Performance Evaluation**: The score charts help evaluate the AI's performance over time
+5. **AI Behavior Analysis**: The specialized charts for specific cards (Undertaker, Teacher, etc.) provide detailed insights into how the AI interacts with these cards
 
 ## Limitations and Future Improvements
 
@@ -410,6 +411,9 @@ The current visualization system has several limitations:
 2. **No Interactive Exploration**: The charts are static and do not allow for interactive exploration
 3. **No Export Functionality**: There is no way to export the charts or data for further analysis
 4. **Limited Comparative Analysis**: There are limited tools for comparing different training runs
+5. **No Visualization of Forest Card Effects**: The current system doesn't provide specific visualizations for forest card interactions
+6. **Limited Visualization of AI Decision-Making Process**: The system doesn't show the AI's internal decision-making process, only the outcomes
+7. **No Visualization of Card Synergies**: The system doesn't provide specific visualizations for card synergies and interactions
 
 Potential future improvements include:
 
@@ -418,3 +422,8 @@ Potential future improvements include:
 3. **Comparative Analysis Tools**: Add tools for comparing different training runs
 4. **More Detailed Visualizations**: Add more detailed visualizations of the AI's decision-making process
 5. **Real-Time Strategy Visualization**: Add visualizations that show the AI's strategy evolving in real-time
+6. **Forest Card Interaction Visualization**: Add specific visualizations for forest card interactions
+7. **Card Synergy Visualization**: Add visualizations that show how different cards interact and create synergies
+8. **Decision Tree Visualization**: Add visualizations that show the AI's decision-making process as a tree
+9. **Resource Management Visualization**: Add visualizations that show how the AI manages resources over time
+10. **Worker Placement Strategy Visualization**: Add visualizations that show the AI's worker placement strategy

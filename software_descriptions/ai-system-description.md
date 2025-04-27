@@ -48,6 +48,8 @@ The game state is represented as a numerical vector that includes:
 
 This state representation is converted to a tuple to be used as a key in the Q-table.
 
+**Note:** The current implementation allows the AI to see all players' hands, which is a known limitation that needs to be addressed in future updates.
+
 #### Action Selection
 
 The agent uses an epsilon-greedy strategy for action selection:
@@ -282,28 +284,63 @@ def user_selects_meadow_card(meadow_card_comboboxes, root):
 
 The AI system has several limitations and areas for improvement:
 
-1. The AI currently makes some heuristic assumptions in complex decision scenarios:
+### Decision-Making Limitations
+
+1. The AI currently makes heuristic assumptions in complex decision scenarios:
    ```python
    #TODO CHOOSE whether to use Innkeeper or Judge or...: The AI currently prioritizes using innkeepers, then cranes, then judges, but ideally it should be able to choose between these.
    ```
 
-2. The AI can "cheat" by seeing opponent hands in the state representation:
+2. The AI uses fixed strategies for cards like Undertaker, Judge, and Crane rather than making optimal choices:
+   ```python
+   #TODO CHOOSE which resources to reduce for the crane: The crane currently only reduces the cost of resources starting with stone and any other resources if there is any leftover, the AI should be able to choose which of any combination of the resources to reduce.
+   ```
+
+3. The AI currently only uses the Judge when it has to, but could potentially use it strategically even when it could otherwise afford a card:
+   ```python
+   #TODO CHOOSE whether to use the Judge or not: "The AI currently only uses the Judge when it has to, but in theory it could choose to use the Judge even when it could otherwise afford the card
+   ```
+
+### State Representation Issues
+
+1. The AI can "cheat" by seeing opponent hands in the state representation:
    ```python
    #TODO AI should only be able to use it's own hand in the game state representation. This allows it to cheat by seeing the opposing hand.
    ```
 
-3. Some card interactions are simplified or not fully implemented:
+### Card Interaction Limitations
+
+1. The AI uses a fixed approach for the Undertaker card rather than making strategic choices:
    ```python
-   #TODO V1 Card rules that add a worker location
-   #TODO V1 Card rules that activate when a card is played
+   #TODO CHOOSE which cards the undertaker should discard instead of just the first three: AI is playing an Undertaker card. It currently only chooses the first 3 cards from the meadow to discard.
    ```
 
-4. Limited support for expansions (base game only)
-
-5. Some edge cases in card interactions are not fully implemented:
+2. The AI uses a fixed approach for the Fool card rather than making strategic choices:
    ```python
-   #TODO V2 Gatherers should only add points for pairs with Harvesters, not just any lone Harvester.
-   #TODO V2 Harvesters should only grant resources when paired.
+   #TODO CHOOSE a player for the fool instead of just the next player
    ```
+
+3. The AI uses a fixed approach for the Teacher card rather than making strategic choices:
+   ```python
+   #TODO CHOOSE a player for the teacher instead of just the next player
+   ```
+
+4. The AI has issues handling special locations:
+   ```python
+   #TODO Handle when a ranger chooses a lookout, for now we skip it
+   #TODO Handle when a clocktower chooses a lookout, for now we skip it
+   ```
+
+5. The AI doesn't prioritize which copy of a card to play when the same card is in both hand and meadow:
+   ```python
+   #TODO CHOOSE which copy to play when you have the same card in the hand and meadow: play_card currently prioritizes taking cards from the meadow, but the AI should choose either a card from the hand or the meadow when there is a copy of the same card in each.
+   ```
+
+### Other Limitations
+
+1. Limited support for expansions (base game only)
+2. Forest locations are implemented but with placeholder effects
+3. Some edge cases in card interactions are not fully implemented
+4. The AI doesn't have a strategic approach to choosing resources for cards like Courthouse and Peddler
 
 These limitations are documented in the code as TODOs and are planned for future improvements.

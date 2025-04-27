@@ -18,6 +18,7 @@ The game state includes:
 - **Tokens**: Token count for each player
 - **Seasons**: Current season and season progression
 - **Locations**: Available worker placement locations and their status
+- **Forest**: Forest cards and their associated locations
 
 The game state is represented numerically for the AI using the `get_numerical_game_state` method:
 
@@ -186,6 +187,13 @@ The card system implements various card interactions:
 - **Gatherer/Harvester**: Provide bonuses when paired together
 - **Prosperity Cards**: Provide end-game scoring based on specific conditions
 
+However, there are limitations in how these interactions are implemented:
+
+- The AI currently prioritizes using Innkeepers over Judges or Cranes without strategic consideration
+- The Crane currently only reduces the cost of resources starting with stone and any other resources if there is any leftover
+- The Judge is only used when the AI cannot otherwise afford a card
+- The Undertaker currently only chooses the first 3 cards from the meadow to discard
+
 ## Resource System
 
 The resource system manages the four types of resources in the game:
@@ -239,6 +247,22 @@ self.worker_slots_available = {
     'forest_4': 1
 }
 ```
+
+Forest locations are initialized in the game setup:
+
+```python
+self.forest_deck = list(forest_deck)  # Initialize the forest deck
+self.forest = []  # Initialize the forest list
+random.shuffle(self.forest_deck)  # Shuffle the forest deck before each new game
+# Draw initial cards into the forest based on player count
+forest_card_count = 4 if len(self.agents) >= 3 else 3
+self.forest = self.draw_from_forest(forest_card_count)  # Draw initial cards into the forest
+```
+
+However, there are limitations in how forest locations are implemented:
+- Forest card effects are implemented as placeholders
+- The AI doesn't have a strategic approach to using forest locations
+- There are issues handling special locations like lookout
 
 ### Worker Recall
 
@@ -337,6 +361,24 @@ The game mechanics currently implement:
 8. **Basic locations**
 9. **Prosperity cards**
 10. **Card rules** that affect other cards in play
+11. **Forest locations** (basic implementation with placeholder effects)
+
+## Partially Implemented Features
+
+1. **Forest locations**: The locations exist and can be used, but:
+   - Forest card effects are implemented as placeholders
+   - The AI state representation needs updating to better handle forest cards
+   - There are issues handling special locations like lookout
+
+2. **Card effects**: Many effects are implemented but with limitations:
+   - The Undertaker currently only chooses the first 3 cards from the meadow to discard
+   - The Fool and Teacher currently only target the next player
+   - The Crane has a fixed resource reduction strategy
+   - The Judge is only used when necessary, not strategically
+
+3. **Card interactions**: Basic interactions are implemented but with simplifications:
+   - The AI prioritizes using Innkeepers over Judges or Cranes without strategic consideration
+   - Gatherer-Harvester pair mechanics are not fully implemented
 
 ## Planned Features (V1)
 
@@ -344,15 +386,14 @@ The following features are planned but not yet implemented:
 
 1. Card rules that add a worker location
 2. Card rules that activate when a card is played
-3. Forest locations (AI needs state updated with which forest cards are in which location)
-4. Special Events
-5. King card rules
-6. Haven and Journey mechanics
-7. Occupation and bonus occupations
-8. Occupation lock
-9. Open Destination cards
-10. Testing pause functionality
-11. Undertaker card selection logic
+3. Special Events
+4. King card rules
+5. Haven and Journey mechanics
+6. Occupation and bonus occupations
+7. Occupation lock
+8. Open Destination cards
+9. Testing pause functionality
+10. Improved Undertaker card selection logic
 
 ## Future Improvements (V2)
 
@@ -368,6 +409,7 @@ Future improvements include:
 8. Deck reshuffling
 9. Card counting strategy
 10. Chapel and Shepherd implementation
+11. Strategic decision-making for cards like Judge, Innkeeper, and Crane
 
 ## Limitations
 
@@ -378,3 +420,6 @@ The current implementation has several limitations:
 3. Some edge cases in card interactions are not handled
 4. Limited support for expansions (base game only)
 5. Some heuristic assumptions are made in complex decision scenarios
+6. The AI can "cheat" by seeing opponent hands in the state representation
+7. Forest card effects are implemented as placeholders
+8. The AI uses fixed strategies for cards like Undertaker, Judge, and Crane rather than making optimal choices
