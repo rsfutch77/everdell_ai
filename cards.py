@@ -588,9 +588,56 @@ def bard_activation(player, game, *args):
 
 #Forest trigger functions
 def forest_card_1_trigger(player, game, *args):
-    # Example effect: Gain 1 wood
-    player.wood += 1
-    print(f"Forest Card 1 effect: Player gains 1 wood.")
+    # Effect: Copy any basic location AND draw an extra card
+    # Get the list of basic locations (excluding forest locations)
+    basic_locations = [loc for loc in game.locations if not loc.startswith('forest_')]
+    
+    # Allow the player to choose a basic location to copy
+    chosen_location = player.choose_action(basic_locations)
+    
+    if chosen_location:
+        # Simulate receiving resources from the chosen location without using a worker
+        # This is similar to player.receive_resources but doesn't decrement workers or worker slots
+        cards_to_draw = 0
+        
+        if chosen_location == 'wood3':
+            player.wood += 3
+            print(f"Forest Card 1 effect: Player copies {chosen_location} and gains 3 wood.")
+        elif chosen_location == 'wood2_card':
+            player.wood += 2
+            cards_to_draw = 1
+            print(f"Forest Card 1 effect: Player copies {chosen_location} and gains 2 wood and 1 card.")
+        elif chosen_location == 'resin2':
+            player.resin += 2
+            print(f"Forest Card 1 effect: Player copies {chosen_location} and gains 2 resin.")
+        elif chosen_location == 'resin_card':
+            player.resin += 1
+            cards_to_draw = 1
+            print(f"Forest Card 1 effect: Player copies {chosen_location} and gains 1 resin and 1 card.")
+        elif chosen_location == 'card2_token':
+            player.add_tokens(1)
+            cards_to_draw = 2
+            print(f"Forest Card 1 effect: Player copies {chosen_location} and gains 1 token and 2 cards.")
+        elif chosen_location == 'stone':
+            player.stone += 1
+            print(f"Forest Card 1 effect: Player copies {chosen_location} and gains 1 stone.")
+        elif chosen_location == 'berry_card':
+            player.berries += 1
+            cards_to_draw = 1
+            print(f"Forest Card 1 effect: Player copies {chosen_location} and gains 1 berry and 1 card.")
+        elif chosen_location == 'berry':
+            player.berries += 1
+            print(f"Forest Card 1 effect: Player copies {chosen_location} and gains 1 berry.")
+        
+        # Draw cards based on the chosen location
+        if cards_to_draw > 0:
+            new_cards = game.draw_cards(min(cards_to_draw, player.max_cards_in_hand - len(player.hand)))
+            player.draw_to_hand(new_cards, game)
+    
+    # Draw an extra card (in addition to any cards from the copied location)
+    extra_card = game.draw_cards(min(1, player.max_cards_in_hand - len(player.hand)))
+    player.draw_to_hand(extra_card, game)
+    print(f"Forest Card 1 effect: Player draws an extra card.")
 def forest_card_2_trigger(player, game, *args):
     # Example effect: Gain 1 resin
     player.resin += 1

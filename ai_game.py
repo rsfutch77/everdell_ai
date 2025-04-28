@@ -49,6 +49,7 @@ class Game:
             'forest_3': 1,
             'forest_4': 1
         }
+        self.agents = agents  # FIXME: Initialize agents before using it
         self.forest_deck = list(forest_deck)  # Initialize the forest deck
         self.forest = []  # Initialize the forest list
         random.shuffle(self.forest_deck)  # Shuffle the forest deck before each new game
@@ -61,8 +62,8 @@ class Game:
         self.turn_update_callback = turn_update_callback
         self.ui_root = ui_root
         self.initial_deck = list(deck)  # Store the initial state of the deck
-        self.agents = agents
-        self.forest_deck = list(forest_deck)  # Initialize the forest deck
+        # self.agents already initialized above
+        # Avoid duplicate initialization of forest_deck
         self.ties = 0
         self.is_training_mode = True  # Set training mode to True when training starts
         self.randomize_agents = randomize_agents  # Store the randomize_agents variable
@@ -70,7 +71,7 @@ class Game:
 
         self.max_meadow_cards = 8  # Define the maximum number of cards in the meadow
         self.scores_over_episodes = [[] for _ in self.agents]  # Initialize scores over episodes
-        self.reset_game
+        self.reset_game()  # FIXME: Missing parentheses - this was a reference, not a method call
 
     def get_winner(self, game):
 
@@ -94,15 +95,7 @@ class Game:
                 tie_calculator += 1
 
         return tie_calculator, winner
-        self.reset_game()
-        if len(self.meadow) != self.max_meadow_cards:
-            root = tk.Tk()
-            root.withdraw()  # Hide the root window
-            messagebox.showerror("Meadow Size Error", f"The meadow has {len(self.meadow)} cards, expected {self.max_meadow_cards}.")
-            root.destroy()
-            raise Exception(f"The meadow has {len(self.meadow)} cards, expected {self.max_meadow_cards}.")
-        
-            agent.game = self
+        # FIXME: Unreachable code after return statement removed
 
     def train(self, num_episodes):
         self.ties = 0
