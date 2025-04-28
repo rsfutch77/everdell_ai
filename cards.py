@@ -603,6 +603,45 @@ def forest_card_4_trigger(player, game, *args):
     # Example effect: Gain 1 stone
     player.stone += 1
     print(f"Forest Card 4 effect: Player gains 1 stone.")
+def forest_card_5_trigger(player, game, *args):
+    # Effect: Gain 1 berry
+    player.berries += 1
+    print(f"Forest Card 5 effect: Player gains 1 berry.")
+def forest_card_6_trigger(player, game, *args):
+    # Effect: Gain 1 wood and 1 resin
+    player.wood += 1
+    player.resin += 1
+    print(f"Forest Card 6 effect: Player gains 1 wood and 1 resin.")
+def forest_card_7_trigger(player, game, *args):
+    # Effect: Gain 1 stone and 1 berry
+    player.stone += 1
+    player.berries += 1
+    print(f"Forest Card 7 effect: Player gains 1 stone and 1 berry.")
+def forest_card_8_trigger(player, game, *args):
+    # Effect: Draw 1 card
+    player.draw_to_hand(game.draw_cards(min(1, player.max_cards_in_hand - len(player.hand))), game)
+    print(f"Forest Card 8 effect: Player draws 1 card.")
+def forest_card_9_trigger(player, game, *args):
+    # Effect: Gain 2 wood
+    player.wood += 2
+    print(f"Forest Card 9 effect: Player gains 2 wood.")
+def forest_card_10_trigger(player, game, *args):
+    # Effect: Gain 2 resin
+    player.resin += 2
+    print(f"Forest Card 10 effect: Player gains 2 resin.")
+def forest_card_11_trigger(player, game, *args):
+    # Effect: Gain any 1 resource of choice
+    available_resources = ['wood', 'resin', 'stone', 'berries']
+    chosen_resource = player.choose_action(available_resources)
+    if chosen_resource == 'wood':
+        player.wood += 1
+    elif chosen_resource == 'resin':
+        player.resin += 1
+    elif chosen_resource == 'stone':
+        player.stone += 1
+    elif chosen_resource == 'berries':
+        player.berries += 1
+    print(f"Forest Card 11 effect: Player gains 1 {chosen_resource}.")
 
 activation_effects = {
     "Farm": farm_activation,
@@ -665,6 +704,13 @@ trigger_effects = {
     "Forest Card 2": forest_card_2_trigger,
     "Forest Card 3": forest_card_3_trigger,
     "Forest Card 4": forest_card_4_trigger,
+    "Forest Card 5": forest_card_5_trigger,
+    "Forest Card 6": forest_card_6_trigger,
+    "Forest Card 7": forest_card_7_trigger,
+    "Forest Card 8": forest_card_8_trigger,
+    "Forest Card 9": forest_card_9_trigger,
+    "Forest Card 10": forest_card_10_trigger,
+    "Forest Card 11": forest_card_11_trigger,
 }
         
 # Define the forest deck with attributes similar to the cards list
@@ -673,6 +719,13 @@ forest_deck = [
     ("Forest Card 2", "forest", "common", 0, 0, 0, 0, 0, 1, "green"),
     ("Forest Card 3", "forest", "common", 0, 0, 0, 0, 0, 1, "green"),
     ("Forest Card 4", "forest", "common", 0, 0, 0, 0, 0, 1, "green"),
+    ("Forest Card 5", "forest", "common", 0, 0, 0, 0, 0, 1, "green"),
+    ("Forest Card 6", "forest", "common", 0, 0, 0, 0, 0, 1, "green"),
+    ("Forest Card 7", "forest", "common", 0, 0, 0, 0, 0, 1, "green"),
+    ("Forest Card 8", "forest", "common", 0, 0, 0, 0, 0, 1, "green"),
+    ("Forest Card 9", "forest", "common", 0, 0, 0, 0, 0, 1, "green"),
+    ("Forest Card 10", "forest", "common", 0, 0, 0, 0, 0, 1, "green"),
+    ("Forest Card 11", "forest", "common", 0, 0, 0, 0, 0, 1, "green"),
 ]
 
 # Card Name, Points, Cost (Wood, Resin, Stone, Berries), Quantity in Deck
